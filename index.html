@@ -7,11 +7,11 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,600;0,700;1,400&family=Noto+Sans:wght@400;600;700&display=swap" rel="stylesheet">
-<!-- Thư viện xử lý Excel + tải file -->
 <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script><script src="https://cdn.jsdelivr.net/npm/pizzip@3.1.7/dist/pizzip.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/pizzip@3.1.7/dist/pizzip.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/docxtemplater@3.47.4/build/docxtemplater.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/docxtemplater@3.47.4/build/docxtemplater.js" integrity="" crossorigin="anonymous"></script><style>
+<style>
 :root{
   --paper:#F6F7F4; --paper-deep:#EDEFE9; --ink:#1B2420; --ink-soft:#4B564F;
   --forest:#1F5D3A; --forest-deep:#153F27; --forest-bright:#2E7D46; --moss:#4F7A5C;
@@ -40,7 +40,6 @@ html,body{margin:0;padding:0;}
 body{background:var(--paper);color:var(--ink);font-family:var(--serif);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;}
 ::selection{background:#CFE3D5;}
 body.pdf-modal-open{overflow:hidden;}
-
 .brand-strip{height:4px;background:linear-gradient(90deg,var(--forest-deep),var(--forest-bright) 45%,#6FAE7F 75%,var(--forest-bright));position:fixed;top:0;left:0;right:0;z-index:100;}
 .shell{display:block;min-height:100vh;}
 .rail-backdrop{display:none;position:fixed;inset:0;background:rgba(20,26,22,.35);z-index:39;}
@@ -266,8 +265,6 @@ body.pdf-modal-open{overflow:hidden;}
 .error-box{background:var(--warn-bg);border-left:4px solid var(--warn-line);padding:16px 20px;border-radius:6px;font-family:var(--sans);margin:20px 0;max-width:600px;}
 .error-box strong{color:var(--red);}
 .error-box code{background:var(--paper-deep);padding:2px 6px;border-radius:3px;font-size:12px;}
-
-/* PDF MODAL */
 .pdf-modal-backdrop{position:fixed;inset:0;background:rgba(10,15,12,.82);backdrop-filter:blur(6px);z-index:9998;opacity:0;pointer-events:none;transition:opacity .25s ease;}
 .pdf-modal-backdrop.show{opacity:1;pointer-events:auto;}
 .pdf-modal{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(.96);width:92vw;height:92vh;max-width:1600px;max-height:1000px;background:var(--paper-deep);border-radius:12px;box-shadow:var(--shadow-xl);z-index:9999;display:flex;flex-direction:column;overflow:hidden;opacity:0;pointer-events:none;transition:opacity .25s ease,transform .25s cubic-bezier(.22,.61,.36,1);}
@@ -340,22 +337,21 @@ body.pdf-modal-open{overflow:hidden;}
 .nl-list-badge{display:inline-block;font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:10px;margin-left:8px;}
 .nl-list-badge.nhap{background:rgba(232,185,106,.2);color:var(--amber);}
 .nl-list-badge.chinh-thuc{background:rgba(95,207,128,.2);color:var(--forest-deep);}
-.nl-list-actions{display:flex;gap:6px;flex-shrink:0;}
-.nl-list-btn{width:34px;height:34px;border-radius:6px;border:1px solid var(--line);background:var(--paper);color:var(--ink-soft);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s ease;font-size:15px;}
+.nl-list-actions{display:flex;gap:6px;flex-shrink:0;flex-wrap:wrap;}
+.nl-list-btn{width:36px;height:36px;border-radius:6px;border:1px solid var(--line);background:var(--paper);color:var(--ink-soft);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s ease;font-size:13px;font-weight:700;padding:0;}
 .nl-list-btn:hover{background:var(--forest);color:#fff;border-color:var(--forest);}
-.nl-list-btn.del:hover{background:var(--red);border-color:var(--red);}.nl-list-btn[title*="05A"]{background:rgba(95,207,128,.15);color:var(--forest-deep);border-color:var(--forest);}
-.nl-list-btn[title*="05A"]:hover{background:var(--forest);color:#fff;}
-.nl-list-btn[title*="05B"]{background:rgba(123,168,217,.15);color:var(--slate);border-color:var(--slate);}
-.nl-list-btn[title*="05B"]:hover{background:var(--slate);color:#fff;}
-html[data-theme="dark"] .nl-list-btn[title*="05A"]{background:rgba(95,207,128,.2);}
-html[data-theme="dark"] .nl-list-btn[title*="05B"]{background:rgba(123,168,217,.2);}
+.nl-list-btn.del:hover{background:var(--red);border-color:var(--red);}
+.nl-list-btn[title*="05A"]{background:rgba(95,207,128,.15);color:#1E7A45;border-color:#2E9E5B;font-size:14px;}
+.nl-list-btn[title*="05A"]:hover{background:#2E9E5B;color:#fff;}
+.nl-list-btn[title*="05B"]{background:rgba(123,168,217,.15);color:#2B4A63;border-color:#7BA8D9;font-size:14px;}
+.nl-list-btn[title*="05B"]:hover{background:#7BA8D9;color:#fff;}
 .nl-empty{text-align:center;padding:40px 20px;color:var(--ink-muted);font-family:var(--sans);font-size:13.5px;background:var(--paper-deep);border-radius:10px;border:1px dashed var(--line);}
 .nl-toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--ink);color:var(--paper);padding:12px 22px;border-radius:8px;font-family:var(--sans);font-size:13.5px;font-weight:600;box-shadow:0 8px 24px rgba(0,0,0,.3);z-index:10000;transition:transform .3s ease;pointer-events:none;}
 .nl-toast.show{transform:translateX(-50%) translateY(0);}
 .nl-toast.success{background:#2E9E5B;color:#fff;}
 .nl-toast.error{background:#C0392B;color:#fff;}
 
-/* Dark mode cho form nhập liệu */
+/* Dark mode */
 html[data-theme="dark"] .topbar{background:rgba(15,15,18,.94);}
 html[data-theme="dark"] .rail{background:var(--paper-deep);box-shadow:2px 0 24px rgba(0,0,0,.6);}
 html[data-theme="dark"] .rail-btn{color:var(--ink-soft);}
@@ -366,23 +362,10 @@ html[data-theme="dark"] .search-input{background:var(--paper-mid);color:var(--in
 html[data-theme="dark"] .search-input::placeholder{color:var(--ink-muted);}
 html[data-theme="dark"] .search-results{background:var(--paper-light);}
 html[data-theme="dark"] .sr-item:hover{background:rgba(255,255,255,.05);}
-html[data-theme="dark"] .card,
-html[data-theme="dark"] .plant-card,
-html[data-theme="dark"] .stat-card,
-html[data-theme="dark"] .wz-step,
-html[data-theme="dark"] .result-card{background:var(--paper-mid);border-color:var(--line-soft);}
-html[data-theme="dark"] .section-title,
-html[data-theme="dark"] .stat-ring-num,
-html[data-theme="dark"] .rail-brand,
-html[data-theme="dark"] .card-title,
-html[data-theme="dark"] .result-title{color:var(--forest-deep);}
-html[data-theme="dark"] .plant-name,
-html[data-theme="dark"] .stat-num,
-html[data-theme="dark"] .result-title,
-html[data-theme="dark"] .card-title{color:var(--ink);}
-html[data-theme="dark"] .plant-note,
-html[data-theme="dark"] .plant-meta,
-html[data-theme="dark"] .section-desc{color:var(--ink-soft);}
+html[data-theme="dark"] .card,html[data-theme="dark"] .plant-card,html[data-theme="dark"] .stat-card,html[data-theme="dark"] .wz-step,html[data-theme="dark"] .result-card{background:var(--paper-mid);border-color:var(--line-soft);}
+html[data-theme="dark"] .section-title,html[data-theme="dark"] .stat-ring-num,html[data-theme="dark"] .rail-brand,html[data-theme="dark"] .card-title,html[data-theme="dark"] .result-title{color:var(--forest-deep);}
+html[data-theme="dark"] .plant-name,html[data-theme="dark"] .stat-num,html[data-theme="dark"] .result-title,html[data-theme="dark"] .card-title{color:var(--ink);}
+html[data-theme="dark"] .plant-note,html[data-theme="dark"] .plant-meta,html[data-theme="dark"] .section-desc{color:var(--ink-soft);}
 html[data-theme="dark"] .plant-note{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.04);}
 html[data-theme="dark"] .form-chip{background:var(--paper-mid);border-color:var(--line);color:var(--ink-soft);}
 html[data-theme="dark"] .form-chip.active{background:var(--forest);color:#0F0F12;}
@@ -392,8 +375,7 @@ html[data-theme="dark"] .tbl th{background:var(--paper-mid);color:var(--ink-soft
 html[data-theme="dark"] .tbl tr:nth-child(even) td{background:rgba(255,255,255,.02);}
 html[data-theme="dark"] .note{background:rgba(232,185,106,.1);}
 html[data-theme="dark"] .update{background:rgba(123,168,217,.1);}
-html[data-theme="dark"] .wz-field select,
-html[data-theme="dark"] .wz-field input{background:var(--paper-light);border-color:var(--line);color:var(--ink);}
+html[data-theme="dark"] .wz-field select,html[data-theme="dark"] .wz-field input{background:var(--paper-light);border-color:var(--line);color:var(--ink);}
 html[data-theme="dark"] .wz-toggle button{background:var(--paper-light);color:var(--ink-soft);}
 html[data-theme="dark"] .wz-check{background:var(--paper-light);border-color:var(--line);color:var(--ink);}
 html[data-theme="dark"] .file-dropdown{background:var(--paper-light);}
@@ -419,19 +401,14 @@ html[data-theme="dark"] .pdf-modal-header{background:linear-gradient(180deg,var(
 html[data-theme="dark"] .pdf-modal-close{background:var(--paper-light);color:var(--ink-soft);}
 html[data-theme="dark"] .pdf-modal-footer{background:var(--paper-deep);}
 html[data-theme="dark"] .pdf-modal-btn{background:var(--paper-mid);color:var(--ink);}
-
-/* Dark mode — Form nhập liệu */
-html[data-theme="dark"] .nl-header,
-html[data-theme="dark"] .nl-step,
-html[data-theme="dark"] .nl-actions,
-html[data-theme="dark"] .nl-list-item{background:var(--paper-mid);border-color:var(--line-soft);}
-html[data-theme="dark"] .nl-field input,
-html[data-theme="dark"] .nl-field select,
-html[data-theme="dark"] .nl-field textarea{background:var(--paper-light);border-color:var(--line);color:var(--ink);}
+html[data-theme="dark"] .nl-header,html[data-theme="dark"] .nl-step,html[data-theme="dark"] .nl-actions,html[data-theme="dark"] .nl-list-item{background:var(--paper-mid);border-color:var(--line-soft);}
+html[data-theme="dark"] .nl-field input,html[data-theme="dark"] .nl-field select,html[data-theme="dark"] .nl-field textarea{background:var(--paper-light);border-color:var(--line);color:var(--ink);}
 html[data-theme="dark"] .nl-ctnh-row{background:var(--paper-light);border-color:var(--line-soft);}
 html[data-theme="dark"] .nl-btn-add{background:var(--paper-light);}
 html[data-theme="dark"] .nl-btn-secondary{background:var(--paper-light);color:var(--ink);}
 html[data-theme="dark"] .nl-list-btn{background:var(--paper-light);color:var(--ink-soft);}
+html[data-theme="dark"] .nl-list-btn[title*="05A"]{background:rgba(95,207,128,.2);color:var(--forest-deep);}
+html[data-theme="dark"] .nl-list-btn[title*="05B"]{background:rgba(123,168,217,.2);color:var(--slate);}
 
 @media (max-width:880px){
   body{overflow-x:hidden;}
@@ -465,7 +442,7 @@ html[data-theme="dark"] .nl-list-btn{background:var(--paper-light);color:var(--i
       <div class="rail-logo">MT</div>
       <div><p class="rail-brand">Tra cứu Thủ tục<br>Môi trường</p></div>
     </div>
-    <p class="rail-sub">Công ty CP Cấp nước &amp; Môi trường Đô thị Đồng Tháp — v6.0, 09/2026</p>
+    <p class="rail-sub">Công ty CP Cấp nước &amp; Môi trường Đô thị Đồng Tháp — v6.1, 09/2026</p>
 
     <div class="rail-group">
       <p class="rail-label">Công ty</p>
@@ -531,7 +508,7 @@ html[data-theme="dark"] .nl-list-btn{background:var(--paper-light);color:var(--i
     </div>
 
     <div class="foot">
-      Công cụ tra cứu — Sổ tay Hướng dẫn Thủ tục Môi trường v6.0 (09/2026). PDF hiển thị trực tiếp trong ứng dụng.
+      Công cụ tra cứu — Sổ tay Hướng dẫn Thủ tục Môi trường v6.1 (09/2026). PDF hiển thị trực tiếp trong ứng dụng.
     </div>
   </div>
 </div>
@@ -566,9 +543,6 @@ html[data-theme="dark"] .nl-list-btn{background:var(--paper-light);color:var(--i
 </div>
 
 <script>
-/* =========================================================================
-   CẤU HÌNH TĨNH
-   ========================================================================= */
 const LOAI_HOSO = [
   {key:"fileGPMT",     nhan:"GPMT",           icon:"📄", css:"gpmt-file",     moTa:"Giấy phép môi trường"},
   {key:"fileDKMT",     nhan:"ĐKMT",           icon:"📋", css:"dkmt-file",     moTa:"Đăng ký môi trường"},
@@ -801,19 +775,12 @@ function chuanHoaFile(val){
   if(Array.isArray(val)) return val.filter(f=>f && f.url);
   return [];
 }
-function isIOS(){
-  return /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
-}
-function normalize(s){
-  return s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/đ/g,"d");
-}
+function isIOS(){ return /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1); }
+function normalize(s){ return s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/đ/g,"d"); }
 
-/* ===== RENDER FILE GROUP ===== */
 function renderFileGroup(plant, loai){
   const files = chuanHoaFile(plant[loai.key]);
-  if(files.length === 0){
-    return `<span class="link-btn-empty">${loai.icon} ${loai.nhan}: chưa có</span>`;
-  }
+  if(files.length === 0) return `<span class="link-btn-empty">${loai.icon} ${loai.nhan}: chưa có</span>`;
   if(files.length === 1){
     const f = files[0];
     const nhan = f.nhan ? `${loai.icon} ${loai.nhan} — ${f.nhan}` : `${loai.icon} Xem ${loai.nhan}`;
@@ -827,7 +794,6 @@ function renderFileGroup(plant, loai){
   return `<div class="file-group"><button type="button" class="link-btn ${loai.css} file-group-btn" data-dropdown="${uid}">${loai.icon} ${loai.nhan} (${files.length})</button><div class="file-dropdown" id="${uid}"><div class="file-dropdown-head">📎 ${loai.nhan} — chọn file</div><div class="file-dropdown-list">${items}</div></div></div>`;
 }
 
-/* ===== PDF MODAL ===== */
 const PDF_MODAL = {
   init(){
     this.backdrop = document.getElementById("pdfBackdrop");
@@ -846,9 +812,7 @@ const PDF_MODAL = {
     this.isOpen = false;
     this.backdrop.addEventListener("click", ()=> this.close());
     this.btnClose.addEventListener("click", ()=> this.close());
-    document.addEventListener("keydown", e=>{
-      if(e.key === "Escape" && this.isOpen) this.close();
-    });
+    document.addEventListener("keydown", e=>{ if(e.key === "Escape" && this.isOpen) this.close(); });
     this.btnCopy.addEventListener("click", ()=>{
       const fullUrl = new URL(this.currentUrl, window.location.href).href;
       navigator.clipboard.writeText(fullUrl).then(()=>{
@@ -904,7 +868,6 @@ const PDF_MODAL = {
   }
 };
 
-/* ===== CLASSIFY ===== */
 function classify(st){
   const nganh=DATA.nganhNghe.find(n=>n.ma===st.nganhNghe)||DATA.nganhNghe[DATA.nganhNghe.length-1];
   const tinh=DATA.tinhThanh.find(t=>t.ma===st.tinh);
@@ -932,7 +895,6 @@ function classify(st){
   return{nganh,tinh,finalNhom,canDanhGiaSoBo:canDTM&&(nganh.dtmLuon||quyMoLon),canDTM,canGPMT,canDKMT,dkmtCapTinh,dkmtCapXa,coQuanDTM,coQuanGPMT,coQuanDKMT,thoiHanDTM,thoiHanGPMT:"07–10 năm",nguongNuocThaiGPMT:nguongNT,nguongKhiThaiGPMT:N.gpmt_khiThai,chiTietNguon:{nt:{nhan:st.nuocThai>0?st.nuocThai+" m³/ngày":"Không phát sinh"},kt:{nhan:st.khiThai>0?st.khiThai+" m³/giờ":"Không phát sinh"}}};
 }
 
-/* ===== RENDER CÁC SECTION ===== */
 function renderFormWizard(){
   const nganhOpts=DATA.nganhNghe.map(n=>`<option value="${n.ma}">${n.ten}</option>`).join("");
   const twList=DATA.tinhThanh.filter(t=>t.loai==="TW");
@@ -1093,7 +1055,7 @@ function renderCongTy(){
     <p class="section-eyebrow">Cơ sở dữ liệu nội bộ — MT-1P</p>
     <h2 class="section-title">Danh sách &amp; Thủ tục Môi trường của Công ty</h2>
     <p class="section-desc">Trạng thái và hồ sơ môi trường của ${total} nhà máy.</p>
-    <div class="data-source-badge live">🟢 Dữ liệu tải từ <code>data.json</code> — v6.0</div>
+    <div class="data-source-badge live">🟢 Dữ liệu tải từ <code>data.json</code> — v6.1</div>
     ${dashboard}
     <div class="status-legend">
       <span><span class="status-dot status-green"></span>Đã có GPMT hoặc ĐKMT</span>
@@ -1192,10 +1154,8 @@ function renderBieumau(){
 function renderVipham(){
   const rows=DATA.vipham.map(r=>`<tr><td><strong>${r[0]}</strong></td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join("");
   return `<section class="section" id="sec-vipham"><h2 class="section-title">Vi phạm thường gặp</h2><table class="tbl"><thead><tr><th>Nhóm</th><th>Ví dụ</th><th>Hậu quả</th></tr></thead><tbody>${rows}</tbody></table></section>`;
-}
-
-/* ================================================================ */
-/* ===== FORM NHẬP LIỆU — Giai đoạn 1 ============================ */
+}/* ================================================================ */
+/* ===== FORM NHẬP LIỆU — Giai đoạn 1 + 2 ======================== */
 /* ================================================================ */
 const NL_STORAGE_KEY = "tracuu_mt_nhaplieu_v1";
 const NL_DON_VI = {
@@ -1278,10 +1238,7 @@ window.nlThemCtnhRow = function(){
   wrapper.innerHTML = nlRenderCtnhRow(null);
   c.appendChild(wrapper.firstElementChild);
 };
-  
-function renderNhapLieu(){
-  return nlRenderForm();
-}
+
 function nlRenderForm(){
   const existing = NL_STATE.editingId ? nlLoadData().find(x=>x.id===NL_STATE.editingId) : null;
   const listNM = DATA.congTyNhaMay || [];
@@ -1297,7 +1254,6 @@ function nlRenderForm(){
   const eQtNt = e.quanTracNuocThai || {};
   const eKt = e.khiThai || {};
   const eQtKt = e.quanTracKhiThai || {};
-  
   const optNM = listNM.map(p=>`<option value="${p.id}" ${e.maNhaMay===p.id?'selected':''}>${p.ten} (${p.id})</option>`).join("");
   const optDvCtrSh = NL_DON_VI.chatThaiRan.map(d=>`<option value="${d}" ${eCtrSh.donVi===d?'selected':''}>${d}</option>`).join("");
   const optDvCtrCn = NL_DON_VI.chatThaiRan.map(d=>`<option value="${d}" ${eCtrCn.donVi===d?'selected':''}>${d}</option>`).join("");
@@ -1305,17 +1261,14 @@ function nlRenderForm(){
   const optDvNtSh = NL_DON_VI.nuocThai.map(d=>`<option value="${d}" ${eNtSh.donVi===d?'selected':''}>${d}</option>`).join("");
   const optDvNtSx = NL_DON_VI.nuocThai.map(d=>`<option value="${d}" ${eNtSx.donVi===d?'selected':''}>${d}</option>`).join("");
   const optDvKt = NL_DON_VI.khiThai.map(d=>`<option value="${d}" ${eKt.donVi===d?'selected':''}>${d}</option>`).join("");
-  
   const ctnhList = (eCtnh.danhSach && eCtnh.danhSach.length) ? eCtnh.danhSach : NL_CTNH_MAU.slice(0,3).map(m=>({...m, khoiLuong:0}));
   const ctnhRows = ctnhList.map(c=>nlRenderCtnhRow({...c, donVi: c.donVi || "kg/năm"})).join("");
-  
   return `<section class="section" id="sec-nhaplieu">
     <div class="nl-wrap">
       <div class="nl-header">
         <h3>📝 Nhập liệu chất thải &amp; môi trường</h3>
-        <p>Chọn nhà máy + kỳ báo cáo, điền số liệu. Dữ liệu lưu trên máy bạn (localStorage) — xuất JSON để backup.</p>
+        <p>Chọn nhà máy + kỳ báo cáo, điền số liệu. Dữ liệu lưu trên máy bạn. Xuất Word 05A/05B từ danh sách bên dưới.</p>
       </div>
-      
       <div class="nl-actions" style="margin-top:0;margin-bottom:20px;">
         <button class="nl-btn nl-btn-secondary" onclick="nlShowList()">📋 Danh sách</button>
         <button class="nl-btn nl-btn-secondary" onclick="nlExportJSON()">📤 Xuất JSON</button>
@@ -1325,7 +1278,6 @@ function nlRenderForm(){
         <input type="file" id="nlImportExcel" accept=".xlsx,.xls" style="display:none" onchange="nlImportExcel(event)">
         <button class="nl-btn nl-btn-secondary" onclick="nlTaiMauExcel()">📥 Tải Excel mẫu</button>
       </div>
-      
       <div class="nl-step">
         <div class="nl-step-head"><div class="nl-step-num">1</div><p class="nl-step-title">Chọn nhà máy &amp; kỳ báo cáo</p></div>
         <div class="nl-grid">
@@ -1342,9 +1294,8 @@ function nlRenderForm(){
         </div>
         <p class="hint" id="nlIdPreview" style="margin-top:10px;font-family:var(--sans);font-size:12px;color:var(--ink-muted);"></p>
       </div>
-      
       <div class="nl-step">
-        <div class="nl-step-head"><div class="nl-step-num">2</div><div style="flex:1;"><p class="nl-step-title">🗑️ Chất thải rắn sinh hoạt</p><p class="nl-step-desc">Rác sinh hoạt của nhân viên nhà máy</p></div></div>
+        <div class="nl-step-head"><div class="nl-step-num">2</div><div style="flex:1;"><p class="nl-step-title">🗑️ Chất thải rắn sinh hoạt</p></div></div>
         <div class="nl-grid">
           <div class="nl-field"><label>Khối lượng</label><div class="nl-field-unit"><input type="number" id="nlCtrShKl" step="0.01" min="0" value="${eCtrSh.khoiLuong||0}"><select id="nlCtrShDv">${optDvCtrSh}</select></div></div>
           <div class="nl-field"><label>Đơn vị thu gom</label><input type="text" id="nlCtrShDvThuGom" value="${eCtrSh.donViThuGom||''}"></div>
@@ -1352,7 +1303,6 @@ function nlRenderForm(){
           <div class="nl-field"><label>Phương thức xử lý</label><input type="text" id="nlCtrShPhuongThuc" value="${eCtrSh.phuongThucXuLy||''}"></div>
         </div>
       </div>
-      
       <div class="nl-step">
         <div class="nl-step-head"><div class="nl-step-num">3</div><div style="flex:1;"><p class="nl-step-title">🏭 Chất thải rắn công nghiệp</p></div></div>
         <div class="nl-grid">
@@ -1363,7 +1313,6 @@ function nlRenderForm(){
           <div class="nl-field"><label>Phương thức xử lý</label><input type="text" id="nlCtrCnPhuongThuc" value="${eCtrCn.phuongThucXuLy||''}"></div>
         </div>
       </div>
-      
       <div class="nl-step">
         <div class="nl-step-head"><div class="nl-step-num">4</div><div style="flex:1;"><p class="nl-step-title">💧 Bùn thải</p></div></div>
         <div class="nl-grid">
@@ -1374,9 +1323,8 @@ function nlRenderForm(){
           <div class="nl-field"><label>Tần suất</label><input type="text" id="nlBunTanSuat" value="${eBun.tanSuat||''}"></div>
         </div>
       </div>
-      
       <div class="nl-step">
-        <div class="nl-step-head"><div class="nl-step-num">5</div><div style="flex:1;"><p class="nl-step-title">⚠️ Chất thải nguy hại (CTNH)</p><p class="nl-step-desc">Danh sách từng loại CTNH phát sinh</p></div></div>
+        <div class="nl-step-head"><div class="nl-step-num">5</div><div style="flex:1;"><p class="nl-step-title">⚠️ Chất thải nguy hại (CTNH)</p></div></div>
         <div id="nlCtnhContainer">${ctnhRows}</div>
         <button type="button" class="nl-btn-add" onclick="nlThemCtnhRow()" style="margin-top:6px;">+ Thêm loại CTNH</button>
         <div class="nl-grid" style="margin-top:16px;">
@@ -1388,7 +1336,6 @@ function nlRenderForm(){
           <div class="nl-field"><label>Số ngăn</label><input type="number" id="nlCtnhSoNgan" min="1" value="${eLuuChua.soNgan||3}"></div>
         </div>
       </div>
-      
       <div class="nl-step">
         <div class="nl-step-head"><div class="nl-step-num">6</div><div style="flex:1;"><p class="nl-step-title">💦 Nước thải</p></div></div>
         <p style="font-family:var(--sans);font-size:12.5px;font-weight:700;color:var(--forest-deep);margin:6px 0 10px;">A. Nước thải sinh hoạt</p>
@@ -1413,7 +1360,6 @@ function nlRenderForm(){
           <div class="nl-field"><label>Coliform (MPN/100mL)</label><input type="number" id="nlQtNtColiform" step="1" min="0" value="${eQtNt.coliform||''}"></div>
         </div>
       </div>
-      
       <div class="nl-step">
         <div class="nl-step-head"><div class="nl-step-num">7</div><div style="flex:1;"><p class="nl-step-title">💨 Khí thải</p></div></div>
         <div class="nl-grid">
@@ -1430,7 +1376,6 @@ function nlRenderForm(){
           <div class="nl-field"><label>CO (mg/Nm³)</label><input type="number" id="nlQtKtCo" step="0.001" min="0" value="${eQtKt.CO||''}"></div>
         </div>
       </div>
-      
       <div class="nl-step">
         <div class="nl-step-head"><div class="nl-step-num">8</div><p class="nl-step-title">📌 Thông tin bổ sung</p></div>
         <div class="nl-grid">
@@ -1439,13 +1384,11 @@ function nlRenderForm(){
           <div class="nl-field" style="grid-column:1/-1;"><label>Ghi chú</label><textarea id="nlGhiChu" rows="3">${e.ghiChu||''}</textarea></div>
         </div>
       </div>
-      
       <div class="nl-actions">
         <button class="nl-btn nl-btn-primary" onclick="nlLuuDuLieu()">💾 Lưu dữ liệu</button>
         <button class="nl-btn nl-btn-secondary" onclick="nlResetForm()">🔄 Làm mới</button>
         ${NL_STATE.editingId?`<button class="nl-btn nl-btn-danger" onclick="nlHuyChinhSua()">✕ Hủy chỉnh sửa</button>`:""}
       </div>
-      
       <div id="nlListContainer" class="nl-list"></div>
     </div>
   </section>`;
@@ -1508,7 +1451,6 @@ function nlLuuDuLieu(){
   if(!nm){ nlToast("Nhà máy không hợp lệ", "error"); return; }
   const ngayBD = nlFormatDateISO(document.getElementById("nlNgayBD").value);
   const ngayKT = nlFormatDateISO(document.getElementById("nlNgayKT").value);
-  
   const ctnhRows = document.querySelectorAll("#nlCtnhContainer .nl-ctnh-row");
   const danhSachCTNH = [];
   let tongCTNH = 0;
@@ -1522,97 +1464,32 @@ function nlLuuDuLieu(){
       tongCTNH += kl;
     }
   });
-  
   const data = {
-    id: `${maNM}-${ky}`,
-    maNhaMay: maNM,
-    tenNhaMay: nm.ten,
+    id: `${maNM}-${ky}`, maNhaMay: maNM, tenNhaMay: nm.ten,
     kyBaoCao: {loai:loaiKy, giaTri:ky, ngayBatDau:ngayBD, ngayKetThuc:ngayKT},
-    nguoiNhap,
-    ngayNhap: document.getElementById("nlNgayNhap").value,
+    nguoiNhap, ngayNhap: document.getElementById("nlNgayNhap").value,
     trangThai: document.getElementById("nlTrangThai").value,
     chatThaiRan: {
-      sinhHoat: {
-        khoiLuong: parseFloat(document.getElementById("nlCtrShKl").value)||0,
-        donVi: document.getElementById("nlCtrShDv").value,
-        donViThuGom: document.getElementById("nlCtrShDvThuGom").value.trim(),
-        tanSuatThuGom: document.getElementById("nlCtrShTanSuat").value.trim(),
-        phuongThucXuLy: document.getElementById("nlCtrShPhuongThuc").value.trim()
-      },
-      congNghiepThongThuong: {
-        khoiLuong: parseFloat(document.getElementById("nlCtrCnKl").value)||0,
-        donVi: document.getElementById("nlCtrCnDv").value,
-        thanhPhan: document.getElementById("nlCtrCnThanhPhan").value.trim(),
-        donViThuGom: document.getElementById("nlCtrCnDvThuGom").value.trim(),
-        tanSuatThuGom: document.getElementById("nlCtrCnTanSuat").value.trim(),
-        phuongThucXuLy: document.getElementById("nlCtrCnPhuongThuc").value.trim()
-      }
+      sinhHoat: {khoiLuong: parseFloat(document.getElementById("nlCtrShKl").value)||0, donVi: document.getElementById("nlCtrShDv").value, donViThuGom: document.getElementById("nlCtrShDvThuGom").value.trim(), tanSuatThuGom: document.getElementById("nlCtrShTanSuat").value.trim(), phuongThucXuLy: document.getElementById("nlCtrShPhuongThuc").value.trim()},
+      congNghiepThongThuong: {khoiLuong: parseFloat(document.getElementById("nlCtrCnKl").value)||0, donVi: document.getElementById("nlCtrCnDv").value, thanhPhan: document.getElementById("nlCtrCnThanhPhan").value.trim(), donViThuGom: document.getElementById("nlCtrCnDvThuGom").value.trim(), tanSuatThuGom: document.getElementById("nlCtrCnTanSuat").value.trim(), phuongThucXuLy: document.getElementById("nlCtrCnPhuongThuc").value.trim()}
     },
-    bunThai: {
-      khoiLuong: parseFloat(document.getElementById("nlBunKl").value)||0,
-      donVi: document.getElementById("nlBunDv").value,
-      doAm: parseFloat(document.getElementById("nlBunDoAm").value)||0,
-      phuongPhapXuLy: document.getElementById("nlBunPhuongPhap").value.trim(),
-      donViXuLy: document.getElementById("nlBunDvXuLy").value.trim(),
-      tanSuat: document.getElementById("nlBunTanSuat").value.trim()
-    },
-    chatThaiNguyHai: {
-      tongKhoiLuong: tongCTNH,
-      danhSach: danhSachCTNH,
-      donViThuGom: document.getElementById("nlCtnhDvThuGom").value.trim(),
-      tanSuatThuGom: document.getElementById("nlCtnhTanSuat").value.trim(),
-      luuChua: {
-        dienTichKho: parseFloat(document.getElementById("nlCtnhDtKho").value)||0,
-        soThung: parseInt(document.getElementById("nlCtnhSoThung").value)||0,
-        theTichThung: parseFloat(document.getElementById("nlCtnhTheTich").value)||0,
-        soNgan: parseInt(document.getElementById("nlCtnhSoNgan").value)||0
-      }
-    },
+    bunThai: {khoiLuong: parseFloat(document.getElementById("nlBunKl").value)||0, donVi: document.getElementById("nlBunDv").value, doAm: parseFloat(document.getElementById("nlBunDoAm").value)||0, phuongPhapXuLy: document.getElementById("nlBunPhuongPhap").value.trim(), donViXuLy: document.getElementById("nlBunDvXuLy").value.trim(), tanSuat: document.getElementById("nlBunTanSuat").value.trim()},
+    chatThaiNguyHai: {tongKhoiLuong: tongCTNH, danhSach: danhSachCTNH, donViThuGom: document.getElementById("nlCtnhDvThuGom").value.trim(), tanSuatThuGom: document.getElementById("nlCtnhTanSuat").value.trim(), luuChua: {dienTichKho: parseFloat(document.getElementById("nlCtnhDtKho").value)||0, soThung: parseInt(document.getElementById("nlCtnhSoThung").value)||0, theTichThung: parseFloat(document.getElementById("nlCtnhTheTich").value)||0, soNgan: parseInt(document.getElementById("nlCtnhSoNgan").value)||0}},
     nuocThai: {
-      sinhHoat: {
-        khoiLuong: parseFloat(document.getElementById("nlNtShKl").value)||0,
-        donVi: document.getElementById("nlNtShDv").value,
-        xuLy: document.getElementById("nlNtShXuLy").value.trim(),
-        theTichBe: parseFloat(document.getElementById("nlNtShTheTich").value)||0
-      },
-      sanXuat: {
-        khoiLuong: parseFloat(document.getElementById("nlNtSxKl").value)||0,
-        donVi: document.getElementById("nlNtSxDv").value,
-        xuLy: document.getElementById("nlNtSxXuLy").value.trim(),
-        taiSuDung: document.getElementById("nlNtSxTaiSuDung").value === "true"
-      }
+      sinhHoat: {khoiLuong: parseFloat(document.getElementById("nlNtShKl").value)||0, donVi: document.getElementById("nlNtShDv").value, xuLy: document.getElementById("nlNtShXuLy").value.trim(), theTichBe: parseFloat(document.getElementById("nlNtShTheTich").value)||0},
+      sanXuat: {khoiLuong: parseFloat(document.getElementById("nlNtSxKl").value)||0, donVi: document.getElementById("nlNtSxDv").value, xuLy: document.getElementById("nlNtSxXuLy").value.trim(), taiSuDung: document.getElementById("nlNtSxTaiSuDung").value === "true"}
     },
-    quanTracNuocThai: {
-      pH: parseFloat(document.getElementById("nlQtNtPh").value)||null,
-      COD: parseFloat(document.getElementById("nlQtNtCod").value)||null,
-      BOD5: parseFloat(document.getElementById("nlQtNtBod5").value)||null,
-      TSS: parseFloat(document.getElementById("nlQtNtTss").value)||null,
-      amoni: parseFloat(document.getElementById("nlQtNtAmoni").value)||null,
-      coliform: parseFloat(document.getElementById("nlQtNtColiform").value)||null
-    },
-    khiThai: {
-      coPhatSinh: document.getElementById("nlKtCoPhatSinh").value === "true",
-      nguon: document.getElementById("nlKtNguon").value.trim(),
-      khoiLuong: parseFloat(document.getElementById("nlKtKl").value)||0,
-      donVi: document.getElementById("nlKtDv").value,
-      xuLy: document.getElementById("nlKtXuLy").value.trim()
-    },
-    quanTracKhiThai: {
-      bui: parseFloat(document.getElementById("nlQtKtBui").value)||null,
-      SO2: parseFloat(document.getElementById("nlQtKtSo2").value)||null,
-      NOx: parseFloat(document.getElementById("nlQtKtNox").value)||null,
-      CO: parseFloat(document.getElementById("nlQtKtCo").value)||null
-    },
+    quanTracNuocThai: {pH: parseFloat(document.getElementById("nlQtNtPh").value)||null, COD: parseFloat(document.getElementById("nlQtNtCod").value)||null, BOD5: parseFloat(document.getElementById("nlQtNtBod5").value)||null, TSS: parseFloat(document.getElementById("nlQtNtTss").value)||null, amoni: parseFloat(document.getElementById("nlQtNtAmoni").value)||null, coliform: parseFloat(document.getElementById("nlQtNtColiform").value)||null},
+    khiThai: {coPhatSinh: document.getElementById("nlKtCoPhatSinh").value === "true", nguon: document.getElementById("nlKtNguon").value.trim(), khoiLuong: parseFloat(document.getElementById("nlKtKl").value)||0, donVi: document.getElementById("nlKtDv").value, xuLy: document.getElementById("nlKtXuLy").value.trim()},
+    quanTracKhiThai: {bui: parseFloat(document.getElementById("nlQtKtBui").value)||null, SO2: parseFloat(document.getElementById("nlQtKtSo2").value)||null, NOx: parseFloat(document.getElementById("nlQtKtNox").value)||null, CO: parseFloat(document.getElementById("nlQtKtCo").value)||null},
     chiPhiBVMT: parseFloat(document.getElementById("nlChiPhi").value)||0,
     soCanBoPhuTrachMT: parseInt(document.getElementById("nlSoCb").value)||0,
     ghiChu: document.getElementById("nlGhiChu").value.trim(),
     lastUpdate: new Date().toISOString()
   };
-  
   const all = nlLoadData();
   const idx = all.findIndex(x=>x.id === data.id);
   if(idx >= 0) all[idx] = data; else all.push(data);
-  
   if(nlSaveData(all)){
     nlToast("✅ Đã lưu: " + data.id, "success");
     NL_STATE.editingId = null;
@@ -1644,9 +1521,9 @@ function nlShowList(){
       </div>
       <div class="nl-list-actions">
         <button class="nl-list-btn" onclick="nlEditItem('${d.id}')" title="Sửa">✏️</button>
-        <button class="nl-list-btn" onclick="nlViewItem('${d.id}')" title="Xem JSON">👁️</button>
-        <button class="nl-list-btn" onclick="wordXuat05A('${d.id}')" title="Xuất Word 05A (có GPMT)" style="background:rgba(95,207,128,.15);color:var(--forest-deep);border-color:var(--forest);">📄</button>
-        <button class="nl-list-btn" onclick="wordXuat05B('${d.id}')" title="Xuất Word 05B (chỉ ĐKMT)" style="background:rgba(123,168,217,.15);color:var(--slate);border-color:var(--slate);">📄</button>
+        <button class="nl-list-btn" onclick="wordXuat05A('${d.id}')" title="Xuất Word 05A (có GPMT)">📄 A</button>
+        <button class="nl-list-btn" onclick="wordXuat05B('${d.id}')" title="Xuất Word 05B (chỉ ĐKMT)">📄 B</button>
+        <button class="nl-list-btn" onclick="wordXemTruoc('${d.id}')" title="Xem trước dữ liệu">👁️</button>
         <button class="nl-list-btn" onclick="nlExportItemJSON('${d.id}')" title="Xuất JSON">📤</button>
         <button class="nl-list-btn del" onclick="nlDeleteItem('${d.id}')" title="Xóa">🗑️</button>
       </div>
@@ -1778,309 +1655,6 @@ function nlImportExcel(event){
   reader.readAsArrayBuffer(file);
   event.target.value = "";
 }
-/* ================================================================ */
-/* ===== XUẤT BÁO CÁO WORD (05A/05B) — Giai đoạn 2 ============= */
-/* ================================================================ */
-
-const WORD_MAU = {
-  "05A": {
-    ten: "Mẫu 05A — Cơ sở có GPMT",
-    file: "mau-05A.docx",
-    moTa: "Báo cáo công tác BVMT định kỳ (đã có GPMT)"
-  },
-  "05B": {
-    ten: "Mẫu 05B — Cơ sở có ĐKMT",
-    file: "mau-05B.docx",
-    moTa: "Báo cáo công tác BVMT định kỳ (chỉ có ĐKMT)"
-  }
-};
-
-/**
- * Chuyển đổi dữ liệu nhập liệu → object placeholder cho template Word
- */
-function wordChuanBiDuLieu(nhapLieu){
-  const d = nhapLieu;
-  const nm = DATA.congTyNhaMay.find(x=>x.id === d.maNhaMay) || {};
-  
-  // Format ngày nhập
-  const ngayNhap = d.ngayNhap ? new Date(d.ngayNhap) : new Date();
-  const ngay = ngayNhap.getDate();
-  const thang = ngayNhap.getMonth() + 1;
-  const nam = ngayNhap.getFullYear();
-  
-  // Xác định cơ quan nhận
-  let coQuanNhan = "Sở Nông nghiệp và Môi trường";
-  if(d.maNhaMay && nm.status && nm.status.gpmt === "green" && !nhapLieu._coGPMT){
-    // Mặc định là Sở
-  }
-  // Nếu cơ sở chỉ có ĐKMT → gửi UBND cấp xã
-  coQuanNhan = "Sở Nông nghiệp và Môi trường tỉnh Đồng Tháp";
-  
-  // Xử lý danh sách CTNH — ghép thành chuỗi
-  let danhSachCTNH = "(không có)";
-  if(d.chatThaiNguyHai && d.chatThaiNguyHai.danhSach && d.chatThaiNguyHai.danhSach.length > 0){
-    danhSachCTNH = d.chatThaiNguyHai.danhSach
-      .filter(c => c.loai || c.maCTNH || c.khoiLuong > 0)
-      .map((c, i) => {
-        const ten = c.loai === "__khac__" ? "Loại khác" : (c.loai || "Không rõ");
-        return `   ${i+1}. ${ten} (Mã: ${c.maCTNH || "—"}): ${c.khoiLuong || 0} ${c.donVi || "kg/năm"}`;
-      })
-      .join("\n");
-    if(!danhSachCTNH) danhSachCTNH = "(không có)";
-  }
-  
-  // Lấy các giá trị có thể null → chuyển thành chuỗi
-  function val(v, donVi){
-    if(v === null || v === undefined || v === "") return "—";
-    return donVi ? `${v} ${donVi}` : String(v);
-  }
-  function valSo(v){
-    if(v === null || v === undefined || v === "") return "—";
-    return String(v);
-  }
-  function valBool(v){
-    return v ? "Có" : "Không";
-  }
-  
-  const ctrSh = (d.chatThaiRan && d.chatThaiRan.sinhHoat) || {};
-  const ctrCn = (d.chatThaiRan && d.chatThaiRan.congNghiepThongThuong) || {};
-  const bun = d.bunThai || {};
-  const ctnh = d.chatThaiNguyHai || {};
-  const luuChua = (d.chatThaiNguyHai && d.chatThaiNguyHai.luuChua) || {};
-  const ntSh = (d.nuocThai && d.nuocThai.sinhHoat) || {};
-  const ntSx = (d.nuocThai && d.nuocThai.sanXuat) || {};
-  const qtNt = d.quanTracNuocThai || {};
-  const kt = d.khiThai || {};
-  const qtKt = d.quanTracKhiThai || {};
-  
-  // Tạo kỳ báo cáo dạng text đẹp
-  let kyBaoCaoText = d.kyBaoCao.giaTri;
-  if(d.kyBaoCao.loai === "thang"){
-    const [y, m] = d.kyBaoCao.giaTri.split("-");
-    kyBaoCaoText = `Tháng ${parseInt(m)}/${y}`;
-  } else if(d.kyBaoCao.loai === "quy"){
-    const [y, q] = d.kyBaoCao.giaTri.split("-Q");
-    kyBaoCaoText = `Quý ${q}/${y}`;
-  } else {
-    kyBaoCaoText = `Năm ${d.kyBaoCao.giaTri}`;
-  }
-  
-  // Địa danh lấy từ địa điểm nhà máy (thành phố cuối cùng)
-  let diaDanh = "Đồng Tháp";
-  if(nm.diaDiem){
-    const parts = nm.diaDiem.split(",");
-    const lastPart = parts[parts.length - 1].trim();
-    // Lấy từ sau "tỉnh" hoặc "TP"
-    if(lastPart.includes("tỉnh")) diaDanh = lastPart.replace("tỉnh","").trim();
-    else if(lastPart.includes("TP")) diaDanh = lastPart.replace("TP","").trim();
-    else diaDanh = lastPart;
-  }
-  
-  return {
-    // Thông tin cơ sở
-    ten_nha_may: d.tenNhaMay || nm.ten || "—",
-    dia_diem: nm.diaDiem || "—",
-    cong_suat: nm.congSuat || "—",
-    nguon_nuoc: nm.nguon || "—",
-    nguoi_phu_trach: nm.nguoiPhuTrach || "—",
-    so_cb_mt: valSo(d.soCanBoPhuTrachMT),
-    chi_phi_bvmt: d.chiPhiBVMT ? d.chiPhiBVMT.toLocaleString("vi-VN") : "0",
-    
-    // Kỳ báo cáo
-    ky_bao_cao: kyBaoCaoText,
-    co_quan_nhan: coQuanNhan,
-    
-    // Chất thải rắn sinh hoạt
-    ctr_sh_khoi_luong: valSo(ctrSh.khoiLuong),
-    ctr_sh_don_vi: ctrSh.donVi || "kg/tháng",
-    ctr_sh_don_vi_thu_gom: ctrSh.donViThuGom || "—",
-    ctr_sh_tan_suat: ctrSh.tanSuatThuGom || "—",
-    ctr_sh_phuong_thuc: ctrSh.phuongThucXuLy || "—",
-    
-    // Chất thải rắn công nghiệp
-    ctr_cn_khoi_luong: valSo(ctrCn.khoiLuong),
-    ctr_cn_don_vi: ctrCn.donVi || "kg/tháng",
-    ctr_cn_thanh_phan: ctrCn.thanhPhan || "—",
-    ctr_cn_don_vi_thu_gom: ctrCn.donViThuGom || "—",
-    ctr_cn_tan_suat: ctrCn.tanSuatThuGom || "—",
-    ctr_cn_phuong_thuc: ctrCn.phuongThucXuLy || "—",
-    
-    // Bùn thải
-    bun_khoi_luong: valSo(bun.khoiLuong),
-    bun_don_vi: bun.donVi || "kg/năm",
-    bun_do_am: valSo(bun.doAm),
-    bun_phuong_phap: bun.phuongPhapXuLy || "—",
-    bun_don_vi_xu_ly: bun.donViXuLy || "—",
-    bun_tan_suat: bun.tanSuat || "—",
-    
-    // CTNH
-    ctnh_tong_khoi_luong: valSo(ctnh.tongKhoiLuong),
-    ctnh_don_vi: "kg/năm",
-    ctnh_don_vi_thu_gom: ctnh.donViThuGom || "—",
-    ctnh_tan_suat: ctnh.tanSuatThuGom || "—",
-    ctnh_dt_kho: valSo(luuChua.dienTichKho),
-    ctnh_so_thung: valSo(luuChua.soThung),
-    ctnh_the_tich: valSo(luuChua.theTichThung),
-    ctnh_so_ngan: valSo(luuChua.soNgan),
-    danh_sach_ctnh: danhSachCTNH,
-    
-    // Nước thải sinh hoạt
-    nt_sh_khoi_luong: valSo(ntSh.khoiLuong),
-    nt_sh_don_vi: ntSh.donVi || "m³/ngày",
-    nt_sh_xu_ly: ntSh.xuLy || "—",
-    nt_sh_the_tich: valSo(ntSh.theTichBe),
-    
-    // Nước thải sản xuất
-    nt_sx_khoi_luong: valSo(ntSx.khoiLuong),
-    nt_sx_don_vi: ntSx.donVi || "m³/ngày",
-    nt_sx_xu_ly: ntSx.xuLy || "—",
-    nt_sx_tai_su_dung: valBool(ntSx.taiSuDung),
-    
-    // Quan trắc nước thải
-    qt_nt_ph: valSo(qtNt.pH),
-    qt_nt_cod: valSo(qtNt.COD),
-    qt_nt_bod5: valSo(qtNt.BOD5),
-    qt_nt_tss: valSo(qtNt.TSS),
-    qt_nt_amoni: valSo(qtNt.amoni),
-    qt_nt_coliform: valSo(qtNt.coliform),
-    
-    // Khí thải
-    kt_co_phat_sinh: valBool(kt.coPhatSinh),
-    kt_nguon: kt.nguon || "—",
-    kt_khoi_luong: valSo(kt.khoiLuong),
-    kt_don_vi: kt.donVi || "m³/giờ",
-    kt_xu_ly: kt.xuLy || "—",
-    
-    // Quan trắc khí thải
-    qt_kt_bui: valSo(qtKt.bui),
-    qt_kt_so2: valSo(qtKt.SO2),
-    qt_kt_nox: valSo(qtKt.NOx),
-    qt_kt_co: valSo(qtKt.CO),
-    
-    // Thông tin khác
-    ghi_chu: d.ghiChu || "(không có)",
-    nguoi_nhap: d.nguoiNhap || "—",
-    ngay: String(ngay),
-    thang: String(thang),
-    nam: String(nam),
-    dia_danh: diaDanh
-  };
-}
-
-/**
- * Tải template từ repo
- */
-async function wordTaiTemplate(tenFile){
-  const res = await fetch(tenFile, {cache: "no-store"});
-  if(!res.ok) throw new Error(`Không tải được ${tenFile} (HTTP ${res.status})`);
-  return await res.arrayBuffer();
-}
-
-/**
- * Sinh file Word từ template + dữ liệu
- */
-async function wordXuatBaoCao(idNhapLieu, loaiMau){
-  const nhapLieu = nlLoadData().find(x=>x.id === idNhapLieu);
-  if(!nhapLieu){ nlToast("Không tìm thấy dữ liệu", "error"); return; }
-  
-  const mau = WORD_MAU[loaiMau];
-  if(!mau){ nlToast("Loại mẫu không hợp lệ", "error"); return; }
-  
-  if(typeof PizZip === "undefined" || typeof docxtemplater === "undefined"){
-    nlToast("❌ Chưa tải thư viện Word — Refresh trang (Ctrl+F5)", "error");
-    return;
-  }
-  
-  nlToast("⏳ Đang tạo báo cáo " + loaiMau + "…");
-  
-  try{
-    // 1. Tải template
-    const templateBuf = await wordTaiTemplate(mau.file);
-    
-    // 2. Mở template với PizZip
-    const zip = new PizZip(templateBuf);
-    
-    // 3. Khởi tạo docxtemplater
-    const doc = new docxtemplater(zip, {
-      paragraphLoop: true,
-      linebreaks: true,
-      delimiters: {start: "{{", end: "}}"}
-    });
-    
-    // 4. Chuẩn bị dữ liệu
-    const duLieu = wordChuanBiDuLieu(nhapLieu);
-    
-    // 5. Render
-    doc.render(duLieu);
-    
-    // 6. Xuất file
-    const output = doc.getZip().generate({
-      type: "blob",
-      mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-    });
-    
-    // 7. Tự động tải
-    const tenFile = `BaoCao-${loaiMau}-${nhapLieu.maNhaMay}-${nhapLieu.kyBaoCao.giaTri}.docx`;
-    saveAs(output, tenFile);
-    
-    nlToast(`✅ Đã xuất ${tenFile}`, "success");
-    
-  }catch(err){
-    console.error("Lỗi xuất Word:", err);
-    let msg = err.message || String(err);
-    if(err.properties && err.properties.errors){
-      msg = err.properties.errors.map(e=>e.message).join("; ");
-    }
-    nlToast("❌ Lỗi: " + msg, "error");
-  }
-}
-
-/**
- * Xem trước dữ liệu sẽ điền vào template (dạng JSON)
- */
-window.wordXemTruoc = function(idNhapLieu){
-  const nhapLieu = nlLoadData().find(x=>x.id === idNhapLieu);
-  if(!nhapLieu) return;
-  const duLieu = wordChuanBiDuLieu(nhapLieu);
-  const w = window.open("", "_blank");
-  const html = `
-    <html>
-    <head><title>Xem trước dữ liệu: ${idNhapLieu}</title>
-    <style>
-      body{font-family:Arial,sans-serif;padding:20px;background:#f5f5f5;}
-      h1{color:#1F5D3A;font-size:20px;}
-      table{border-collapse:collapse;width:100%;background:#fff;margin-top:16px;}
-      th,td{border:1px solid #ddd;padding:8px 12px;text-align:left;vertical-align:top;}
-      th{background:#EDEFE9;width:220px;font-weight:700;}
-      td{font-family:Consolas,monospace;font-size:13px;white-space:pre-wrap;}
-      .btn{background:#1F5D3A;color:#fff;padding:10px 20px;border:none;border-radius:6px;font-weight:700;cursor:pointer;margin-top:16px;}
-    </style>
-    </head>
-    <body>
-      <h1>🔍 Xem trước dữ liệu: ${idNhapLieu}</h1>
-      <p>Đây là dữ liệu sẽ được điền vào các placeholder <code>{{...}}</code> trong template Word.</p>
-      <table>
-        ${Object.entries(duLieu).map(([k,v])=>`
-          <tr>
-            <th>{{${k}}}</th>
-            <td>${String(v).replace(/</g,"&lt;").replace(/\n/g,"<br>")}</td>
-          </tr>
-        `).join("")}
-      </table>
-      <button class="btn" onclick="window.print()">🖨️ In trang này</button>
-    </body>
-    </html>
-  `;
-  w.document.write(html);
-  w.document.title = "Xem trước: " + idNhapLieu;
-};
-
-window.wordXuat05A = function(id){ wordXuatBaoCao(id, "05A"); };
-window.wordXuat05B = function(id){ wordXuatBaoCao(id, "05B"); };
-
-/* ================================================================ */
-/* ===== KẾT THÚC XUẤT BÁO CÁO WORD ============================= */
-/* ================================================================ */
 
 function nlTaiMauExcel(){
   if(typeof XLSX === "undefined"){ nlToast("Chưa tải thư viện Excel — Refresh (Ctrl+F5)", "error"); return; }
@@ -2114,7 +1688,6 @@ function nlTaiMauExcel(){
   const wsHD = XLSX.utils.aoa_to_sheet(hd);
   wsHD["!cols"] = [{wch:20},{wch:70}];
   XLSX.utils.book_append_sheet(wb, wsHD, "HuongDan");
-  
   const headers = ["Mã NM","Kỳ BC","Loại kỳ","Ngày BĐ","Ngày KT","Người nhập","Ngày nhập",
     "CTR SH (KL)","CTR SH (ĐV)","CTR SH (ĐV thu gom)","CTR SH (tần suất)","CTR SH (PP xử lý)",
     "CTR CN (KL)","CTR CN (ĐV)","CTR CN (thành phần)","CTR CN (ĐV thu gom)","CTR CN (tần suất)","CTR CN (PP xử lý)",
@@ -2142,7 +1715,6 @@ function nlTaiMauExcel(){
   const wsNL = XLSX.utils.aoa_to_sheet([headers, viDu]);
   wsNL["!cols"] = headers.map(()=>({wch:16}));
   XLSX.utils.book_append_sheet(wb, wsNL, "NhapLieu");
-  
   const ctHeaders = ["Mã NM","Kỳ BC","Loại CTNH","Mã CTNH","Khối lượng","Đơn vị"];
   const ctViDu = [
     ["nm01","2026-Q1","Bóng đèn huỳnh quang thải","01 04 01",0.5,"kg/năm"],
@@ -2153,10 +1725,154 @@ function nlTaiMauExcel(){
   const wsCT = XLSX.utils.aoa_to_sheet([ctHeaders, ...ctViDu]);
   wsCT["!cols"] = [{wch:10},{wch:12},{wch:45},{wch:12},{wch:12},{wch:12}];
   XLSX.utils.book_append_sheet(wb, wsCT, "CTNH_ChiTiet");
-  
   XLSX.writeFile(wb, "mau-nhap-lieu.xlsx");
   nlToast("📥 Đã tải file Excel mẫu", "success");
 }
+
+/* ================================================================ */
+/* ===== XUẤT WORD 05A/05B — Giai đoạn 2 ======================== */
+/* ================================================================ */
+const WORD_MAU = {
+  "05A": {ten:"Mẫu 05A", file:"mau-05A.docx"},
+  "05B": {ten:"Mẫu 05B", file:"mau-05B.docx"}
+};
+
+function wordChuanBiDuLieu(d){
+  const nm = DATA.congTyNhaMay.find(x=>x.id === d.maNhaMay) || {};
+  const ngayNhap = d.ngayNhap ? new Date(d.ngayNhap) : new Date();
+  let danhSachCTNH = "(không có)";
+  if(d.chatThaiNguyHai && d.chatThaiNguyHai.danhSach && d.chatThaiNguyHai.danhSach.length > 0){
+    const arr = d.chatThaiNguyHai.danhSach.filter(c => c.loai || c.maCTNH || c.khoiLuong > 0);
+    if(arr.length > 0){
+      danhSachCTNH = arr.map((c, i) => {
+        const ten = c.loai === "__khac__" ? "Loại khác" : (c.loai || "Không rõ");
+        return `   ${i+1}. ${ten} (Mã: ${c.maCTNH || "—"}): ${c.khoiLuong || 0} ${c.donVi || "kg/năm"}`;
+      }).join("\n");
+    }
+  }
+  function v(x){ return (x===null||x===undefined||x==="") ? "—" : String(x); }
+  function vb(x){ return x ? "Có" : "Không"; }
+  const ctrSh = (d.chatThaiRan && d.chatThaiRan.sinhHoat) || {};
+  const ctrCn = (d.chatThaiRan && d.chatThaiRan.congNghiepThongThuong) || {};
+  const bun = d.bunThai || {};
+  const ctnh = d.chatThaiNguyHai || {};
+  const luuChua = ctnh.luuChua || {};
+  const ntSh = (d.nuocThai && d.nuocThai.sinhHoat) || {};
+  const ntSx = (d.nuocThai && d.nuocThai.sanXuat) || {};
+  const qtNt = d.quanTracNuocThai || {};
+  const kt = d.khiThai || {};
+  const qtKt = d.quanTracKhiThai || {};
+  let kyText = d.kyBaoCao.giaTri;
+  if(d.kyBaoCao.loai === "thang"){ const [y,m]=d.kyBaoCao.giaTri.split("-"); kyText = `Tháng ${parseInt(m)}/${y}`; }
+  else if(d.kyBaoCao.loai === "quy"){ const [y,q]=d.kyBaoCao.giaTri.split("-Q"); kyText = `Quý ${q}/${y}`; }
+  else { kyText = `Năm ${d.kyBaoCao.giaTri}`; }
+  let diaDanh = "Đồng Tháp";
+  if(nm.diaDiem){
+    const parts = nm.diaDiem.split(",");
+    const last = parts[parts.length-1].trim();
+    if(last.includes("tỉnh")) diaDanh = last.replace("tỉnh","").trim();
+    else if(last.includes("TP")) diaDanh = last.replace("TP","").trim();
+    else diaDanh = last;
+  }
+  return {
+    ten_nha_may: d.tenNhaMay || nm.ten || "—",
+    dia_diem: nm.diaDiem || "—",
+    cong_suat: nm.congSuat || "—",
+    nguon_nuoc: nm.nguon || "—",
+    nguoi_phu_trach: nm.nguoiPhuTrach || "—",
+    so_cb_mt: v(d.soCanBoPhuTrachMT),
+    chi_phi_bvmt: d.chiPhiBVMT ? d.chiPhiBVMT.toLocaleString("vi-VN") : "0",
+    ky_bao_cao: kyText,
+    co_quan_nhan: "Sở Nông nghiệp và Môi trường tỉnh Đồng Tháp",
+    ctr_sh_khoi_luong: v(ctrSh.khoiLuong), ctr_sh_don_vi: ctrSh.donVi||"kg/tháng",
+    ctr_sh_don_vi_thu_gom: v(ctrSh.donViThuGom), ctr_sh_tan_suat: v(ctrSh.tanSuatThuGom), ctr_sh_phuong_thuc: v(ctrSh.phuongThucXuLy),
+    ctr_cn_khoi_luong: v(ctrCn.khoiLuong), ctr_cn_don_vi: ctrCn.donVi||"kg/tháng",
+    ctr_cn_thanh_phan: v(ctrCn.thanhPhan), ctr_cn_don_vi_thu_gom: v(ctrCn.donViThuGom),
+    ctr_cn_tan_suat: v(ctrCn.tanSuatThuGom), ctr_cn_phuong_thuc: v(ctrCn.phuongThucXuLy),
+    bun_khoi_luong: v(bun.khoiLuong), bun_don_vi: bun.donVi||"kg/năm", bun_do_am: v(bun.doAm),
+    bun_phuong_phap: v(bun.phuongPhapXuLy), bun_don_vi_xu_ly: v(bun.donViXuLy), bun_tan_suat: v(bun.tanSuat),
+    ctnh_tong_khoi_luong: v(ctnh.tongKhoiLuong), ctnh_don_vi: "kg/năm",
+    ctnh_don_vi_thu_gom: v(ctnh.donViThuGom), ctnh_tan_suat: v(ctnh.tanSuatThuGom),
+    ctnh_dt_kho: v(luuChua.dienTichKho), ctnh_so_thung: v(luuChua.soThung),
+    ctnh_the_tich: v(luuChua.theTichThung), ctnh_so_ngan: v(luuChua.soNgan),
+    danh_sach_ctnh: danhSachCTNH,
+    nt_sh_khoi_luong: v(ntSh.khoiLuong), nt_sh_don_vi: ntSh.donVi||"m³/ngày",
+    nt_sh_xu_ly: v(ntSh.xuLy), nt_sh_the_tich: v(ntSh.theTichBe),
+    nt_sx_khoi_luong: v(ntSx.khoiLuong), nt_sx_don_vi: ntSx.donVi||"m³/ngày",
+    nt_sx_xu_ly: v(ntSx.xuLy), nt_sx_tai_su_dung: vb(ntSx.taiSuDung),
+    qt_nt_ph: v(qtNt.pH), qt_nt_cod: v(qtNt.COD), qt_nt_bod5: v(qtNt.BOD5),
+    qt_nt_tss: v(qtNt.TSS), qt_nt_amoni: v(qtNt.amoni), qt_nt_coliform: v(qtNt.coliform),
+    kt_co_phat_sinh: vb(kt.coPhatSinh), kt_nguon: v(kt.nguon),
+    kt_khoi_luong: v(kt.khoiLuong), kt_don_vi: kt.donVi||"m³/giờ", kt_xu_ly: v(kt.xuLy),
+    qt_kt_bui: v(qtKt.bui), qt_kt_so2: v(qtKt.SO2), qt_kt_nox: v(qtKt.NOx), qt_kt_co: v(qtKt.CO),
+    ghi_chu: d.ghiChu || "(không có)",
+    nguoi_nhap: d.nguoiNhap || "—",
+    ngay: String(ngayNhap.getDate()),
+    thang: String(ngayNhap.getMonth()+1),
+    nam: String(ngayNhap.getFullYear()),
+    dia_danh: diaDanh
+  };
+}
+
+window.wordXuatBaoCao = async function(idNhapLieu, loaiMau){
+  const nhapLieu = nlLoadData().find(x=>x.id === idNhapLieu);
+  if(!nhapLieu){ nlToast("Không tìm thấy dữ liệu", "error"); return; }
+  const mau = WORD_MAU[loaiMau];
+  if(!mau){ nlToast("Loại mẫu không hợp lệ", "error"); return; }
+  if(typeof PizZip === "undefined" || typeof docxtemplater === "undefined"){
+    nlToast("❌ Chưa tải thư viện Word — Refresh (Ctrl+F5)", "error");
+    return;
+  }
+  nlToast("⏳ Đang tạo báo cáo " + loaiMau + "…");
+  try{
+    const res = await fetch(mau.file, {cache:"no-store"});
+    if(!res.ok) throw new Error(`Không tải được ${mau.file} (HTTP ${res.status})`);
+    const buf = await res.arrayBuffer();
+    const zip = new PizZip(buf);
+    const doc = new docxtemplater(zip, {paragraphLoop:true, linebreaks:true, delimiters:{start:"{{", end:"}}"}});
+    const duLieu = wordChuanBiDuLieu(nhapLieu);
+    doc.render(duLieu);
+    const output = doc.getZip().generate({
+      type:"blob",
+      mimeType:"application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    });
+    const tenFile = `BaoCao-${loaiMau}-${nhapLieu.maNhaMay}-${nhapLieu.kyBaoCao.giaTri}.docx`;
+    saveAs(output, tenFile);
+    nlToast(`✅ Đã xuất ${tenFile}`, "success");
+  }catch(err){
+    console.error("Lỗi xuất Word:", err);
+    let msg = err.message || String(err);
+    if(err.properties && err.properties.errors){
+      msg = err.properties.errors.map(e=>e.message).join("; ");
+    }
+    nlToast("❌ Lỗi: " + msg, "error");
+  }
+};
+
+window.wordXuat05A = function(id){ wordXuatBaoCao(id, "05A"); };
+window.wordXuat05B = function(id){ wordXuatBaoCao(id, "05B"); };
+
+window.wordXemTruoc = function(idNhapLieu){
+  const nhapLieu = nlLoadData().find(x=>x.id === idNhapLieu);
+  if(!nhapLieu) return;
+  const duLieu = wordChuanBiDuLieu(nhapLieu);
+  const w = window.open("", "_blank");
+  const html = `<html><head><title>Xem trước: ${idNhapLieu}</title>
+  <style>
+    body{font-family:Arial,sans-serif;padding:20px;background:#f5f5f5;}
+    h1{color:#1F5D3A;font-size:20px;}
+    table{border-collapse:collapse;width:100%;background:#fff;margin-top:16px;}
+    th,td{border:1px solid #ddd;padding:8px 12px;text-align:left;vertical-align:top;}
+    th{background:#EDEFE9;width:220px;font-weight:700;font-family:Consolas,monospace;}
+    td{font-family:Consolas,monospace;font-size:13px;white-space:pre-wrap;}
+  </style></head><body>
+    <h1>🔍 Xem trước dữ liệu: ${idNhapLieu}</h1>
+    <p>Dữ liệu sẽ được điền vào các placeholder <code>{{...}}</code> trong template Word:</p>
+    <table>${Object.entries(duLieu).map(([k,v])=>`<tr><th>{{${k}}}</th><td>${String(v).replace(/</g,"&lt;").replace(/\n/g,"<br>")}</td></tr>`).join("")}</table>
+  </body></html>`;
+  w.document.write(html);
+  w.document.title = "Xem trước: " + idNhapLieu;
+};
 
 /* ===== NAVIGATION ===== */
 function activateTab(sectionId){
@@ -2167,7 +1883,6 @@ function activateTab(sectionId){
   const topbar=document.querySelector(".topbar");
   if(window.innerWidth<=880&&topbar)topbar.scrollIntoView({behavior:"instant",block:"start"});
   else window.scrollTo(0,0);
-  // Khởi tạo form nhập liệu nếu tab đó được active
   if(sectionId === "sec-nhaplieu"){
     setTimeout(()=>{
       if(document.getElementById("nlLoaiKy")){
@@ -2205,7 +1920,6 @@ function goToTarget(targetId){
     }, 120);
   }
 }
-
 function buildSearchIndex(){
   const SI = [];
   function idx(tag,title,snip,target){ SI.push({tag,title,snip,target,n:normalize(title+" "+snip+" "+tag+" "+target)}); }
@@ -2236,8 +1950,6 @@ function buildSearchIndex(){
   });
   return SI;
 }
-
-/* ===== KHỞI TẠO ===== */
 async function init(){
   try{
     const res = await fetch('data.json', {cache: 'no-store'});
@@ -2245,7 +1957,7 @@ async function init(){
     const json = await res.json();
     if(!json.congTy || !Array.isArray(json.congTy)) throw new Error("data.json thiếu trường 'congTy'");
     DATA.congTyNhaMay = json.congTy;
-    console.log("[v6.0] Đã tải data.json —", DATA.congTyNhaMay.length, "nhà máy");
+    console.log("[v6.1] Đã tải data.json —", DATA.congTyNhaMay.length, "nhà máy");
     renderToanBo();
   }catch(err){
     console.error("Lỗi tải data.json:", err);
@@ -2263,35 +1975,29 @@ async function init(){
       </div>`;
   }
 }
-
 function renderToanBo(){
   document.getElementById("content").innerHTML =
     renderCongTy() + renderFormWizard() + renderTracuunhanh() + renderCanCu() + renderTinhThanh() + renderCoQuan() +
     renderNhom() + renderMatrix() + renderThuTuc("dtm") + renderThuTuc("gpmt") + renderThuTuc("dkmt") +
     renderHoSoVanHanh() + nlRenderForm() + renderLich() + renderBieumau() + renderVipham();
-  
   PDF_MODAL.init();
   initFormWizard();
   activateTab("sec-congty");
-  
   document.querySelectorAll(".rail-btn").forEach(btn=>{
     btn.addEventListener("click", ()=>{
       goToTarget(btn.dataset.goto);
       if(window.innerWidth<=880) closeRail();
     });
   });
-  
   document.getElementById("railToggle").addEventListener("click", toggleRail);
   railBackdrop.addEventListener("click", closeRail);
   if(window.innerWidth > 880) openRail();
-  
   document.getElementById("themeToggle").addEventListener("click", ()=>{
     const cur = document.documentElement.getAttribute("data-theme");
     const next = cur==="dark" ? "light" : "dark";
     applyTheme(next);
     localStorage.setItem(THEME_KEY, next);
   });
-  
   document.getElementById("plantFilter").addEventListener("click", e=>{
     const btn=e.target.closest(".form-chip"); if(!btn) return;
     document.querySelectorAll("#plantFilter .form-chip").forEach(b=>b.classList.remove("active"));
@@ -2301,7 +2007,6 @@ function renderToanBo(){
       card.style.display = (key==="ALL" || card.dataset.pstatus===key) ? "" : "none";
     });
   });
-  
   document.getElementById("nhomTabs").addEventListener("click", e=>{
     const btn=e.target.closest(".tab"); if(!btn) return;
     document.querySelectorAll("#nhomTabs .tab").forEach(b=>b.classList.remove("active"));
@@ -2310,7 +2015,6 @@ function renderToanBo(){
       p.style.display = (p.dataset.panel === btn.dataset.nhom) ? "" : "none";
     });
   });
-  
   document.getElementById("formFilter").addEventListener("click", e=>{
     const btn=e.target.closest(".form-chip"); if(!btn) return;
     document.querySelectorAll("#formFilter .form-chip").forEach(b=>b.classList.remove("active"));
@@ -2320,7 +2024,6 @@ function renderToanBo(){
       tr.style.display = (key==="ALL" || tr.dataset.fmgroup===key) ? "" : "none";
     });
   });
-  
   document.addEventListener("click", e=>{
     const openDd = e.target.closest(".file-group-btn");
     document.querySelectorAll(".file-dropdown.show").forEach(dd=>{
@@ -2332,11 +2035,9 @@ function renderToanBo(){
       if(dd) dd.classList.toggle("show");
     }
   });
-  
   const SI = buildSearchIndex();
   const searchInput = document.getElementById("searchInput");
   const searchResults = document.getElementById("searchResults");
-  
   searchInput.addEventListener("input", ()=>{
     const q = searchInput.value.trim();
     if(!q){ searchResults.classList.remove("show"); return; }
@@ -2364,15 +2065,13 @@ function renderToanBo(){
     searchInput.value = "";
   });
 }
-
 const rail = document.getElementById("rail");
 const railBackdrop = document.getElementById("railBackdrop");
 const mainArea = document.getElementById("mainArea");
 function openRail(){ rail.classList.add("open"); if(window.innerWidth>880) mainArea.classList.add("rail-open-desktop"); else railBackdrop.classList.add("show"); }
 function closeRail(){ rail.classList.remove("open"); mainArea.classList.remove("rail-open-desktop"); railBackdrop.classList.remove("show"); }
 function toggleRail(){ rail.classList.contains("open") ? closeRail() : openRail(); }
-
-const THEME_KEY = "tracuu_mt_theme_v60";
+const THEME_KEY = "tracuu_mt_theme_v61";
 const iconMoon = document.getElementById("iconMoon");
 const iconSun = document.getElementById("iconSun");
 function applyTheme(t){
@@ -2382,7 +2081,6 @@ function applyTheme(t){
 }
 const savedTheme = localStorage.getItem(THEME_KEY) || (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
 applyTheme(savedTheme);
-
 init();
 </script>
 </body>
