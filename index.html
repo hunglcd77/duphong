@@ -1,0 +1,1660 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tra cứu Thủ tục Môi trường</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,600;0,700;1,400&family=Noto+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F6F7F4; --paper-deep:#EDEFE9; --ink:#1B2420; --ink-soft:#4B564F;
+  --forest:#1F5D3A; --forest-deep:#153F27; --forest-bright:#2E7D46; --moss:#4F7A5C;
+  --amber:#8A5A20; --amber-bg:#F6EEE2; --slate:#2B4A63; --slate-bg:#E9EFF3;
+  --line:#D7DBD1; --line-soft:#E6E9E2; --warn-bg:#FBF0E3; --warn-line:#C98A3A; --red:#8C3B2E;
+  --purple:#5B3E7F; --purple-bg:#EFE8F5; --teal:#1F6B6B; --teal-bg:#E3F0F0;
+  --shadow-sm:0 1px 2px rgba(21,63,39,.06), 0 1px 1px rgba(21,63,39,.04);
+  --shadow-md:0 4px 14px rgba(21,63,39,.09), 0 1px 3px rgba(21,63,39,.07);
+  --shadow-lg:0 12px 32px rgba(21,63,39,.14), 0 2px 8px rgba(21,63,39,.08);
+  --shadow-xl:0 25px 60px rgba(0,0,0,.35), 0 8px 20px rgba(0,0,0,.25);
+  --serif:'Noto Serif','Times New Roman',Georgia,serif;
+  --sans:'Noto Sans','Segoe UI',Roboto,Arial,sans-serif;
+}
+/* ================================================================ */
+/* DARK MODE v5.2 — WARM CHARCOAL (Phân tầng 4 cấp, dịu mắt)       */
+/* ================================================================ */
+html[data-theme="dark"]{
+  /* --- Nền phân tầng 4 cấp --- */
+  --paper:        #0F0F12;  /* L0 — Nền sâu nhất (body) */
+  --paper-deep:   #18181C;  /* L1 — Card, topbar, rail */
+  --paper-mid:    #212126;  /* L2 — Nổi hơn (plant-card, stat-card) */
+  --paper-light:  #2A2A32;  /* L3 — Cao nhất (dropdown, input) */
+  
+  /* --- Chữ 3 cấp --- */
+  --ink:          #F5F5F7;  /* Chữ chính — trắng ngà trung tính */
+  --ink-soft:     #A8A8B0;  /* Chữ phụ — xám nhạt */
+  --ink-muted:    #6E6E78;  /* Chữ mờ — placeholder */
+  
+  /* --- Điểm nhấn (giảm saturation 10%) --- */
+  --forest:        #5FCF80;
+  --forest-deep:   #8FD9A0;
+  --forest-bright: #4FB870;
+  --moss:          #95B89C;
+  --amber:         #E8B96A;
+  --amber-bg:      #3A2E18;
+  --slate:         #7BA8D9;
+  --slate-bg:      #1E2A38;
+  --purple:        #A78BD1;
+  --purple-bg:     #2A1F3A;
+  --teal:          #6FBFBF;
+  --teal-bg:       #1A2E2E;
+  --red:           #E89478;
+  
+  /* --- Viền --- */
+  --line:          #33333A;
+  --line-soft:     #26262C;
+  
+  /* --- Cảnh báo --- */
+  --warn-bg:       #2E2418;
+  --warn-line:     #C98A3A;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{background:var(--paper);color:var(--ink);font-family:var(--serif);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;}
+::selection{background:#CFE3D5;}
+/* Khi mở PDF modal → khóa scroll body */
+body.pdf-modal-open{overflow:hidden;}
+
+.brand-strip{height:4px;background:linear-gradient(90deg,var(--forest-deep),var(--forest-bright) 45%,#6FAE7F 75%,var(--forest-bright));position:fixed;top:0;left:0;right:0;z-index:100;}
+.shell{display:block;min-height:100vh;}
+.rail-backdrop{display:none;position:fixed;inset:0;background:rgba(20,26,22,.35);z-index:39;}
+.rail-backdrop.show{display:block;}
+.rail-toggle{display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border:1px solid var(--line);border-radius:8px;background:var(--paper-deep);cursor:pointer;flex:0 0 auto;margin-right:12px;}
+.rail-toggle svg{width:19px;height:19px;color:var(--forest-deep);}
+.topbar-row{display:flex;align-items:flex-start;}
+.rail{position:fixed;top:4px;left:0;height:calc(100vh - 4px);width:264px;overflow-y:auto;border-right:1px solid var(--line);padding:22px 16px 30px;font-family:var(--sans);background:var(--paper);z-index:40;transform:translateX(-100%);transition:transform .22s ease;box-shadow:2px 0 18px rgba(20,26,22,.08);}
+.rail.open{transform:translateX(0);}
+.main{transition:margin-left .22s ease;}
+@media (min-width:881px){.main.rail-open-desktop{margin-left:264px;}}
+.rail-brand-row{display:flex;align-items:center;gap:11px;margin-bottom:2px;}
+.rail-logo{width:38px;height:38px;border-radius:10px;flex:0 0 auto;background:linear-gradient(135deg,var(--forest-bright),var(--forest-deep));color:#fff;font-family:var(--sans);font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center;}
+.rail-brand{font-family:var(--serif);font-size:19px;font-weight:700;color:var(--forest-deep);line-height:1.25;margin:0 0 3px;}
+.rail-sub{font-size:11.5px;color:var(--ink-soft);margin:0 0 22px;}
+.rail-group{margin-bottom:22px;}
+.rail-label{font-size:10.5px;text-transform:uppercase;letter-spacing:.09em;color:#8A9389;font-weight:600;margin:0 0 8px 4px;}
+.rail-btn{position:relative;display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:none;border:none;padding:8px 10px 8px 12px;border-radius:7px;font-family:var(--sans);font-size:13.5px;color:var(--ink);cursor:pointer;margin-bottom:2px;transition:background .15s ease, color .15s ease;}
+.rail-btn:hover{background:var(--paper-deep);}
+.rail-btn.active{background:#E6F1EA;color:var(--forest-deep);font-weight:700;}
+.rail-btn.active::before{content:"";position:absolute;left:0;top:6px;bottom:6px;width:3px;border-radius:0 3px 3px 0;background:var(--forest);}
+.rail-ic{width:19px;height:19px;flex:0 0 auto;color:#8A9389;display:flex;align-items:center;justify-content:center;}
+.rail-ic svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;}
+.rail-btn.active .rail-ic{color:var(--forest);}
+.main{padding:0 0 80px;}
+.topbar{position:sticky;top:4px;z-index:20;background:rgba(246,247,244,.94);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:18px 34px 16px;}
+.search-wrap{position:relative;max-width:720px;}
+.search-input{width:100%;font-family:var(--sans);font-size:16px;padding:13px 16px 13px 42px;border:1.5px solid var(--forest);border-radius:8px;background:var(--paper-deep);color:var(--ink);outline:none;}
+.search-input:focus{box-shadow:0 0 0 3px rgba(31,93,58,.14);}
+.search-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:17px;height:17px;color:var(--forest);pointer-events:none;}
+.search-hint{font-family:var(--sans);font-size:11.5px;color:var(--ink-soft);margin:7px 2px 0;}
+.search-results{position:absolute;left:0;right:0;top:calc(100% + 6px);background:var(--paper-deep);border:1px solid var(--line);border-radius:8px;box-shadow:0 8px 24px rgba(27,36,32,.14);max-height:420px;overflow-y:auto;z-index:30;display:none;}
+.search-results.show{display:block;}
+.sr-item{display:block;width:100%;text-align:left;background:none;border:none;padding:11px 16px;cursor:pointer;border-bottom:1px solid var(--line-soft);font-family:var(--sans);transition:background .15s ease;}
+.sr-item:hover{background:var(--paper);}
+.sr-tag{display:inline-block;font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;margin-bottom:5px;}
+.sr-title{font-size:14px;color:var(--ink);font-weight:600;}
+.sr-snip{font-size:12.5px;color:var(--ink-soft);margin-top:2px;}
+.sr-empty{padding:20px 16px;font-family:var(--sans);font-size:13.5px;color:var(--ink-soft);}
+.content{padding:32px 34px 0;max-width:1080px;}
+.section{display:none;margin-bottom:0;scroll-margin-top:90px;}
+.section.active-tab{display:block;animation:tabIn .38s cubic-bezier(.22,.61,.36,1);}
+@keyframes tabIn{0%{opacity:0;transform:translateY(10px);}100%{opacity:1;transform:translateY(0);}}
+.section-eyebrow{font-family:var(--sans);font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--moss);margin:0 0 6px;}
+.section-title{font-family:var(--serif);font-size:28px;font-weight:700;color:var(--forest-deep);margin:0 0 10px;line-height:1.2;}
+.section-desc{font-size:15.5px;color:var(--ink-soft);max-width:680px;margin:0 0 22px;}
+.tabbar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px;font-family:var(--sans);}
+.tab{padding:8px 15px;border:1px solid var(--line);border-radius:20px;background:var(--paper-deep);font-size:13.5px;font-weight:600;color:var(--ink-soft);cursor:pointer;transition:all .15s ease;}
+.tab.active{background:var(--forest);border-color:var(--forest);color:#fff;}
+.card{position:relative;background:var(--paper-deep);border:1px solid var(--line-soft);border-left:4px solid var(--forest);border-radius:8px;padding:18px 20px 18px 22px;margin-bottom:14px;box-shadow:var(--shadow-sm);transition:box-shadow .2s ease;}
+.card.amber{border-left-color:var(--amber);}
+.card.slate{border-left-color:var(--slate);}
+.card.grey{border-left-color:#B9C0B4;}
+.card-tab{position:absolute;top:-1px;right:16px;font-family:var(--sans);font-size:10px;font-weight:700;color:#fff;background:var(--forest);padding:3px 9px;border-radius:0 0 5px 5px;}
+.card.amber .card-tab{background:var(--amber);}
+.card.slate .card-tab{background:var(--slate);}
+.card-title{font-family:var(--sans);font-weight:700;font-size:15.5px;color:var(--ink);margin:0 0 10px;padding-right:60px;}
+.meta-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px 18px;font-family:var(--sans);margin-top:10px;}
+.meta-item dt{font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:#8A9389;margin-bottom:3px;}
+.meta-item dd{font-size:13.5px;color:var(--ink);margin:0;line-height:1.4;}
+.badge{display:inline-block;font-family:var(--sans);font-size:11.5px;font-weight:700;padding:2px 9px;border-radius:4px;}
+.badge-required{background:#E3EFE6;color:var(--forest-deep);}
+.badge-conditional{background:var(--amber-bg);color:var(--amber);}
+.badge-na{background:var(--paper-deep);color:#8A9389;}
+.badge-replace{background:var(--slate-bg);color:var(--slate);}
+.matrix{width:100%;border-collapse:collapse;font-family:var(--sans);font-size:13.5px;margin-bottom:8px;}
+.matrix th,.matrix td{border:1px solid var(--line);padding:10px 12px;text-align:center;}
+.matrix th{background:var(--paper-deep);font-weight:700;}
+.matrix td:first-child,.matrix th:first-child{text-align:left;font-weight:700;color:var(--forest-deep);}
+.mcell{border-radius:4px;padding:6px 4px;font-weight:700;font-size:11.5px;display:block;}
+.mcell.req{background:var(--forest);color:#fff;}
+.mcell.cond{background:var(--amber);color:#fff;}
+.mcell.na{background:var(--paper-deep);color:#8A9389;}
+.mcell.rep{background:var(--slate);color:#fff;}
+.steps{list-style:none;padding:0;margin:0;}
+.step{display:flex;gap:14px;padding:14px 0;border-top:1px solid var(--line-soft);}
+.step:first-child{border-top:none;}
+.step-num{flex:0 0 auto;width:26px;height:26px;border-radius:50%;background:var(--forest);color:#fff;font-family:var(--sans);font-weight:700;font-size:12.5px;display:flex;align-items:center;justify-content:center;}
+.step.amber .step-num{background:var(--amber);}
+.step.slate .step-num{background:var(--slate);}
+.step-body{flex:1;}
+.step-title{font-size:14.5px;color:var(--ink);margin:2px 0 4px;}
+.step-forms{font-family:var(--sans);font-size:11.5px;color:#fff;background:var(--slate);display:inline-block;padding:2px 8px;border-radius:4px;}
+.tbl{width:100%;border-collapse:collapse;font-family:var(--sans);font-size:13px;margin-bottom:6px;}
+.tbl th,.tbl td{border:1px solid var(--line);padding:9px 11px;text-align:left;vertical-align:top;}
+.tbl th{background:var(--paper-deep);font-weight:700;font-size:11.5px;text-transform:uppercase;letter-spacing:.03em;color:var(--ink-soft);}
+.tbl tr:nth-child(even) td{background:var(--paper);}
+.code{font-family:var(--sans);font-weight:700;color:var(--forest-deep);white-space:nowrap;}
+.note{font-family:var(--sans);font-size:13px;background:var(--warn-bg);border-left:3px solid var(--warn-line);padding:11px 14px;border-radius:3px;margin:10px 0 18px;color:var(--ink);}
+.update{font-family:var(--sans);font-size:13px;background:var(--slate-bg);border-left:3px solid var(--slate);padding:11px 14px;border-radius:3px;margin:10px 0 18px;color:var(--ink);}
+.form-filter{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;font-family:var(--sans);}
+.form-chip{padding:6px 13px;border:1px solid var(--line);border-radius:16px;background:var(--paper-deep);font-size:12.5px;font-weight:600;cursor:pointer;color:var(--ink-soft);transition:all .15s ease;}
+.form-chip.active{background:var(--ink);border-color:var(--ink);color:var(--paper);}
+.cal-strip{display:flex;flex-direction:column;gap:0;}
+.cal-row{display:flex;gap:16px;padding:13px 0;border-top:1px solid var(--line-soft);align-items:flex-start;}
+.cal-row:first-child{border-top:none;}
+.cal-when{flex:0 0 150px;font-family:var(--sans);font-weight:700;font-size:12.5px;color:var(--forest-deep);background:var(--paper-deep);padding:5px 10px;border-radius:4px;text-align:center;}
+.cal-what{flex:1;font-size:14.5px;padding-top:3px;}
+.cal-what small{display:block;font-family:var(--sans);font-size:12px;color:var(--ink-soft);margin-top:2px;}
+.form-toolbar{display:flex;gap:8px;margin-bottom:14px;font-family:var(--sans);flex-wrap:wrap;}
+.tbtn{font-family:var(--sans);font-size:12px;font-weight:600;color:var(--forest-deep);background:var(--paper-deep);border:1px solid var(--line);border-radius:6px;padding:6px 12px;cursor:pointer;}
+.tbtn:hover{background:var(--paper);}
+.link-btn{display:inline-flex;align-items:center;gap:5px;font-family:var(--sans);font-size:12px;font-weight:700;color:var(--forest-deep);background:var(--paper-deep);border:1px solid var(--line);border-radius:5px;padding:4px 9px;text-decoration:none;cursor:pointer;transition:all .15s ease;}
+.link-btn:hover{background:var(--forest);color:#fff;border-color:var(--forest);transform:translateY(-1px);}
+.link-btn.gpmt-file{background:#E6F5EC;color:#1E7A45;border-color:#2E9E5B;}
+.link-btn.gpmt-file:hover{background:#2E9E5B;color:#fff;}
+.link-btn.dkmt-file{background:var(--slate-bg);color:var(--slate);border-color:var(--slate);}
+.link-btn.dkmt-file:hover{background:var(--slate);color:#fff;}
+.link-btn.baocao-file{background:var(--purple-bg);color:var(--purple);border-color:var(--purple);}
+.link-btn.baocao-file:hover{background:var(--purple);color:#fff;}
+.link-btn.gpkt-file{background:var(--teal-bg);color:var(--teal);border-color:var(--teal);}
+.link-btn.gpkt-file:hover{background:var(--teal);color:#fff;}
+.link-btn.quantrac-file{background:#FFF2CC;color:#8A5A00;border-color:#D4A017;}
+.link-btn.quantrac-file:hover{background:#D4A017;color:#fff;}
+.link-btn.khac-file{background:#F0F0F0;color:#555;border-color:#999;}
+.link-btn.khac-file:hover{background:#555;color:#fff;}
+.link-btn-empty{display:inline-flex;align-items:center;gap:5px;font-family:var(--sans);font-size:12px;font-weight:700;color:#B8BEB4;background:transparent;border:1px dashed #D7DBD1;border-radius:5px;padding:4px 9px;cursor:not-allowed;opacity:.7;}
+
+/* === File dropdown (nhiều file cùng loại) === */
+.file-group{position:relative;display:inline-block;}
+.file-group-btn{position:relative;}
+.file-group-btn::after{content:" ▾";font-size:9px;}
+.file-dropdown{display:none;position:absolute;top:calc(100% + 4px);left:0;min-width:260px;max-height:340px;background:var(--paper-deep);border:1px solid var(--line);border-radius:8px;box-shadow:0 8px 24px rgba(27,36,32,.18);z-index:50;overflow:hidden;}
+.file-dropdown.show{display:block;}
+.file-dropdown-head{padding:8px 13px;font-family:var(--sans);font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#8A9389;background:var(--paper);border-bottom:1px solid var(--line-soft);}
+.file-dropdown-list{max-height:280px;overflow-y:auto;}
+.file-dropdown-item{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:9px 13px;font-family:var(--sans);font-size:12.5px;color:var(--ink);text-decoration:none;border-bottom:1px solid var(--line-soft);cursor:pointer;width:100%;background:none;border-left:none;border-right:none;border-top:none;text-align:left;transition:background .15s ease;}
+.file-dropdown-item:last-child{border-bottom:none;}
+.file-dropdown-item:hover{background:var(--paper);}
+.file-dropdown-item small{color:var(--ink-soft);font-size:10.5px;font-weight:600;flex-shrink:0;}
+.file-dropdown-item .item-label{flex:1;font-weight:600;}
+.file-dropdown-item .item-icon{color:var(--forest);font-size:14px;}
+
+.plant-files{margin-top:10px;padding-top:10px;border-top:1px dashed var(--line);}
+.plant-files-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-bottom:6px;}
+.plant-files-row:last-child{margin-bottom:0;}
+.plant-files-label{font-size:10.5px;font-weight:700;color:#8A9389;text-transform:uppercase;letter-spacing:.05em;min-width:110px;}
+.wizard-grid{display:grid;grid-template-columns:1fr 380px;gap:20px;align-items:start;}
+@media (max-width:980px){.wizard-grid{grid-template-columns:1fr;}}
+.wz-step{background:var(--paper-deep);border:1px solid var(--line-soft);border-radius:10px;padding:18px 20px;margin-bottom:16px;font-family:var(--sans);box-shadow:var(--shadow-sm);}
+.wz-step-head{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+.wz-step-num{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--forest-bright),var(--forest-deep));color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex:0 0 auto;}
+.wz-step-title{font-family:var(--serif);font-weight:700;font-size:17px;color:var(--forest-deep);margin:0;}
+.wz-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:12px;}
+.wz-field label{display:block;font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;color:#8A9389;margin-bottom:5px;font-weight:700;}
+.wz-field select,.wz-field input{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:6px;font-family:var(--sans);font-size:13.5px;background:var(--paper);color:var(--ink);}
+.wz-toggle{display:flex;gap:8px;margin-bottom:12px;}
+.wz-toggle button{flex:1;padding:10px;border:1.5px solid var(--line);background:var(--paper);border-radius:6px;font-family:var(--sans);font-size:13px;font-weight:700;color:var(--ink-soft);cursor:pointer;transition:all .15s ease;}
+.wz-toggle button.active{border-color:var(--forest);background:var(--forest);color:#fff;}
+.wz-hint{font-size:12px;color:var(--ink-soft);margin:2px 0 0;}
+.wz-checks{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:9px;}
+.wz-check{display:flex;align-items:flex-start;gap:9px;padding:9px 11px;border:1px solid var(--line);border-radius:6px;cursor:pointer;font-size:13px;background:var(--paper);}
+.wz-check:hover{background:var(--paper-deep);}
+.wz-check input{margin-top:2px;}
+.wz-check.checked{border-color:var(--forest);background:#EEF6F0;}
+.result-wrap{position:sticky;top:96px;}
+.result-card{background:var(--paper-deep);border:1px solid var(--line-soft);border-radius:14px;overflow:hidden;font-family:var(--sans);box-shadow:var(--shadow-lg);}
+.result-top{padding:18px 18px 16px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,var(--paper),var(--paper-deep));}
+.result-badge{display:inline-block;font-size:11px;font-weight:800;padding:3px 10px;border-radius:5px;margin-bottom:10px;}
+.badge-I{background:#FDEBEA;color:#A83A2C;}
+.badge-II{background:#FDF3E0;color:var(--amber);}
+.badge-III{background:#E9F2EC;color:var(--forest-deep);}
+.badge-IV{background:var(--slate-bg);color:var(--slate);}
+.result-canccu{font-size:11px;color:#8A9389;margin-bottom:8px;}
+.result-title{font-family:var(--serif);font-size:19px;font-weight:700;color:var(--ink);margin:0 0 8px;line-height:1.3;}
+.result-desc{font-size:12.5px;color:var(--ink-soft);margin:0 0 12px;line-height:1.5;}
+.result-pills{display:flex;flex-wrap:wrap;gap:6px;}
+.pill{font-size:11px;padding:4px 9px;border:1px solid var(--line);border-radius:5px;color:var(--ink-soft);background:var(--paper);}
+.pill strong{color:var(--ink);}
+.result-mid{padding:16px 18px;}
+.result-mid-head{display:flex;align-items:center;justify-content:space-between;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);margin-bottom:10px;}
+.pulse{width:7px;height:7px;border-radius:50%;background:#2E9E5B;}
+.oblig-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-top:1px solid var(--line-soft);font-size:13px;}
+.oblig-row:first-of-type{border-top:none;}
+.oblig-label{color:var(--ink-soft);}
+.oblig-val{font-weight:700;}
+.oblig-val.grey{color:#B8BEB4;}
+.oblig-val.green{color:var(--forest-deep);}
+.oblig-val.amber{color:var(--amber);}
+.result-agency{background:var(--paper);border-radius:8px;padding:11px 13px;margin-top:10px;}
+.result-agency-head{display:flex;justify-content:space-between;font-size:10.5px;font-weight:800;text-transform:uppercase;color:#8A9389;margin-bottom:7px;}
+.agency-row{display:flex;justify-content:space-between;font-size:12.5px;padding:4px 0;gap:8px;}
+.result-tabs{display:flex;background:var(--ink);flex-wrap:wrap;}
+.result-tab{flex:1;min-width:88px;text-align:center;padding:11px 6px;font-size:10.5px;font-weight:700;color:#C7CFC9;border-right:1px solid rgba(255,255,255,.08);cursor:pointer;text-decoration:none;}
+.result-tab:hover{color:#fff;background:rgba(255,255,255,.06);}
+.result-tab.accent{background:#1F5D3A22;color:#8FD9A8;}
+.result-disclaimer{font-size:11px;color:#8A9389;padding:10px 18px;background:var(--paper);border-top:1px solid var(--line);}
+.status-dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:middle;}
+.status-green{background:#2E9E5B;} .status-yellow{background:#E0A215;} .status-red{background:#C0392B;}
+.stat-dash{display:flex;gap:14px;flex-wrap:wrap;margin:18px 0 22px;align-items:stretch;}
+.stat-ring-card{position:relative;width:104px;height:104px;flex:0 0 auto;background:var(--paper-deep);border:1px solid var(--line-soft);border-radius:14px;display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow-sm);}
+.stat-ring-num{position:absolute;font-family:var(--sans);font-weight:800;font-size:17px;color:var(--forest-deep);}
+.stat-card{flex:1;min-width:130px;background:var(--paper-deep);border:1px solid var(--line-soft);border-radius:14px;padding:14px 16px;box-shadow:var(--shadow-sm);border-top:3px solid var(--line);}
+.stat-card.st-green{border-top-color:#2E9E5B;}
+.stat-card.st-yellow{border-top-color:#E0A215;}
+.stat-card.st-red{border-top-color:#C0392B;}
+.stat-card.st-purple{border-top-color:var(--purple);}
+.stat-card.st-teal{border-top-color:var(--teal);}
+.stat-card.st-amber{border-top-color:#D4A017;}
+.stat-num{font-family:var(--serif);font-size:30px;font-weight:700;color:var(--ink);line-height:1;}
+.stat-label{font-family:var(--sans);font-size:12px;color:var(--ink-soft);margin-top:6px;}
+.status-legend{display:flex;gap:16px;flex-wrap:wrap;font-family:var(--sans);font-size:12.5px;color:var(--ink-soft);margin-bottom:14px;}
+.data-source-badge{display:inline-block;font-family:var(--sans);font-size:11.5px;font-weight:600;padding:5px 12px;border-radius:6px;margin:8px 0 4px;}
+.data-source-badge.live{background:#E6F5EC;color:#1E7A45;}
+.data-source-badge.fallback{background:#FCF1D8;color:#95700E;}
+.status-filter{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;}
+.plant-card{background:var(--paper-deep);border:1px solid var(--line-soft);border-left:4px solid #B9C0B4;border-radius:8px;padding:13px 16px;margin-bottom:10px;font-family:var(--sans);box-shadow:var(--shadow-sm);transition:box-shadow .2s ease;}
+.plant-card.st-green{border-left-color:#2E9E5B;}
+.plant-card.st-yellow{border-left-color:#E0A215;}
+.plant-card.st-red{border-left-color:#C0392B;}
+.plant-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:6px;}
+.plant-name{font-weight:700;font-size:14.5px;color:var(--ink);}
+.plant-meta{font-size:12px;color:var(--ink-soft);margin-bottom:6px;}
+.plant-note{font-size:12px;color:var(--ink-soft);background:var(--paper);border-radius:5px;padding:8px 10px;line-height:1.5;}
+.plant-status-label{font-size:11px;font-weight:700;padding:2px 8px;border-radius:10px;white-space:nowrap;}
+.plant-status-label.st-green{background:#E6F5EC;color:#1E7A45;}
+.plant-status-label.st-yellow{background:#FCF1D8;color:#95700E;}
+.plant-status-label.st-red{background:#FBE7E4;color:#A0332A;}
+.foot{font-family:var(--sans);font-size:12px;color:var(--ink-soft);border-top:1px solid var(--line);padding:22px 34px;max-width:1080px;}
+.hl-flash{animation:flash 2.4s ease;box-shadow:0 0 0 4px rgba(212,160,23,.5), 0 8px 24px rgba(212,160,23,.3);}
+@keyframes flash{0%{background:#FCE9B8;transform:scale(1.02);}40%{background:#FCE9B8;transform:scale(1.02);}70%{background:#FCE9B8;transform:scale(1);}100%{background:transparent;transform:scale(1);}}
+.plant-card.hl-flash{background:#FEF3D0;border-left-width:6px;}
+.loading-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 20px;text-align:center;font-family:var(--sans);color:var(--ink-soft);}
+.loading-spinner{width:50px;height:50px;border:4px solid var(--line);border-top-color:var(--forest);border-radius:50%;animation:spin 1s linear infinite;margin-bottom:20px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.error-box{background:var(--warn-bg);border-left:4px solid var(--warn-line);padding:16px 20px;border-radius:6px;font-family:var(--sans);margin:20px 0;max-width:600px;}
+.error-box strong{color:var(--red);}
+.error-box code{background:var(--paper-deep);padding:2px 6px;border-radius:3px;font-size:12px;}
+
+/* ====================================================== */
+/* ===== PDF MODAL — Khung xem PDF full screen ========= */
+/* ====================================================== */
+.pdf-modal-backdrop{position:fixed;inset:0;background:rgba(10,15,12,.82);backdrop-filter:blur(6px);z-index:9998;opacity:0;pointer-events:none;transition:opacity .25s ease;}
+.pdf-modal-backdrop.show{opacity:1;pointer-events:auto;}
+.pdf-modal{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(.96);width:92vw;height:92vh;max-width:1600px;max-height:1000px;background:var(--paper-deep);border-radius:12px;box-shadow:var(--shadow-xl);z-index:9999;display:flex;flex-direction:column;overflow:hidden;opacity:0;pointer-events:none;transition:opacity .25s ease, transform .25s cubic-bezier(.22,.61,.36,1);}
+.pdf-modal.show{opacity:1;pointer-events:auto;transform:translate(-50%,-50%) scale(1);}
+.pdf-modal-header{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;background:linear-gradient(180deg,var(--paper),var(--paper-deep));border-bottom:1px solid var(--line);flex-shrink:0;}
+.pdf-modal-title{display:flex;align-items:center;gap:12px;min-width:0;flex:1;}
+.pdf-modal-icon{font-size:24px;flex-shrink:0;}
+.pdf-modal-file{font-family:var(--sans);font-weight:700;font-size:14.5px;color:var(--ink);line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.pdf-modal-plant{font-family:var(--sans);font-size:11.5px;color:var(--ink-soft);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.pdf-modal-close{width:36px;height:36px;border:none;background:var(--paper);color:var(--ink-soft);border-radius:8px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s ease;}
+.pdf-modal-close:hover{background:var(--red);color:#fff;transform:rotate(90deg);}
+.pdf-modal-body{flex:1;position:relative;background:#525659;overflow:hidden;}
+.pdf-modal-body iframe{width:100%;height:100%;border:none;display:block;}
+.pdf-loading{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#525659;color:#fff;font-family:var(--sans);z-index:2;}
+.pdf-loading.hidden{display:none;}
+.pdf-loading .spinner{width:42px;height:42px;border:4px solid rgba(255,255,255,.2);border-top-color:#fff;border-radius:50%;animation:spin .9s linear infinite;margin-bottom:14px;}
+.pdf-loading-text{font-size:13.5px;opacity:.9;}
+.pdf-modal-footer{display:flex;gap:8px;padding:12px 18px;background:var(--paper);border-top:1px solid var(--line);flex-shrink:0;flex-wrap:wrap;justify-content:center;}
+.pdf-modal-btn{font-family:var(--sans);font-size:12.5px;font-weight:700;padding:8px 14px;background:var(--paper-deep);color:var(--ink);border:1px solid var(--line);border-radius:6px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:5px;transition:all .15s ease;}
+.pdf-modal-btn:hover{background:var(--forest);color:#fff;border-color:var(--forest);}
+.pdf-modal-btn.btn-copy{background:var(--teal-bg);color:var(--teal);border-color:var(--teal);}
+.pdf-modal-btn.btn-copy:hover{background:var(--teal);color:#fff;}
+.pdf-modal-btn.btn-copy.copied{background:#2E9E5B;color:#fff;border-color:#2E9E5B;}
+.pdf-modal-btn.btn-open{background:var(--slate-bg);color:var(--slate);border-color:var(--slate);}
+.pdf-modal-btn.btn-open:hover{background:var(--slate);color:#fff;}
+.pdf-modal-btn.btn-download{background:var(--amber-bg);color:var(--amber);border-color:var(--amber);}
+.pdf-modal-btn.btn-download:hover{background:var(--amber);color:#fff;}
+.pdf-modal-warn{display:none;padding:10px 18px;background:var(--warn-bg);border-top:1px solid var(--warn-line);font-family:var(--sans);font-size:12.5px;color:var(--ink);text-align:center;flex-shrink:0;}
+.pdf-modal-warn.show{display:block;}
+
+/* ================================================================ */
+/* ===== DARK MODE — COMPONENT OVERRIDES v5.2 ==================== */
+/* ================================================================ */
+
+/* --- BODY & TOPBAR --- */
+html[data-theme="dark"] .topbar{background:rgba(15,15,18,.94);border-bottom-color:var(--line);}
+html[data-theme="dark"] .search-input{background:var(--paper-mid);border-color:var(--forest);color:var(--ink);}
+html[data-theme="dark"] .search-input:focus{box-shadow:0 0 0 3px rgba(95,207,128,.2);}
+html[data-theme="dark"] .search-input::placeholder{color:var(--ink-muted);}
+html[data-theme="dark"] .search-hint{color:var(--ink-muted);}
+html[data-theme="dark"] .search-results{background:var(--paper-light);border-color:var(--line);box-shadow:0 12px 32px rgba(0,0,0,.6);}
+html[data-theme="dark"] .sr-item{border-bottom-color:var(--line-soft);color:var(--ink);}
+html[data-theme="dark"] .sr-item:hover{background:rgba(255,255,255,.05);}
+html[data-theme="dark"] .sr-title{color:var(--ink);}
+html[data-theme="dark"] .sr-snip{color:var(--ink-soft);}
+html[data-theme="dark"] .sr-tag{background:var(--paper-mid)!important;color:var(--forest-deep)!important;}
+
+/* --- RAIL (MENU TRÁI) --- */
+html[data-theme="dark"] .rail{background:var(--paper-deep);border-right-color:var(--line);box-shadow:2px 0 24px rgba(0,0,0,.6);}
+html[data-theme="dark"] .rail-btn{color:var(--ink-soft);}
+html[data-theme="dark"] .rail-btn:hover{background:rgba(255,255,255,.05);color:var(--ink);}
+html[data-theme="dark"] .rail-btn.active{background:rgba(95,207,128,.15);color:var(--forest-deep);}
+html[data-theme="dark"] .rail-logo{box-shadow:0 4px 12px rgba(0,0,0,.5);}
+html[data-theme="dark"] .rail-brand{color:var(--forest-deep);}
+html[data-theme="dark"] .rail-sub{color:var(--ink-muted);}
+html[data-theme="dark"] .rail-label{color:var(--ink-muted);}
+html[data-theme="dark"] .rail-ic{color:var(--ink-muted);}
+html[data-theme="dark"] .rail-btn.active .rail-ic{color:var(--forest);}
+html[data-theme="dark"] .rail-toggle{background:var(--paper-mid);border-color:var(--line);}
+html[data-theme="dark"] .rail-toggle:hover{background:var(--paper-light);}
+html[data-theme="dark"] .rail-toggle svg{color:var(--forest-deep);}
+
+/* --- TIÊU ĐỀ SECTION --- */
+html[data-theme="dark"] .section-title{color:var(--forest-deep);}
+html[data-theme="dark"] .section-desc{color:var(--ink-soft);}
+html[data-theme="dark"] .section-eyebrow{color:var(--moss);}
+
+/* --- CARD & PLANT-CARD — Phân tầng rõ --- */
+html[data-theme="dark"] .card{background:var(--paper-mid);border-color:var(--line-soft);border-left-color:var(--forest);box-shadow:0 2px 8px rgba(0,0,0,.4);}
+html[data-theme="dark"] .card.amber{border-left-color:var(--amber);}
+html[data-theme="dark"] .card.slate{border-left-color:var(--slate);}
+html[data-theme="dark"] .card.grey{border-left-color:#5A5A62;}
+html[data-theme="dark"] .card-title{color:var(--ink);}
+
+html[data-theme="dark"] .plant-card{background:var(--paper-mid);border-color:var(--line-soft);box-shadow:0 2px 10px rgba(0,0,0,.4);}
+html[data-theme="dark"] .plant-card:hover{box-shadow:0 8px 24px rgba(0,0,0,.5);}
+html[data-theme="dark"] .plant-card.st-green{border-left-color:var(--forest);}
+html[data-theme="dark"] .plant-card.st-yellow{border-left-color:var(--amber);}
+html[data-theme="dark"] .plant-card.st-red{border-left-color:var(--red);}
+html[data-theme="dark"] .plant-name{color:var(--ink);}
+html[data-theme="dark"] .plant-meta{color:var(--ink-soft);}
+html[data-theme="dark"] .plant-note{background:rgba(255,255,255,.03);color:var(--ink-soft);border:1px solid rgba(255,255,255,.04);}
+html[data-theme="dark"] .plant-files{border-top-color:var(--line);}
+html[data-theme="dark"] .plant-files-label{color:var(--ink-muted);}
+html[data-theme="dark"] .plant-name code{background:rgba(255,255,255,.06)!important;color:var(--ink-soft)!important;}
+
+/* --- BADGE STATUS --- */
+html[data-theme="dark"] .plant-status-label.st-green{background:rgba(95,207,128,.15);color:var(--forest-deep);border:1px solid rgba(95,207,128,.3);}
+html[data-theme="dark"] .plant-status-label.st-yellow{background:rgba(232,185,106,.15);color:var(--amber);border:1px solid rgba(232,185,106,.3);}
+html[data-theme="dark"] .plant-status-label.st-red{background:rgba(232,148,120,.15);color:var(--red);border:1px solid rgba(232,148,120,.3);}
+
+/* --- NÚT LINK FILE (GPMT, ĐKMT, Báo cáo…) --- */
+html[data-theme="dark"] .link-btn.gpmt-file{background:rgba(95,207,128,.18);color:var(--forest-deep);border-color:rgba(95,207,128,.4);}
+html[data-theme="dark"] .link-btn.gpmt-file:hover{background:var(--forest);color:#0F0F12;border-color:var(--forest);}
+html[data-theme="dark"] .link-btn.dkmt-file{background:rgba(123,168,217,.18);color:var(--slate);border-color:rgba(123,168,217,.4);}
+html[data-theme="dark"] .link-btn.dkmt-file:hover{background:var(--slate);color:#0F0F12;}
+html[data-theme="dark"] .link-btn.baocao-file{background:rgba(167,139,209,.18);color:var(--purple);border-color:rgba(167,139,209,.4);}
+html[data-theme="dark"] .link-btn.baocao-file:hover{background:var(--purple);color:#0F0F12;}
+html[data-theme="dark"] .link-btn.gpkt-file{background:rgba(111,191,191,.18);color:var(--teal);border-color:rgba(111,191,191,.4);}
+html[data-theme="dark"] .link-btn.gpkt-file:hover{background:var(--teal);color:#0F0F12;}
+html[data-theme="dark"] .link-btn.quantrac-file{background:rgba(232,185,106,.18);color:var(--amber);border-color:rgba(232,185,106,.4);}
+html[data-theme="dark"] .link-btn.quantrac-file:hover{background:var(--amber);color:#0F0F12;}
+html[data-theme="dark"] .link-btn.khac-file{background:rgba(168,168,176,.15);color:var(--ink-soft);border-color:rgba(168,168,176,.3);}
+html[data-theme="dark"] .link-btn.khac-file:hover{background:var(--ink-soft);color:#0F0F12;}
+
+/* --- NÚT "CHƯA CÓ" --- */
+html[data-theme="dark"] .link-btn-empty{background:rgba(255,255,255,.02);color:var(--ink-muted);border-color:var(--line);border-style:dashed;}
+html[data-theme="dark"] .link-btn-empty:hover{background:rgba(255,255,255,.04);}
+
+/* --- FILE DROPDOWN --- */
+html[data-theme="dark"] .file-dropdown{background:var(--paper-light);border-color:var(--line);box-shadow:0 12px 32px rgba(0,0,0,.6);}
+html[data-theme="dark"] .file-dropdown-head{background:var(--paper-mid);color:var(--ink-muted);border-bottom-color:var(--line-soft);}
+html[data-theme="dark"] .file-dropdown-item{color:var(--ink);border-bottom-color:var(--line-soft);}
+html[data-theme="dark"] .file-dropdown-item:hover{background:rgba(255,255,255,.05);}
+html[data-theme="dark"] .file-dropdown-item .item-icon{color:var(--forest);}
+html[data-theme="dark"] .file-dropdown-item small{color:var(--ink-muted);}
+
+/* --- STATS DASHBOARD --- */
+html[data-theme="dark"] .stat-card{background:var(--paper-mid);border-color:var(--line-soft);box-shadow:0 2px 8px rgba(0,0,0,.4);}
+html[data-theme="dark"] .stat-card.st-green{border-top-color:var(--forest);}
+html[data-theme="dark"] .stat-card.st-yellow{border-top-color:var(--amber);}
+html[data-theme="dark"] .stat-card.st-red{border-top-color:var(--red);}
+html[data-theme="dark"] .stat-card.st-purple{border-top-color:var(--purple);}
+html[data-theme="dark"] .stat-card.st-teal{border-top-color:var(--teal);}
+html[data-theme="dark"] .stat-card.st-amber{border-top-color:var(--amber);}
+html[data-theme="dark"] .stat-num{color:var(--ink);}
+html[data-theme="dark"] .stat-label{color:var(--ink-soft);}
+html[data-theme="dark"] .stat-ring-card{background:var(--paper-mid);border-color:var(--line-soft);box-shadow:0 2px 8px rgba(0,0,0,.4);}
+html[data-theme="dark"] .stat-ring-num{color:var(--forest-deep);}
+
+/* --- FILTER CHIPS --- */
+html[data-theme="dark"] .form-chip{background:var(--paper-mid);border-color:var(--line);color:var(--ink-soft);}
+html[data-theme="dark"] .form-chip:hover{background:var(--paper-light);color:var(--ink);}
+html[data-theme="dark"] .form-chip.active{background:var(--forest);border-color:var(--forest);color:#0F0F12;}
+
+/* --- TABBAR --- */
+html[data-theme="dark"] .tab{background:var(--paper-mid);border-color:var(--line);color:var(--ink-soft);}
+html[data-theme="dark"] .tab.active{background:var(--forest);border-color:var(--forest);color:#0F0F12;}
+
+/* --- BẢNG --- */
+html[data-theme="dark"] .tbl th{background:var(--paper-mid);color:var(--ink-soft);border-color:var(--line);}
+html[data-theme="dark"] .tbl td{border-color:var(--line-soft);color:var(--ink);}
+html[data-theme="dark"] .tbl tr:nth-child(even) td{background:rgba(255,255,255,.02);}
+html[data-theme="dark"] .code{color:var(--forest-deep);}
+html[data-theme="dark"] .matrix th{background:var(--paper-mid);color:var(--ink);border-color:var(--line);}
+html[data-theme="dark"] .matrix td{border-color:var(--line);color:var(--ink);}
+html[data-theme="dark"] .matrix td:first-child{color:var(--forest-deep);}
+
+/* --- STATUS LEGEND & BADGES --- */
+html[data-theme="dark"] .status-legend{color:var(--ink-soft);}
+html[data-theme="dark"] .data-source-badge.live{background:rgba(95,207,128,.15);color:var(--forest-deep);border:1px solid rgba(95,207,128,.3);}
+html[data-theme="dark"] .data-source-badge.fallback{background:rgba(232,185,106,.15);color:var(--amber);border:1px solid rgba(232,185,106,.3);}
+
+/* --- NOTE & UPDATE BOXES --- */
+html[data-theme="dark"] .note{background:rgba(232,185,106,.1);border-left-color:var(--amber);color:var(--ink);}
+html[data-theme="dark"] .update{background:rgba(123,168,217,.1);border-left-color:var(--slate);color:var(--ink);}
+
+/* --- WIZARD FORM --- */
+html[data-theme="dark"] .wz-step{background:var(--paper-mid);border-color:var(--line-soft);box-shadow:0 2px 8px rgba(0,0,0,.4);}
+html[data-theme="dark"] .wz-field label{color:var(--ink-muted);}
+html[data-theme="dark"] .wz-field select,
+html[data-theme="dark"] .wz-field input{background:var(--paper-light);border-color:var(--line);color:var(--ink);}
+html[data-theme="dark"] .wz-toggle button{background:var(--paper-light);border-color:var(--line);color:var(--ink-soft);}
+html[data-theme="dark"] .wz-toggle button.active{background:var(--forest);border-color:var(--forest);color:#0F0F12;}
+html[data-theme="dark"] .wz-hint{color:var(--ink-muted);}
+html[data-theme="dark"] .wz-check{background:var(--paper-light);border-color:var(--line);color:var(--ink);}
+html[data-theme="dark"] .wz-check:hover{background:var(--paper-mid);}
+html[data-theme="dark"] .wz-check.checked{background:rgba(95,207,128,.15);border-color:var(--forest);}
+
+/* --- RESULT CARD --- */
+html[data-theme="dark"] .result-card{background:var(--paper-mid);border-color:var(--line-soft);box-shadow:0 12px 32px rgba(0,0,0,.6);}
+html[data-theme="dark"] .result-top{background:linear-gradient(180deg,var(--paper),var(--paper-mid));border-bottom-color:var(--line);}
+html[data-theme="dark"] .result-title{color:var(--ink);}
+html[data-theme="dark"] .result-desc{color:var(--ink-soft);}
+html[data-theme="dark"] .result-canccu{color:var(--ink-muted);}
+html[data-theme="dark"] .pill{background:var(--paper-light);border-color:var(--line);color:var(--ink-soft);}
+html[data-theme="dark"] .pill strong{color:var(--ink);}
+html[data-theme="dark"] .result-mid-head{color:var(--ink-muted);}
+html[data-theme="dark"] .oblig-row{border-top-color:var(--line-soft);}
+html[data-theme="dark"] .oblig-label{color:var(--ink-soft);}
+html[data-theme="dark"] .oblig-val.grey{color:var(--ink-muted);}
+html[data-theme="dark"] .result-agency{background:var(--paper-light);}
+html[data-theme="dark"] .result-agency-head{color:var(--ink-muted);}
+html[data-theme="dark"] .agency-row{color:var(--ink-soft);}
+html[data-theme="dark"] .agency-row strong{color:var(--ink);}
+html[data-theme="dark"] .result-tabs{background:var(--paper-deep);}
+html[data-theme="dark"] .result-disclaimer{background:var(--paper-light);color:var(--ink-muted);border-top-color:var(--line);}
+
+/* --- BADGE nhóm dự án --- */
+html[data-theme="dark"] .badge-I{background:rgba(232,148,120,.2);color:#F0A78D;}
+html[data-theme="dark"] .badge-II{background:rgba(232,185,106,.2);color:var(--amber);}
+html[data-theme="dark"] .badge-III{background:rgba(95,207,128,.2);color:var(--forest-deep);}
+html[data-theme="dark"] .badge-IV{background:rgba(123,168,217,.2);color:var(--slate);}
+html[data-theme="dark"] .badge-required{background:rgba(95,207,128,.2);color:var(--forest-deep);}
+html[data-theme="dark"] .badge-conditional{background:rgba(232,185,106,.2);color:var(--amber);}
+html[data-theme="dark"] .badge-na{background:rgba(255,255,255,.05);color:var(--ink-muted);}
+html[data-theme="dark"] .badge-replace{background:rgba(123,168,217,.2);color:var(--slate);}
+
+/* --- STEP --- */
+html[data-theme="dark"] .step{border-top-color:var(--line-soft);}
+html[data-theme="dark"] .step-title{color:var(--ink);}
+html[data-theme="dark"] .step-forms{background:var(--slate-bg);color:var(--slate);}
+
+/* --- LỊCH --- */
+html[data-theme="dark"] .cal-row{border-top-color:var(--line-soft);}
+html[data-theme="dark"] .cal-when{background:var(--paper-mid);color:var(--forest-deep);}
+html[data-theme="dark"] .cal-what{color:var(--ink);}
+html[data-theme="dark"] .cal-what small{color:var(--ink-soft);}
+
+/* --- FOOTER --- */
+html[data-theme="dark"] .foot{color:var(--ink-muted);border-top-color:var(--line);}
+
+/* --- HIGHLIGHT khi tìm kiếm --- */
+html[data-theme="dark"] .plant-card.hl-flash{background:rgba(232,185,106,.15);border-left-color:var(--amber);}
+html[data-theme="dark"] .hl-flash{box-shadow:0 0 0 4px rgba(232,185,106,.3), 0 8px 24px rgba(232,185,106,.2);}
+
+/* --- PDF MODAL --- */
+html[data-theme="dark"] .pdf-modal{background:var(--paper-mid);box-shadow:0 25px 60px rgba(0,0,0,.8), 0 8px 20px rgba(0,0,0,.6);}
+html[data-theme="dark"] .pdf-modal-header{background:linear-gradient(180deg,var(--paper-deep),var(--paper-mid));border-bottom-color:var(--line);}
+html[data-theme="dark"] .pdf-modal-file{color:var(--ink);}
+html[data-theme="dark"] .pdf-modal-plant{color:var(--ink-muted);}
+html[data-theme="dark"] .pdf-modal-close{background:var(--paper-light);color:var(--ink-soft);}
+html[data-theme="dark"] .pdf-modal-close:hover{background:var(--red);color:#0F0F12;}
+html[data-theme="dark"] .pdf-modal-footer{background:var(--paper-deep);border-top-color:var(--line);}
+html[data-theme="dark"] .pdf-modal-btn{background:var(--paper-mid);color:var(--ink);border-color:var(--line);}
+html[data-theme="dark"] .pdf-modal-btn:hover{background:var(--forest);color:#0F0F12;border-color:var(--forest);}
+html[data-theme="dark"] .pdf-modal-btn.btn-open{background:rgba(123,168,217,.15);color:var(--slate);border-color:var(--slate);}
+html[data-theme="dark"] .pdf-modal-btn.btn-open:hover{background:var(--slate);color:#0F0F12;}
+html[data-theme="dark"] .pdf-modal-btn.btn-download{background:rgba(232,185,106,.15);color:var(--amber);border-color:var(--amber);}
+html[data-theme="dark"] .pdf-modal-btn.btn-download:hover{background:var(--amber);color:#0F0F12;}
+html[data-theme="dark"] .pdf-modal-btn.btn-copy{background:rgba(111,191,191,.15);color:var(--teal);border-color:var(--teal);}
+html[data-theme="dark"] .pdf-modal-btn.btn-copy:hover{background:var(--teal);color:#0F0F12;}
+html[data-theme="dark"] .pdf-modal-warn{background:rgba(232,185,106,.1);color:var(--ink);border-top-color:var(--amber);}
+
+/* --- ERROR BOX --- */
+html[data-theme="dark"] .error-box{background:rgba(232,185,106,.1);border-left-color:var(--amber);color:var(--ink);}
+html[data-theme="dark"] .error-box code{background:var(--paper-light);color:var(--ink);}
+
+/* --- SCROLLBAR --- */
+html[data-theme="dark"] ::-webkit-scrollbar{width:10px;height:10px;}
+html[data-theme="dark"] ::-webkit-scrollbar-track{background:var(--paper);}
+html[data-theme="dark"] ::-webkit-scrollbar-thumb{background:#3A3A42;border-radius:5px;border:2px solid var(--paper);}
+html[data-theme="dark"] ::-webkit-scrollbar-thumb:hover{background:#4A4A55;}
+
+/* === Mobile === */
+@media (max-width:880px){
+  body{overflow-x:hidden;}
+  .rail{width:86vw;max-width:300px;}
+  .content{padding:24px 18px 0;}
+  .foot{padding:20px 18px;}
+  .section-title{font-size:23px;}
+  .meta-grid{grid-template-columns:1fr;}
+  .tbl{display:block;overflow-x:auto;}
+  .wizard-grid{grid-template-columns:1fr;}
+  .plant-files-label{min-width:auto;}
+  .plant-files-row{flex-direction:column;align-items:flex-start;}
+  .stat-card{min-width:calc(50% - 7px);}
+  .pdf-modal{width:100vw;height:100vh;max-width:none;max-height:none;border-radius:0;top:0;left:0;transform:translate(0,0) scale(.98);}
+  .pdf-modal.show{transform:translate(0,0) scale(1);}
+  .pdf-modal-file{font-size:13px;}
+  .pdf-modal-plant{font-size:10.5px;}
+  .pdf-modal-footer{padding:10px 12px;gap:6px;}
+  .pdf-modal-btn{padding:7px 10px;font-size:11.5px;}
+}
+</style>
+</head>
+<body>
+<div class="brand-strip"></div>
+<div class="shell">
+  <div class="rail-backdrop" id="railBackdrop"></div>
+
+  <nav class="rail" id="rail">
+    <div class="rail-brand-row">
+      <div class="rail-logo">MT</div>
+      <div><p class="rail-brand">Tra cứu Thủ tục<br>Môi trường</p></div>
+    </div>
+    <p class="rail-sub">Công ty CP Cấp nước &amp; Môi trường Đô thị Đồng Tháp — v5.2, 09/2026</p>
+
+    <div class="rail-group">
+      <p class="rail-label">Công ty</p>
+      <button class="rail-btn" data-goto="sec-congty"><span class="rail-ic"><svg viewBox="0 0 24 24"><path d="M4 21V7l8-4 8 4v14"/><path d="M9 21v-6h6v6"/></svg></span><strong>Danh sách &amp; Thủ tục Công ty</strong></button>
+    </div>
+
+    <div class="rail-group">
+      <p class="rail-label">Tổng quan</p>
+      <button class="rail-btn" data-goto="sec-form"><span class="rail-ic"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h10M4 18h6"/><circle cx="19" cy="18" r="2.2"/></svg></span><strong>Tra cứu theo Form</strong></button>
+      <button class="rail-btn" data-goto="sec-tracuunhanh"><span class="rail-ic"><svg viewBox="0 0 24 24"><path d="M12 3v6M12 9l-5 5M12 9l5 5"/></svg></span>Tra cứu nhanh</button>
+      <button class="rail-btn" data-goto="sec-canccu"><span class="rail-ic"><svg viewBox="0 0 24 24"><path d="M12 3 3 7l9 4 9-4-9-4Z"/></svg></span>Căn cứ pháp lý</button>
+      <button class="rail-btn" data-goto="sec-tinhthanh"><span class="rail-ic"><svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 9 9"/></svg></span>34 Tỉnh thành</button>
+      <button class="rail-btn" data-goto="sec-coquan"><span class="rail-ic"><svg viewBox="0 0 24 24"><path d="M4 21h16M5 21V10l7-5 7 5v11"/></svg></span>Cơ quan quản lý</button>
+    </div>
+
+    <div class="rail-group">
+      <p class="rail-label">Theo nhóm dự án</p>
+      <button class="rail-btn" data-goto="sec-nhom"><span class="rail-ic"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8"/><rect x="13" y="3" width="8" height="8"/><rect x="3" y="13" width="8" height="8"/><rect x="13" y="13" width="8" height="8"/></svg></span>Nhóm I – II – III – IV</button>
+      <button class="rail-btn" data-goto="sec-matrix"><span class="rail-ic"><svg viewBox="0 0 24 24"><path d="M3 3v18h18"/></svg></span>Ma trận tổng hợp</button>
+    </div>
+
+    <div class="rail-group">
+      <p class="rail-label">Theo thủ tục</p>
+      <button class="rail-btn" data-goto="sec-dtm"><span class="rail-ic"><svg viewBox="0 0 24 24"><path d="M14 3H6v18h12V8Z"/></svg></span>Đánh giá TĐMT (ĐTM)</button>
+      <button class="rail-btn" data-goto="sec-gpmt"><span class="rail-ic"><svg viewBox="0 0 24 24"><path d="M12 3 4 6v6c0 5 3.5 7.5 8 9 4.5-1.5 8-4 8-9V6Z"/></svg></span>Giấy phép MT (GPMT)</button>
+      <button class="rail-btn" data-goto="sec-dkmt"><span class="rail-ic"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18"/></svg></span>Đăng ký MT (ĐKMT)</button>
+    </div>
+
+    <div class="rail-group">
+      <p class="rail-label">Vận hành &amp; hồ sơ</p>
+      <button class="rail-btn" data-goto="sec-hoso"><span class="rail-ic"><svg viewBox="0 0 24 24"><path d="M4 4h6l2 2h8v14H4z"/><path d="M9 13h6M9 17h6"/></svg></span><strong>Hồ sơ vận hành</strong></button>
+      <button class="rail-btn" data-goto="sec-lich"><span class="rail-ic"><svg viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="16"/></svg></span>Lịch nghĩa vụ định kỳ</button>
+      <button class="rail-btn" data-goto="sec-bieumau"><span class="rail-ic"><svg viewBox="0 0 24 24"><path d="M14 3H6v18h12V8Z"/></svg></span>Danh mục biểu mẫu</button>
+      <button class="rail-btn" data-goto="sec-vipham"><span class="rail-ic"><svg viewBox="0 0 24 24"><path d="M12 3 2 20h20L12 3Z"/></svg></span>Vi phạm thường gặp</button>
+    </div>
+  </nav>
+
+  <div class="main" id="mainArea">
+    <div class="topbar">
+      <div class="topbar-row">
+        <button class="rail-toggle" id="railToggle" aria-label="Mở/đóng menu">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+        </button>
+        <div class="search-wrap">
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input id="searchInput" class="search-input" type="text" placeholder="Tìm thủ tục, nhà máy (VD: Đông Bình), tỉnh thành, mẫu số…" autocomplete="off">
+          <div id="searchResults" class="search-results"></div>
+        </div>
+        <button class="rail-toggle" id="themeToggle" aria-label="Đổi chế độ" style="margin-left:10px;">
+          <svg id="iconMoon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8Z"/></svg>
+          <svg id="iconSun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none;"><circle cx="12" cy="12" r="4.5"/><path d="M12 2.5v2M12 19.5v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M2.5 12h2M19.5 12h2"/></svg>
+        </button>
+      </div>
+      <p class="search-hint">Bấm nút hồ sơ → PDF mở ngay trong web. Nút có ▾ = nhiều file → bấm chọn.</p>
+    </div>
+
+    <div class="content" id="content">
+      <div class="loading-screen">
+        <div class="loading-spinner"></div>
+        <p>Đang tải dữ liệu từ <code>data.json</code>…</p>
+      </div>
+    </div>
+
+    <div class="foot">
+      Công cụ tra cứu — Sổ tay Hướng dẫn Thủ tục Môi trường v5.2 (09/2026). PDF hiển thị trực tiếp trong ứng dụng. Trên iOS Safari sẽ tự động chuyển sang tab mới.
+    </div>
+  </div>
+</div>
+
+<!-- PDF MODAL -->
+<div class="pdf-modal-backdrop" id="pdfBackdrop"></div>
+<div class="pdf-modal" id="pdfModal" role="dialog" aria-modal="true" aria-labelledby="pdfModalFile">
+  <div class="pdf-modal-header">
+    <div class="pdf-modal-title">
+      <span class="pdf-modal-icon" id="pdfModalIcon">📄</span>
+      <div style="min-width:0;flex:1;">
+        <div class="pdf-modal-file" id="pdfModalFile">—</div>
+        <div class="pdf-modal-plant" id="pdfModalPlant">—</div>
+      </div>
+    </div>
+    <button class="pdf-modal-close" id="pdfModalClose" aria-label="Đóng" title="Đóng (ESC)">✕</button>
+  </div>
+  <div class="pdf-modal-body">
+    <div class="pdf-loading" id="pdfLoading">
+      <div class="spinner"></div>
+      <div class="pdf-loading-text">Đang tải PDF…</div>
+    </div>
+    <iframe id="pdfFrame" title="Trình xem PDF" src="about:blank"></iframe>
+  </div>
+  <div class="pdf-modal-warn" id="pdfWarn">
+    ⚠️ Trình duyệt không hiển thị được PDF trong khung. Vui lòng bấm <strong>"↗ Mở tab mới"</strong> để xem.
+  </div>
+  <div class="pdf-modal-footer">
+    <a class="pdf-modal-btn btn-open" id="pdfOpenNew" href="#" target="_blank" rel="noopener">↗ Mở tab mới</a>
+    <a class="pdf-modal-btn btn-download" id="pdfDownload" href="#" download>⭳ Tải xuống</a>
+    <button class="pdf-modal-btn btn-copy" id="pdfCopyLink">📋 Sao chép link</button>
+  </div>
+</div>
+
+<script>
+/* =========================================================================
+   CẤU HÌNH TĨNH
+   ========================================================================= */
+const LOAI_HOSO = [
+  {key:"fileGPMT",     nhan:"GPMT",           icon:"📄", css:"gpmt-file",     moTa:"Giấy phép môi trường"},
+  {key:"fileDKMT",     nhan:"ĐKMT",           icon:"📋", css:"dkmt-file",     moTa:"Đăng ký môi trường"},
+  {key:"fileBaoCao",   nhan:"Báo cáo BVMT",   icon:"📊", css:"baocao-file",   moTa:"Báo cáo công tác BVMT định kỳ"},
+  {key:"fileGPKT",     nhan:"GPKT",           icon:"💧", css:"gpkt-file",     moTa:"Giấy phép khai thác nước"},
+  {key:"fileQuanTrac", nhan:"KQ Quan trắc",   icon:"🧪", css:"quantrac-file", moTa:"Kết quả quan trắc môi trường"},
+  {key:"fileKhac",     nhan:"Tài liệu khác",  icon:"📁", css:"khac-file",     moTa:"PCCC, XLNT, sự cố môi trường…"}
+];
+
+const DATA_TINH = {
+  canCu:[
+    ["1","Luật Bảo vệ môi trường 72/2020/QH14","01/01/2022","Khung pháp lý tổng thể về BVMT."],
+    ["2","Luật 146/2025/QH15 sửa 15 luật","01/01/2026","Sửa thẩm quyền ĐTM/GPMT, mô hình 2 cấp."],
+    ["3","NĐ 08/2022/NĐ-CP","10/01/2022","Quy định chi tiết thi hành Luật BVMT."],
+    ["4","NĐ 05/2025/NĐ-CP","06/01/2025","Sửa đổi NĐ 08/2022."],
+    ["5","NĐ 48/2026/NĐ-CP","29/01/2026","Bổ sung Điều 26a, thay đổi Phụ lục II."],
+    ["6","VBHN 49/VBHN-BNNMT","29/01/2026","Bản hợp nhất NĐ 08+05+48."],
+    ["7","NĐ 110/2026/NĐ-CP","25/05/2026","Trách nhiệm tái chế (EPR)."],
+    ["8","TT 02/2022/TT-BTNMT","10/01/2022","Hướng dẫn kỹ thuật chi tiết."],
+    ["9","TT 07/2025/TT-BTNMT","28/02/2025","Sửa thời hạn báo cáo BVMT định kỳ."],
+    ["10","TT 09/2026/TT-BNNMT","29/01/2026","Bổ sung Điều 18a–18c GPMT."],
+    ["11","TT 22/2026/TT-BNNMT","19/05/2026","Phân cấp, đơn giản hóa TTHC."],
+    ["11b","NQ 66.19/2026/NQ-CP","18/5/2026–28/2/2027","⭐ Cắt giảm, phân quyền TTHC môi trường (Phụ lục IX)."],
+    ["12","VBHN 55/VBHN-BNNMT","19/05/2026","Hợp nhất các Thông tư."],
+    ["13","Luật Tổ chức CQĐP 72/2025/QH15","2025–2026","Chuyển mô hình 3 cấp sang 2 cấp."],
+    ["14","Nghị quyết 202/2025/QH15","12/6/2025","Sáp nhập tỉnh — 34 tỉnh/thành."],
+    ["15","Luật Tài nguyên nước 2023","2023","Giấy phép khai thác, sử dụng tài nguyên nước."]
+  ],
+  coQuan:[
+    ["Cấp Trung ương","Bộ Nông nghiệp và Môi trường","Thẩm định ĐTM, cấp GPMT dự án Nhóm I; cấp phép khai thác nước lớn."],
+    ["Cấp tỉnh","Sở Nông nghiệp và Môi trường","Thẩm định ĐTM, cấp GPMT Nhóm II, III; cấp phép khai thác nước theo thẩm quyền."],
+    ["Cấp xã","UBND cấp xã","Tiếp nhận ĐKMT (Nhóm IV); báo cáo BVMT."]
+  ],
+  decisionTree:[
+    {q:"Dự án có thuộc Nhóm I không?",yes:"Lập Báo cáo ĐTM.",no:"→ Câu hỏi 2"},
+    {q:"Nhóm II có yếu tố nhạy cảm hoặc nguy cơ ô nhiễm?",yes:"Lập Báo cáo ĐTM.",no:"→ Câu hỏi 3"},
+    {q:"Có phát sinh nước thải, khí thải phải xử lý?",yes:"Lập GPMT.",no:"→ Câu hỏi 4"},
+    {q:"Nhóm IV có phát sinh chất thải không?",yes:"Lập ĐKMT tại UBND cấp xã.",no:"Kiểm tra danh mục miễn ĐKMT."}
+  ],
+  nhom:{
+    I:{full:"Nhóm I — Nguy cơ tác động CAO",canCuChiTiet:"Phụ lục III NĐ 08/2022",rows:[
+      {tt:"Đánh giá sơ bộ TĐMT",dk:"req",coQuan:"Cơ quan chấp thuận chủ trương đầu tư",thoiDiem:"Giai đoạn tiền khả thi",thoiHan:"Theo thủ tục chủ trương"},
+      {tt:"Báo cáo ĐTM",dk:"req",coQuan:"Bộ NN&MT hoặc UBND cấp tỉnh",thoiDiem:"Đồng thời lập NCKT",thoiHan:"Theo quy chế hội đồng"},
+      {tt:"GPMT",dk:"req",coQuan:"Bộ NN&MT hoặc UBND cấp tỉnh",thoiDiem:"Trước vận hành thử nghiệm",thoiHan:"Không quá 32 ngày"},
+      {tt:"ĐKMT",dk:"na",coQuan:"—",thoiDiem:"—",thoiHan:"Không áp dụng"}
+    ],note:"Nếu NT ≥10.000 m³/ngày hoặc KT ≥200.000 m³/giờ phải tham vấn thêm."},
+    II:{full:"Nhóm II — Nguy cơ trung bình",canCuChiTiet:"Phụ lục IV NĐ 08/2022",rows:[
+      {tt:"Đánh giá sơ bộ TĐMT",dk:"na",coQuan:"—",thoiDiem:"—",thoiHan:"Không áp dụng"},
+      {tt:"Báo cáo ĐTM",dk:"cond",coQuan:"Bộ NN&MT hoặc UBND cấp tỉnh",thoiDiem:"Trước quyết định đầu tư",thoiHan:"Không quy định cứng"},
+      {tt:"GPMT",dk:"req",coQuan:"Chủ tịch UBND cấp tỉnh",thoiDiem:"Trước vận hành chính thức",thoiHan:"Không quá 30 ngày"},
+      {tt:"ĐKMT",dk:"na",coQuan:"—",thoiDiem:"—",thoiHan:"Không áp dụng"}
+    ],note:"ĐTM bắt buộc nếu có yếu tố nhạy cảm hoặc nguy cơ ô nhiễm."},
+    III:{full:"Nhóm III — Ít nguy cơ",canCuChiTiet:"Phụ lục V, VBHN 49",rows:[
+      {tt:"Đánh giá sơ bộ TĐMT",dk:"na",coQuan:"—",thoiDiem:"—",thoiHan:"—"},
+      {tt:"Báo cáo ĐTM",dk:"na",coQuan:"—",thoiDiem:"—",thoiHan:"—"},
+      {tt:"GPMT",dk:"req",coQuan:"Chủ tịch UBND cấp tỉnh",thoiDiem:"Trước vận hành",thoiHan:"Không quá 30 ngày"},
+      {tt:"ĐKMT",dk:"rep",coQuan:"UBND cấp xã",thoiDiem:"Trước hoạt động (nếu không GPMT)",thoiHan:"Chỉ tiếp nhận"}
+    ],note:"Từ 01/01/2026, thẩm quyền GPMT Nhóm III chuyển về UBND cấp tỉnh."},
+    IV:{full:"Nhóm IV — Không nguy cơ",canCuChiTiet:"Phương pháp loại trừ",rows:[
+      {tt:"Đánh giá sơ bộ TĐMT",dk:"na",coQuan:"—",thoiDiem:"—",thoiHan:"—"},
+      {tt:"Báo cáo ĐTM",dk:"na",coQuan:"—",thoiDiem:"—",thoiHan:"—"},
+      {tt:"GPMT",dk:"na",coQuan:"—",thoiDiem:"—",thoiHan:"Không áp dụng"},
+      {tt:"ĐKMT",dk:"cond",coQuan:"UBND cấp xã",thoiDiem:"Trước hoạt động",thoiHan:"Chỉ tiếp nhận"}
+    ],note:"Miễn ĐKMT nếu không phát sinh chất thải."}
+  },
+  matrix:{procs:["ĐGSB TĐMT","Báo cáo ĐTM","GPMT","ĐKMT"],rows:[
+    {g:"Nhóm I",v:["req","req","req","na"]},
+    {g:"Nhóm II",v:["na","cond","req","na"]},
+    {g:"Nhóm III",v:["na","na","req","rep"]},
+    {g:"Nhóm IV",v:["na","na","na","cond"]}
+  ]},
+  thuTuc:{
+    dtm:{key:"dtm",tag:"ĐTM",color:"",title:"Đánh giá tác động môi trường",doiTuong:"Dự án Nhóm I; Nhóm II có yếu tố nhạy cảm.",coQuan:"Bộ NN&MT hoặc UBND cấp tỉnh.",canCu:"Điều 30–38 Luật BVMT 2020",thoiHan:"Đồng thời lập NCKT; phê duyệt trước quyết định đầu tư.",steps:[
+      {t:"Khảo sát dự án, quy mô, công nghệ",forms:""},
+      {t:"Khảo sát hiện trạng môi trường",forms:""},
+      {t:"Đánh giá, dự báo tác động",forms:""},
+      {t:"Đề xuất biện pháp giảm thiểu",forms:""},
+      {t:"Lập báo cáo ĐTM",forms:"Mẫu 04"},
+      {t:"Tham vấn cộng đồng",forms:"Mẫu 04a"},
+      {t:"Nộp hồ sơ thẩm định",forms:"Mẫu 02, 03"},
+      {t:"Chỉnh sửa theo hội đồng",forms:"Mẫu 05–08"},
+      {t:"Nhận QĐ phê duyệt",forms:"Mẫu 09, 10"}
+    ]},
+    gpmt:{key:"gpmt",tag:"GPMT",color:"amber",title:"Giấy phép môi trường",doiTuong:"Nhóm I, II, III có phát sinh NT/KT/CTNH.",coQuan:"Bộ NN&MT hoặc UBND cấp tỉnh.",canCu:"Điều 39–48 Luật BVMT 2020",thoiHan:"Nộp trước 32/30 ngày. Hiệu lực 07–10 năm.",steps:[
+      {t:"Khảo sát doanh nghiệp",forms:""},
+      {t:"Thu thập hồ sơ pháp lý",forms:""},
+      {t:"Khảo sát công trình XLMT",forms:""},
+      {t:"Lấy số liệu quan trắc",forms:""},
+      {t:"Lập Báo cáo đề xuất cấp GPMT",forms:"Mẫu 22b/c/d"},
+      {t:"Nộp hồ sơ, nộp phí",forms:"Mẫu 22a"},
+      {t:"Công khai, tham vấn, kiểm tra",forms:"Mẫu 24–39"},
+      {t:"Chỉnh sửa bổ sung",forms:"Mẫu 33, 35"},
+      {t:"Nhận GPMT",forms:"Mẫu 40, 41"}
+    ]},
+    dkmt:{key:"dkmt",tag:"ĐKMT",color:"slate",title:"Đăng ký môi trường",doiTuong:"Dự án Nhóm IV, Nhóm III không GPMT.",coQuan:"UBND cấp xã.",canCu:"Điều 49 Luật BVMT 2020",thoiHan:"Trước hoạt động chính thức.",steps:[
+      {t:"Thu thập thông tin dự án",forms:""},
+      {t:"Lập văn bản ĐKMT",forms:"Mẫu 47"},
+      {t:"Nộp hồ sơ tại UBND cấp xã",forms:""},
+      {t:"UBND tiếp nhận, cập nhật CSDL",forms:""}
+    ]}
+  },
+  hoSoVanHanh:[
+    {key:"baocao",nhan:"Báo cáo công tác BVMT định kỳ",icon:"📊",mau:"Mẫu 05A (có GPMT) / 05B (chỉ ĐKMT)",tanSuat:"1 lần/năm, trước 15/01 năm tiếp theo",coQuan:"Sở NN&MT tỉnh (nếu GPMT) hoặc UBND cấp xã (nếu ĐKMT)",
+      noiDung:["Kết quả hoạt động BVMT năm báo cáo","Số liệu phát sinh chất thải (nước thải, khí thải, CTR, CTNH)","Kết quả quan trắc định kỳ","Tình hình vận hành công trình XLMT","Sự cố môi trường và biện pháp khắc phục","Kế hoạch BVMT năm tiếp theo"],
+      luuY:"Nếu chậm nộp hoặc nộp muộn → căn cứ để cơ quan chức năng kiểm tra, xử phạt hành chính."},
+    {key:"gpkt",nhan:"Giấy phép khai thác, sử dụng nước",icon:"💧",mau:"Mẫu tại NĐ 02/2023/NĐ-CP",tanSuat:"Hiệu lực 10–15 năm, gia hạn trước 90 ngày",coQuan:"Sở NN&MT tỉnh hoặc UBND cấp xã tùy lưu lượng",
+      noiDung:["Vị trí, lưu lượng khai thác","Phương thức khai thác","Chế độ khai thác theo mùa","Yêu cầu bảo vệ nguồn nước","Nghĩa vụ kê khai, báo cáo"],
+      luuY:"Nhà máy nước mặt phải có GPKT trước khi vận hành chính thức."},
+    {key:"quantrac",nhan:"Kết quả quan trắc môi trường định kỳ",icon:"🧪",mau:"Theo tần suất GPMT (3–6 tháng/lần)",tanSuat:"Theo GPMT",coQuan:"Lưu nội bộ + nộp kèm Báo cáo BVMT định kỳ",
+      noiDung:["Kết quả nước thải sau xử lý","Kết quả khí thải (nếu có)","Kết quả nước mặt (đầu vào)","Kết quả bùn thải","Chứng thư hiệu chuẩn thiết bị lấy mẫu"],
+      luuY:"Sai lệch số liệu → bị coi là vi phạm."},
+    {key:"khac",nhan:"Tài liệu khác",icon:"📁",mau:"Đa dạng",tanSuat:"Theo phát sinh",coQuan:"Lưu nội bộ",
+      noiDung:["Hồ sơ PCCC","Sổ giao nhận CTNH / CTR công nghiệp","Biên bản bàn giao chất thải","Báo cáo đột xuất sự cố","Chứng từ xử lý bùn thải"],
+      luuY:"Lưu tối thiểu 5 năm theo quy định."}
+  ],
+  lich:[
+    ["Trước 15/01 năm tiếp theo","Nộp Báo cáo BVMT định kỳ","Sở NN&MT tỉnh / UBND xã"],
+    ["03–06 tháng/lần","Quan trắc định kỳ NT, KT","Theo tần suất GPMT"],
+    ["Liên tục 24/24h","Quan trắc tự động (nếu thuộc diện)","Truyền về Sở NN&MT"],
+    ["Tối thiểu 1 lần/năm","Quan trắc môi trường lao động","Luật ATVSLĐ"],
+    ["Trước 90 ngày khi GPKT hết hạn","Nộp hồ sơ gia hạn GPKT","Sở NN&MT tỉnh"],
+    ["Trước khi GPMT hết hạn","Chuẩn bị hồ sơ cấp lại","Chủ động 3–6 tháng"]
+  ],
+  bieumau:{
+    A:{name:"Phụ lục A — ĐTM",color:"",src:"https://www.luatmoitruong.vn",items:[
+      ["Mẫu 02","Văn bản đề nghị thẩm định ĐTM"],
+      ["Mẫu 04","Cấu trúc báo cáo ĐTM"],
+      ["Mẫu 04a","Biên bản tham vấn cộng đồng"],
+      ["Mẫu 10","QĐ phê duyệt kết quả thẩm định"]
+    ]},
+    B:{name:"Phụ lục B — GPMT",color:"amber",src:"https://www.luatmoitruong.vn",items:[
+      ["Mẫu 22a","Văn bản đề nghị cấp GPMT"],
+      ["Mẫu 22b","Báo cáo đề xuất GPMT (đã có ĐTM)"],
+      ["Mẫu 22c","Báo cáo đề xuất GPMT (Nhóm II, III)"],
+      ["Mẫu 40","Giấy phép môi trường"],
+      ["Mẫu 41","GPMT điều chỉnh"]
+    ]},
+    C:{name:"Phụ lục C — ĐKMT",color:"slate",src:"https://www.luatmoitruong.vn",items:[
+      ["Mẫu 47","Văn bản đăng ký môi trường"]
+    ]},
+    D:{name:"Phụ lục D — Báo cáo BVMT",color:"grey",src:"https://www.luatmoitruong.vn",items:[
+      ["Mẫu 05A","Báo cáo BVMT — cơ sở có GPMT"],
+      ["Mẫu 05B","Báo cáo BVMT — cơ sở có ĐKMT"],
+      ["Mẫu 03 (PL III)","Sổ giao nhận CTNH"],
+      ["Mẫu 04 (PL III)","Chứng từ CTNH"]
+    ]}
+  },
+  vipham:[
+    ["Chậm/không thực hiện TTHC","Chưa có GPMT/ĐKMT đã hoạt động","Phạt tiền, đình chỉ, buộc di dời"],
+    ["Vi phạm nội dung GPMT","Xả thải vượt QC, không vận hành XLNT","Phạt tiền, thu hồi GPMT"],
+    ["Vi phạm báo cáo","Không nộp/nộp muộn báo cáo BVMT","Kiểm tra đột xuất"],
+    ["Không có GPKT","Khai thác nước không phép","Đình chỉ khai thác, phạt tiền"],
+    ["Vi phạm quan trắc","Không lấy mẫu, số liệu sai lệch","Phạt tiền, thu hồi kết quả"],
+    ["Vi phạm quản lý CTNH","Không phân loại, lưu chứa sai","Phạt tiền, biên bản"]
+  ],
+  NGUONG_66_19:{gpmt_nuocThai_nhomA:100,gpmt_nuocThai_khac:150,gpmt_khiThai:100000,dkmt_tinh_nuocThai:50,dkmt_tinh_khiThai:20000},
+  nganhNghe:[
+    {ma:"khaikhoang",ten:"Khai thác khoáng sản",nhomA:false,dtmDat:true},
+    {ma:"capnuoc",ten:"Sản xuất, cung cấp nước sạch (nhà máy nước)",nhomA:false},
+    {ma:"chebienthucpham",ten:"Chế biến thực phẩm, đồ uống",nhomA:false},
+    {ma:"detnhuom",ten:"Dệt may có công đoạn nhuộm",nhomA:true},
+    {ma:"ximang",ten:"Sản xuất xi măng có clinker",nhomA:true},
+    {ma:"nhietdien",ten:"Nhiệt điện than",nhomA:true},
+    {ma:"kcnht",ten:"Khu sản xuất, kinh doanh tập trung",nhomA:true,dtmDat:true},
+    {ma:"xulyctnh",ten:"Dịch vụ tái chế, xử lý CTNH",nhomA:true,luonGPMT:true},
+    {ma:"nhapkhauphelieu",ten:"Nhập khẩu phế liệu làm nguyên liệu",nhomA:true,luonGPMT:true},
+    {ma:"dienhatnhan",ten:"Nhà máy điện hạt nhân",nhomA:false,dtmLuon:true},
+    {ma:"lanbien",ten:"Dự án có hoạt động lấn biển",nhomA:false,dtmLuon:true},
+    {ma:"channuoitaptrung",ten:"Chăn nuôi tập trung quy mô công nghiệp",nhomA:false},
+    {ma:"cokhilaprap",ten:"Cơ khí, lắp ráp, may mặc (không nhuộm)",nhomA:false},
+    {ma:"khobai",ten:"Kho bãi, logistics, trung tâm thương mại",nhomA:false},
+    {ma:"yte",ten:"Cơ sở y tế, bệnh viện, phòng khám",nhomA:false},
+    {ma:"khac",ten:"Loại hình khác / chưa xác định",nhomA:false}
+  ],
+  tinhThanh:[
+    {ma:"HN",ten:"TP. Hà Nội",loai:"TW",ghiChu:"Giữ nguyên"},
+    {ma:"HP",ten:"TP. Hải Phòng",loai:"TW",ghiChu:"Hợp nhất Hải Phòng + Hải Dương"},
+    {ma:"DN",ten:"TP. Đà Nẵng",loai:"TW",ghiChu:"Hợp nhất Đà Nẵng + Quảng Nam"},
+    {ma:"HCM",ten:"TP. Hồ Chí Minh",loai:"TW",ghiChu:"Hợp nhất TP.HCM + Bình Dương + Bà Rịa - Vũng Tàu"},
+    {ma:"CT",ten:"TP. Cần Thơ",loai:"TW",ghiChu:"Hợp nhất Cần Thơ + Hậu Giang + Sóc Trăng"},
+    {ma:"HUE",ten:"TP. Huế",loai:"TW",ghiChu:"Giữ nguyên"},
+    {ma:"TUYENQUANG",ten:"Tuyên Quang",loai:"tinh",ghiChu:"Hợp nhất Tuyên Quang + Hà Giang"},
+    {ma:"LAOCAI",ten:"Lào Cai",loai:"tinh",ghiChu:"Hợp nhất Lào Cai + Yên Bái"},
+    {ma:"THAINGUYEN",ten:"Thái Nguyên",loai:"tinh",ghiChu:"Hợp nhất Thái Nguyên + Bắc Kạn"},
+    {ma:"PHUTHO",ten:"Phú Thọ",loai:"tinh",ghiChu:"Hợp nhất Phú Thọ + Vĩnh Phúc + Hòa Bình"},
+    {ma:"BACNINH",ten:"Bắc Ninh",loai:"tinh",ghiChu:"Hợp nhất Bắc Ninh + Bắc Giang"},
+    {ma:"HUNGYEN",ten:"Hưng Yên",loai:"tinh",ghiChu:"Hợp nhất Hưng Yên + Thái Bình"},
+    {ma:"NINHBINH",ten:"Ninh Bình",loai:"tinh",ghiChu:"Hợp nhất Ninh Bình + Hà Nam + Nam Định"},
+    {ma:"THANHHOA",ten:"Thanh Hóa",loai:"tinh",ghiChu:"Giữ nguyên"},
+    {ma:"NGHEAN",ten:"Nghệ An",loai:"tinh",ghiChu:"Giữ nguyên"},
+    {ma:"HATINH",ten:"Hà Tĩnh",loai:"tinh",ghiChu:"Giữ nguyên"},
+    {ma:"QUANGTRI",ten:"Quảng Trị",loai:"tinh",ghiChu:"Hợp nhất Quảng Trị + Quảng Bình"},
+    {ma:"QUANGNGAI",ten:"Quảng Ngãi",loai:"tinh",ghiChu:"Hợp nhất Quảng Ngãi + Kon Tum"},
+    {ma:"GIALAI",ten:"Gia Lai",loai:"tinh",ghiChu:"Hợp nhất Gia Lai + Bình Định"},
+    {ma:"KHANHHOA",ten:"Khánh Hòa",loai:"tinh",ghiChu:"Hợp nhất Khánh Hòa + Ninh Thuận"},
+    {ma:"DAKLAK",ten:"Đắk Lắk",loai:"tinh",ghiChu:"Hợp nhất Đắk Lắk + Phú Yên"},
+    {ma:"LAMDONG",ten:"Lâm Đồng",loai:"tinh",ghiChu:"Hợp nhất Lâm Đồng + Đắk Nông + Bình Thuận"},
+    {ma:"DONGNAI",ten:"Đồng Nai",loai:"tinh",ghiChu:"Hợp nhất Đồng Nai + Bình Phước"},
+    {ma:"TAYNINH",ten:"Tây Ninh",loai:"tinh",ghiChu:"Hợp nhất Tây Ninh + Long An"},
+    {ma:"DONGTHAP",ten:"Đồng Tháp",loai:"tinh",ghiChu:"Hợp nhất Đồng Tháp + Tiền Giang"},
+    {ma:"VINHLONG",ten:"Vĩnh Long",loai:"tinh",ghiChu:"Hợp nhất Vĩnh Long + Bến Tre + Trà Vinh"},
+    {ma:"ANGIANG",ten:"An Giang",loai:"tinh",ghiChu:"Hợp nhất An Giang + Kiên Giang"},
+    {ma:"CAMAU",ten:"Cà Mau",loai:"tinh",ghiChu:"Hợp nhất Cà Mau + Bạc Liêu"},
+    {ma:"LANGSON",ten:"Lạng Sơn",loai:"tinh",ghiChu:"Giữ nguyên"},
+    {ma:"CAOBANG",ten:"Cao Bằng",loai:"tinh",ghiChu:"Giữ nguyên"},
+    {ma:"LAICHAU",ten:"Lai Châu",loai:"tinh",ghiChu:"Giữ nguyên"},
+    {ma:"DIENBIEN",ten:"Điện Biên",loai:"tinh",ghiChu:"Giữ nguyên"},
+    {ma:"SONLA",ten:"Sơn La",loai:"tinh",ghiChu:"Giữ nguyên"},
+    {ma:"QUANGNINH",ten:"Quảng Ninh",loai:"tinh",ghiChu:"Giữ nguyên"}
+  ],
+  yeuToNhayCam:[
+    {id:"rungdacdung",ten:"Sử dụng đất/mặt nước rừng đặc dụng"},
+    {id:"baotondadang",ten:"Sử dụng ≥0,5ha khu bảo tồn thiên nhiên"},
+    {id:"ngapnuoc",ten:"Sử dụng ≥0,2ha vùng đất ngập nước quan trọng"},
+    {id:"quymodat",ten:"Quy mô sử dụng đất ≥50ha, biển ≥10ha"},
+    {id:"nguonnuocsh",ten:"Xả NT vào vùng bảo hộ nguồn nước sinh hoạt"},
+    {id:"taidinhcu",ten:"Có yêu cầu di dân, tái định cư"}
+  ]
+};
+
+let DATA = Object.assign({}, DATA_TINH, {congTyNhaMay: []});
+
+/* ===== HELPERS ===== */
+const DK_LABEL={req:"BẮT BUỘC",cond:"CÓ ĐIỀU KIỆN",na:"KHÔNG ÁP DỤNG",rep:"THAY THẾ GPMT"};
+const DK_CLASS={req:"badge-required",cond:"badge-conditional",na:"badge-na",rep:"badge-replace"};
+const MCELL_CLASS={req:"req",cond:"cond",na:"na",rep:"rep"};
+function badge(dk){return `<span class="badge ${DK_CLASS[dk]}">${DK_LABEL[dk]}</span>`;}
+function chuanHoaFile(val){
+  if(!val) return [];
+  if(typeof val === "string") return val.trim() ? [{url:val, nhan:""}] : [];
+  if(Array.isArray(val)) return val.filter(f=>f && f.url);
+  return [];
+}
+
+function isIOS(){
+  return /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+}
+
+function renderFileGroup(plant, loai){
+  const files = chuanHoaFile(plant[loai.key]);
+  if(files.length === 0){
+    return `<span class="link-btn-empty" title="Chưa có file ${loai.moTa}">${loai.icon} ${loai.nhan}: chưa có</span>`;
+  }
+  if(files.length === 1){
+    const f = files[0];
+    const nhan = f.nhan ? `${loai.icon} ${loai.nhan} — ${f.nhan}` : `${loai.icon} Xem ${loai.nhan}`;
+    return `<button type="button" class="link-btn ${loai.css} pdf-open-btn" 
+      data-pdf-url="${f.url}" 
+      data-pdf-title="${loai.nhan}${f.nhan ? ' — '+f.nhan : ''}" 
+      data-pdf-plant="${plant.ten} (${plant.id})" 
+      data-pdf-icon="${loai.icon}"
+      title="Bấm để xem ${loai.moTa}">${nhan}</button>`;
+  }
+  const uid = `dd-${plant.id}-${loai.key}`;
+  const items = files.map((f, idx)=>{
+    const label = f.nhan || f.url.split('/').pop();
+    return `<button type="button" class="file-dropdown-item pdf-open-btn" 
+      data-pdf-url="${f.url}" 
+      data-pdf-title="${loai.nhan} — ${label}" 
+      data-pdf-plant="${plant.ten} (${plant.id})" 
+      data-pdf-icon="${loai.icon}">
+      <span class="item-icon">${loai.icon}</span>
+      <span class="item-label">${label}</span>
+      <small>↗</small>
+    </button>`;
+  }).join("");
+  return `<div class="file-group">
+    <button type="button" class="link-btn ${loai.css} file-group-btn" data-dropdown="${uid}" aria-haspopup="true" aria-expanded="false">
+      ${loai.icon} ${loai.nhan} (${files.length})
+    </button>
+    <div class="file-dropdown" id="${uid}" role="menu">
+      <div class="file-dropdown-head">📎 ${loai.nhan} — chọn file để xem</div>
+      <div class="file-dropdown-list">${items}</div>
+    </div>
+  </div>`;
+}
+
+const PDF_MODAL = {
+  backdrop: null, modal: null, file: null, plant: null, icon: null,
+  frame: null, loading: null, warn: null,
+  btnOpen: null, btnDownload: null, btnCopy: null, btnClose: null,
+  currentUrl: "", isOpen: false,
+  
+  init(){
+    this.backdrop = document.getElementById("pdfBackdrop");
+    this.modal = document.getElementById("pdfModal");
+    this.file = document.getElementById("pdfModalFile");
+    this.plant = document.getElementById("pdfModalPlant");
+    this.icon = document.getElementById("pdfModalIcon");
+    this.frame = document.getElementById("pdfFrame");
+    this.loading = document.getElementById("pdfLoading");
+    this.warn = document.getElementById("pdfWarn");
+    this.btnOpen = document.getElementById("pdfOpenNew");
+    this.btnDownload = document.getElementById("pdfDownload");
+    this.btnCopy = document.getElementById("pdfCopyLink");
+    this.btnClose = document.getElementById("pdfModalClose");
+    
+    this.backdrop.addEventListener("click", ()=> this.close());
+    this.btnClose.addEventListener("click", ()=> this.close());
+    document.addEventListener("keydown", e=>{
+      if(e.key === "Escape" && this.isOpen) this.close();
+    });
+    
+    this.btnCopy.addEventListener("click", ()=>{
+      const fullUrl = new URL(this.currentUrl, window.location.href).href;
+      navigator.clipboard.writeText(fullUrl).then(()=>{
+        const oldText = this.btnCopy.innerHTML;
+        this.btnCopy.innerHTML = "✓ Đã sao chép!";
+        this.btnCopy.classList.add("copied");
+        setTimeout(()=>{
+          this.btnCopy.innerHTML = oldText;
+          this.btnCopy.classList.remove("copied");
+        }, 2000);
+      }).catch(()=>{
+        const ta = document.createElement("textarea");
+        ta.value = fullUrl;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        document.body.removeChild(ta);
+        alert("Đã sao chép link: " + fullUrl);
+      });
+    });
+    
+    document.addEventListener("click", e=>{
+      const pdfBtn = e.target.closest(".pdf-open-btn");
+      if(pdfBtn){
+        e.preventDefault();
+        e.stopPropagation();
+        const url = pdfBtn.dataset.pdfUrl;
+        const title = pdfBtn.dataset.pdfTitle || "Tài liệu";
+        const plant = pdfBtn.dataset.pdfPlant || "";
+        const icon = pdfBtn.dataset.pdfIcon || "📄";
+        this.open(url, title, plant, icon);
+        document.querySelectorAll(".file-dropdown.show").forEach(dd=>dd.classList.remove("show"));
+      }
+    });
+  },
+  
+  open(url, title, plant, icon){
+    if(isIOS()){
+      window.open(url, "_blank", "noopener");
+      return;
+    }
+    this.currentUrl = url;
+    this.file.textContent = title;
+    this.plant.textContent = plant || "";
+    this.icon.textContent = icon;
+    this.btnOpen.href = url;
+    this.btnDownload.href = url;
+    this.loading.classList.remove("hidden");
+    this.warn.classList.remove("show");
+    this.frame.src = url;
+    this.frame.onload = ()=>{
+      setTimeout(()=>{ this.loading.classList.add("hidden"); }, 300);
+    };
+    setTimeout(()=>{
+      if(!this.loading.classList.contains("hidden")){
+        this.loading.classList.add("hidden");
+        this.warn.classList.add("show");
+      }
+    }, 4000);
+    this.backdrop.classList.add("show");
+    this.modal.classList.add("show");
+    document.body.classList.add("pdf-modal-open");
+    this.isOpen = true;
+  },
+  
+  close(){
+    if(!this.isOpen) return;
+    this.backdrop.classList.remove("show");
+    this.modal.classList.remove("show");
+    document.body.classList.remove("pdf-modal-open");
+    setTimeout(()=>{ this.frame.src = "about:blank"; }, 250);
+    this.isOpen = false;
+  }
+};
+
+function classify(st){
+  const nganh=DATA.nganhNghe.find(n=>n.ma===st.nganhNghe)||DATA.nganhNghe[DATA.nganhNghe.length-1];
+  const tinh=DATA.tinhThanh.find(t=>t.ma===st.tinh);
+  const N=DATA.NGUONG_66_19;
+  const coNhayCam=(st.nhayCam||[]).length>0;
+  const quyMoLon=st.dienTich>=50;
+  const canDTM=!!nganh.dtmLuon||!!nganh.dtmDat||coNhayCam||quyMoLon;
+  const nguongNT=nganh.nhomA?N.gpmt_nuocThai_nhomA:N.gpmt_nuocThai_khac;
+  const vuotNguong=(st.nuocThai>=nguongNT)||(st.khiThai>=N.gpmt_khiThai);
+  const canGPMT=!!nganh.luonGPMT||vuotNguong;
+  const coPhatSinh=(st.nuocThai>0||st.khiThai>0||st.ctnh>0||st.ctrCN>0);
+  const dkmtCapTinh=!canGPMT&&coPhatSinh&&(st.nuocThai>=N.dkmt_tinh_nuocThai||st.khiThai>=N.dkmt_tinh_khiThai);
+  const dkmtCapXa=!canGPMT&&coPhatSinh&&!dkmtCapTinh;
+  const canDKMT=dkmtCapTinh||dkmtCapXa;
+  let finalNhom;
+  if(canDTM)finalNhom=coNhayCam||quyMoLon?"I":"II";
+  else if(canGPMT)finalNhom="III";
+  else finalNhom="IV";
+  let coQuanDTM=`Chủ tịch UBND ${tinh?tinh.ten:"cấp tỉnh"}`;
+  const thoiHanDTM=coQuanDTM.startsWith("Bộ")?"Không quá 30 ngày":"Không quá 20 ngày";
+  let coQuanGPMT=`Chủ tịch UBND ${tinh?tinh.ten:"cấp tỉnh"}`;
+  let coQuanDKMT="—";
+  if(dkmtCapTinh)coQuanDKMT=`UBND ${tinh?tinh.ten:"cấp tỉnh"}`;
+  else if(dkmtCapXa)coQuanDKMT=`UBND cấp xã (${tinh?tinh.ten:"—"})`;
+  return{nganh,tinh,finalNhom,canDanhGiaSoBo:canDTM&&(nganh.dtmLuon||quyMoLon),canDTM,canGPMT,canDKMT,dkmtCapTinh,dkmtCapXa,coQuanDTM,coQuanGPMT,coQuanDKMT,thoiHanDTM,thoiHanGPMT:"07–10 năm",nguongNuocThaiGPMT:nguongNT,nguongKhiThaiGPMT:N.gpmt_khiThai,chiTietNguon:{nt:{nhan:st.nuocThai>0?st.nuocThai+" m³/ngày":"Không phát sinh"},kt:{nhan:st.khiThai>0?st.khiThai+" m³/giờ":"Không phát sinh"}}};
+}
+
+function renderFormWizard(){
+  const nganhOpts=DATA.nganhNghe.map(n=>`<option value="${n.ma}">${n.ten}</option>`).join("");
+  const twList=DATA.tinhThanh.filter(t=>t.loai==="TW");
+  const tinhList=DATA.tinhThanh.filter(t=>t.loai!=="TW");
+  const twOpts=twList.map(t=>`<option value="${t.ma}">${t.ten}</option>`).join("");
+  const tinhOpts=tinhList.map(t=>`<option value="${t.ma}">${t.ten}</option>`).join("");
+  const tinhOptsFull=`<optgroup label="6 Thành phố trực thuộc Trung ương">${twOpts}</optgroup><optgroup label="28 Tỉnh">${tinhOpts}</optgroup>`;
+  const nhayCamChecks=DATA.yeuToNhayCam.map(y=>`<label class="wz-check" data-ycid="${y.id}"><input type="checkbox" value="${y.id}" class="ff-nhaycam"><span>${y.ten}</span></label>`).join("");
+  return `<section class="section" id="sec-form">
+    <p class="section-eyebrow">Công cụ tra cứu tương tác</p>
+    <h2 class="section-title">Tra cứu theo Form</h2>
+    <p class="section-desc">Điền 3 bước, kết quả cập nhật tự động. 34 tỉnh/thành theo NQ 202/2025/QH15.</p>
+    <div class="wizard-grid">
+      <div>
+        <div class="wz-step"><div class="wz-step-head"><div class="wz-step-num">1</div><p class="wz-step-title">Quy mô và ngành nghề</p></div>
+          <div class="wz-toggle" id="ffLoaiHinh"><button data-v="duan" class="active">Dự án mới</button><button data-v="coso">Cơ sở đang hoạt động</button></div>
+          <div class="wz-row">
+            <div class="wz-field"><label>Tỉnh / thành phố</label><select id="ffTinh">${tinhOptsFull}</select></div>
+            <div class="wz-field"><label>Ngành nghề</label><select id="ffNganh">${nganhOpts}</select></div>
+          </div>
+          <div class="wz-row">
+            <div class="wz-field"><label>Vốn đầu tư (tỷ VNĐ)</label><input type="number" id="ffVon" min="0" value="50"></div>
+            <div class="wz-field"><label>Diện tích (ha)</label><input type="number" id="ffDT" min="0" value="1" step="0.1"></div>
+          </div>
+          <p class="wz-hint" id="ffTinhGhiChu"></p>
+        </div>
+        <div class="wz-step"><div class="wz-step-head"><div class="wz-step-num">2</div><p class="wz-step-title">Nguồn phát sinh</p></div>
+          <div class="wz-row">
+            <div class="wz-field"><label>Nước thải (m³/ngày)</label><input type="number" id="ffNuocThai" min="0" value="0"></div>
+            <div class="wz-field"><label>Khí thải (m³/giờ)</label><input type="number" id="ffKhiThai" min="0" value="0"></div>
+          </div>
+          <div class="wz-row">
+            <div class="wz-field"><label>CTNH (kg/năm)</label><input type="number" id="ffCTNH" min="0" value="0"></div>
+            <div class="wz-field"><label>CTR CN (kg/ngày)</label><input type="number" id="ffCTRCN" min="0" value="0"></div>
+          </div>
+        </div>
+        <div class="wz-step"><div class="wz-step-head"><div class="wz-step-num">3</div><p class="wz-step-title">Yếu tố nhạy cảm</p></div>
+          <div class="wz-checks">${nhayCamChecks}</div>
+        </div>
+      </div>
+      <div class="result-wrap"><div id="resultCard"></div></div>
+    </div>
+  </section>`;
+}
+
+function renderResultCard(r){
+  const badgeClass="badge-"+r.finalNhom;
+  const nhomTitle={I:"Dự án bắt buộc ĐTM — trường hợp luôn phải ĐTM",II:"Dự án bắt buộc ĐTM — có yếu tố nhạy cảm/quy mô lớn",III:"Dự án phải có Giấy phép môi trường",IV:"Dự án thuộc diện ĐKMT hoặc miễn trừ"}[r.finalNhom];
+  function oblig(l,on,tOn,tOff){return `<div class="oblig-row"><span class="oblig-label">${l}:</span><span class="oblig-val ${on?'green':'grey'}">${on?tOn:tOff}</span></div>`;}
+  const tinhInfo=r.tinh?`<span style="color:var(--ink-muted)">(${r.tinh.ghiChu})</span>`:"";
+  return `<div class="result-card">
+    <div class="result-top">
+      <span class="result-badge ${badgeClass}">GROUP ${r.finalNhom}</span>
+      <div class="result-canccu">Căn cứ: Luật BVMT 2020 &amp; <strong>NQ 66.19/2026/NQ-CP</strong></div>
+      <p class="result-title">${nhomTitle}</p>
+      <p class="result-desc">${r.nganh.ten} — tại ${r.tinh?r.tinh.ten:"—"} ${tinhInfo}</p>
+      <div class="result-pills">
+        <span class="pill">Nước thải: <strong>${r.chiTietNguon.nt.nhan}</strong></span>
+        <span class="pill">Khí thải: <strong>${r.chiTietNguon.kt.nhan}</strong></span>
+        <span class="pill">Ngưỡng GPMT: <strong>${r.nguongNuocThaiGPMT} m³/ngày</strong></span>
+      </div>
+    </div>
+    <div class="result-mid">
+      <div class="result-mid-head"><span>Nghĩa vụ pháp lý</span><span class="pulse"></span></div>
+      ${oblig("ĐGSB TĐMT",r.canDanhGiaSoBo,"Bắt buộc","Không áp dụng")}
+      ${oblig("Báo cáo ĐTM",r.canDTM,"Bắt buộc — "+r.thoiHanDTM,"Không áp dụng")}
+      ${oblig("Giấy phép môi trường",r.canGPMT,"Bắt buộc","Không áp dụng")}
+      ${!r.canGPMT?oblig("Đăng ký môi trường",r.canDKMT,r.dkmtCapTinh?"Bắt buộc — UBND cấp tỉnh":"Bắt buộc — UBND cấp xã","Miễn"):""}
+      <div class="result-agency">
+        <div class="result-agency-head"><span>Cơ quan thụ lý</span></div>
+        <div class="agency-row"><span>${r.canDTM?"Thẩm định ĐTM":"—"}</span><strong>${r.canDTM?r.coQuanDTM:"—"}</strong></div>
+        <div class="agency-row"><span>${r.canGPMT?"Cấp GPMT":(r.canDKMT?"Tiếp nhận ĐKMT":"—")}</span><strong>${r.canGPMT?r.coQuanGPMT:(r.canDKMT?r.coQuanDKMT:"—")}</strong></div>
+      </div>
+    </div>
+    <div class="result-tabs">
+      <a class="result-tab accent" data-scrollto="sec-nhom">▦ Bảng đối chiếu</a>
+      <a class="result-tab" data-scrollto="sec-${r.canDTM?'dtm':(r.canGPMT?'gpmt':'dkmt')}">🪜 Lộ trình</a>
+      <a class="result-tab" data-scrollto="sec-hoso">📊 Hồ sơ vận hành</a>
+    </div>
+    <div class="result-disclaimer">Kết quả tự động — vui lòng đối chiếu Phụ lục II–V và ý kiến Sở NN&amp;MT trước khi nộp hồ sơ chính thức.</div>
+  </div>`;
+}
+
+function updateFormResult(){
+  const st={
+    tinh:document.getElementById("ffTinh").value,
+    nganhNghe:document.getElementById("ffNganh").value,
+    von:parseFloat(document.getElementById("ffVon").value)||0,
+    dienTich:parseFloat(document.getElementById("ffDT").value)||0,
+    nuocThai:parseFloat(document.getElementById("ffNuocThai").value)||0,
+    khiThai:parseFloat(document.getElementById("ffKhiThai").value)||0,
+    ctnh:parseFloat(document.getElementById("ffCTNH").value)||0,
+    ctrCN:parseFloat(document.getElementById("ffCTRCN").value)||0,
+    nhayCam:Array.from(document.querySelectorAll(".ff-nhaycam:checked")).map(el=>el.value)
+  };
+  const r=classify(st);
+  document.getElementById("resultCard").innerHTML=renderResultCard(r);
+  const tinhObj=DATA.tinhThanh.find(t=>t.ma===st.tinh);
+  document.getElementById("ffTinhGhiChu").textContent=tinhObj?("📌 "+tinhObj.ghiChu):"";
+  document.querySelectorAll(".result-tab").forEach(tab=>tab.addEventListener("click",()=>goToTarget(tab.dataset.scrollto)));
+}
+
+function initFormWizard(){
+  document.getElementById("ffLoaiHinh").addEventListener("click",e=>{
+    const b=e.target.closest("button");if(!b)return;
+    document.querySelectorAll("#ffLoaiHinh button").forEach(x=>x.classList.remove("active"));
+    b.classList.add("active");updateFormResult();
+  });
+  ["ffTinh","ffNganh","ffVon","ffDT","ffNuocThai","ffKhiThai","ffCTNH","ffCTRCN"].forEach(id=>{
+    document.getElementById(id).addEventListener("input",updateFormResult);
+    document.getElementById(id).addEventListener("change",updateFormResult);
+  });
+  document.querySelectorAll(".ff-nhaycam").forEach(cb=>{
+    cb.addEventListener("change",()=>{cb.closest(".wz-check").classList.toggle("checked",cb.checked);updateFormResult();});
+  });
+  updateFormResult();
+}
+
+function renderCongTy(){
+  const STATUS_TEXT={green:"Đã hoàn thành",yellow:"Đang hoàn thiện",red:"Chưa có văn bản"};
+  const counts={green:0,yellow:0,red:0};
+  DATA.congTyNhaMay.forEach(p=>{if(counts[p.status.gpmt]!==undefined)counts[p.status.gpmt]++;});
+  const total=DATA.congTyNhaMay.length;
+  const pctGreen=total>0?Math.round((counts.green/total)*100):0;
+  let countByLoai = {};
+  LOAI_HOSO.forEach(l=>countByLoai[l.key]=0);
+  DATA.congTyNhaMay.forEach(p=>{
+    LOAI_HOSO.forEach(l=>{ if(chuanHoaFile(p[l.key]).length>0) countByLoai[l.key]++; });
+  });
+  const dashboard=`<div class="stat-dash">
+    <div class="stat-ring-card"><div class="stat-ring-num">${pctGreen}%</div></div>
+    <div class="stat-card"><div class="stat-num">${total}</div><div class="stat-label">Tổng số nhà máy</div></div>
+    <div class="stat-card st-green"><div class="stat-num">${countByLoai.fileGPMT||0}</div><div class="stat-label">Có GPMT</div></div>
+    <div class="stat-card st-yellow"><div class="stat-num">${countByLoai.fileDKMT||0}</div><div class="stat-label">Có ĐKMT</div></div>
+    <div class="stat-card st-purple"><div class="stat-num">${countByLoai.fileBaoCao||0}</div><div class="stat-label">Có Báo cáo BVMT</div></div>
+    <div class="stat-card st-teal"><div class="stat-num">${countByLoai.fileGPKT||0}</div><div class="stat-label">Có GPKT</div></div>
+    <div class="stat-card st-amber"><div class="stat-num">${countByLoai.fileQuanTrac||0}</div><div class="stat-label">Có KQ Quan trắc</div></div>
+  </div>`;
+  const filterChips=`<button class="form-chip active" data-pf="ALL">Tất cả (${total})</button>
+    <button class="form-chip" data-pf="green">🟢 Đã hoàn thành (${counts.green})</button>
+    <button class="form-chip" data-pf="yellow">🟡 Đang hoàn thiện (${counts.yellow})</button>
+    <button class="form-chip" data-pf="red">🔴 Chưa có (${counts.red})</button>`;
+  const cards=DATA.congTyNhaMay.map(p=>{
+    const st=p.status.gpmt;
+    const filesPhapLy = LOAI_HOSO.filter(l=>l.key==="fileGPMT"||l.key==="fileDKMT").map(l=>renderFileGroup(p,l)).join("");
+    const filesVanHanh = LOAI_HOSO.filter(l=>l.key!=="fileGPMT"&&l.key!=="fileDKMT").map(l=>renderFileGroup(p,l)).join("");
+    return `<div class="plant-card st-${st}" data-pstatus="${st}" id="plant-${p.id}">
+      <div class="plant-head">
+        <span class="plant-name">${p.ten} <code style="font-size:11px;color:var(--ink-muted);font-weight:600;background:rgba(255,255,255,.06);padding:2px 6px;border-radius:3px;margin-left:6px;">${p.id}</code></span>
+        <span class="plant-status-label st-${st}"><span class="status-dot status-${st}"></span>${STATUS_TEXT[st]}</span>
+      </div>
+      <div class="plant-meta">📍 ${p.diaDiem} &nbsp;·&nbsp; Công suất: <strong>${p.congSuat}</strong> &nbsp;·&nbsp; Phụ trách: ${p.nguoiPhuTrach}</div>
+      <div class="plant-note">${p.ghiChu}</div>
+      <div class="plant-files">
+        <div class="plant-files-row"><span class="plant-files-label">Hồ sơ pháp lý:</span>${filesPhapLy}</div>
+        <div class="plant-files-row"><span class="plant-files-label">Hồ sơ vận hành:</span>${filesVanHanh}</div>
+      </div>
+    </div>`;
+  }).join("");
+  return `<section class="section" id="sec-congty">
+    <p class="section-eyebrow">Cơ sở dữ liệu nội bộ — MT-1P</p>
+    <h2 class="section-title">Danh sách &amp; Thủ tục Môi trường của Công ty</h2>
+    <p class="section-desc">Trạng thái và hồ sơ môi trường của ${total} nhà máy. Bấm nút → xem PDF ngay trong web. Nút có <strong>▾</strong> = nhiều file → bấm chọn.</p>
+    <div id="dataSourceBadge" class="data-source-badge live">🟢 Dữ liệu tải từ <code>data.json</code> — v5.2</div>
+    ${dashboard}
+    <div class="status-legend">
+      <span><span class="status-dot status-green"></span>Đã có GPMT hoặc ĐKMT</span>
+      <span><span class="status-dot status-yellow"></span>Đang hoàn thiện</span>
+      <span><span class="status-dot status-red"></span>Chưa có văn bản</span>
+    </div>
+    <div class="status-filter form-filter" id="plantFilter">${filterChips}</div>
+    <div id="plantCards">${cards}</div>
+  </section>`;
+}
+
+function renderHoSoVanHanh(){
+  const cards = DATA.hoSoVanHanh.map(h=>{
+    const noiDung = h.noiDung.map(x=>`<li>${x}</li>`).join("");
+    return `<div class="card" id="hs-${h.key}">
+      <span class="card-tab">${h.icon} ${h.key.toUpperCase()}</span>
+      <p class="card-title">${h.icon} ${h.nhan}</p>
+      <div class="meta-grid">
+        <div class="meta-item"><dt>Mẫu / Biểu mẫu</dt><dd>${h.mau}</dd></div>
+        <div class="meta-item"><dt>Tần suất</dt><dd>${h.tanSuat}</dd></div>
+        <div class="meta-item" style="grid-column:1/-1;"><dt>Cơ quan nhận</dt><dd>${h.coQuan}</dd></div>
+      </div>
+      <div style="margin-top:12px;">
+        <p style="font-family:var(--sans);font-size:11.5px;font-weight:700;color:var(--ink-muted);text-transform:uppercase;margin:0 0 6px;">Nội dung chính</p>
+        <ul style="font-family:var(--sans);font-size:13px;margin:0;padding-left:20px;">${noiDung}</ul>
+      </div>
+      <div class="note" style="margin-top:12px;">${h.luuY}</div>
+    </div>`;
+  }).join("");
+  return `<section class="section" id="sec-hoso">
+    <p class="section-eyebrow">Vận hành &amp; hồ sơ</p>
+    <h2 class="section-title">Hồ sơ vận hành môi trường</h2>
+    <p class="section-desc">4 loại hồ sơ phải duy trì trong suốt vòng đời của nhà máy, ngoài hồ sơ pháp lý ban đầu.</p>
+    ${cards}
+  </section>`;
+}
+
+function renderTracuunhanh(){
+  const rows=DATA.decisionTree.map((d,i)=>`<div class="card" id="dt-${i}">
+    <span class="card-tab">CÂU ${i+1}</span>
+    <p class="card-title">${d.q}</p>
+    <div class="meta-grid">
+      <div class="meta-item"><dt>Nếu CÓ</dt><dd>${d.yes}</dd></div>
+      <div class="meta-item"><dt>Nếu KHÔNG</dt><dd>${d.no}</dd></div>
+    </div>
+  </div>`).join("");
+  return `<section class="section" id="sec-tracuunhanh">
+    <h2 class="section-title">Tra cứu nhanh — Tôi cần làm gì?</h2>
+    ${rows}
+  </section>`;
+}
+
+function renderCanCu(){
+  const rows=DATA.canCu.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td></tr>`).join("");
+  return `<section class="section" id="sec-canccu">
+    <h2 class="section-title">Căn cứ pháp lý</h2>
+    <table class="tbl"><thead><tr><th>STT</th><th>Văn bản</th><th>Hiệu lực</th><th>Nội dung</th></tr></thead><tbody>${rows}</tbody></table>
+  </section>`;
+}
+
+function renderCoQuan(){
+  const rows=DATA.coQuan.map(r=>`<tr><td><strong>${r[0]}</strong></td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join("");
+  return `<section class="section" id="sec-coquan">
+    <h2 class="section-title">Cơ quan quản lý</h2>
+    <table class="tbl"><thead><tr><th>Cấp</th><th>Tên</th><th>Chức năng</th></tr></thead><tbody>${rows}</tbody></table>
+  </section>`;
+}
+
+function renderTinhThanh(){
+  const twList=DATA.tinhThanh.filter(t=>t.loai==="TW");
+  const tinhList=DATA.tinhThanh.filter(t=>t.loai!=="TW");
+  const twRows=twList.map(t=>`<tr><td class="code">${t.ma}</td><td><strong>${t.ten}</strong></td><td>${t.ghiChu}</td></tr>`).join("");
+  const tinhRows=tinhList.map(t=>`<tr><td class="code">${t.ma}</td><td><strong>${t.ten}</strong></td><td>${t.ghiChu}</td></tr>`).join("");
+  return `<section class="section" id="sec-tinhthanh">
+    <h2 class="section-title">34 Tỉnh, Thành phố sau sáp nhập</h2>
+    <p class="section-desc">Theo Nghị quyết 202/2025/QH15. 6 thành phố TW + 28 tỉnh.</p>
+    <h3 style="font-family:var(--sans);font-size:15px;margin:22px 0 10px;color:var(--forest-deep);">🏙️ 6 Thành phố trực thuộc Trung ương</h3>
+    <table class="tbl"><thead><tr><th style="width:130px">Mã</th><th style="width:220px">Tên</th><th>Ghi chú</th></tr></thead><tbody>${twRows}</tbody></table>
+    <h3 style="font-family:var(--sans);font-size:15px;margin:22px 0 10px;color:var(--forest-deep);">🏞️ 28 Tỉnh</h3>
+    <table class="tbl"><thead><tr><th style="width:130px">Mã</th><th style="width:220px">Tên</th><th>Ghi chú</th></tr></thead><tbody>${tinhRows}</tbody></table>
+  </section>`;
+}
+
+function renderNhom(){
+  const groups=["I","II","III","IV"];
+  const tabs=groups.map((g,i)=>`<button class="tab ${i===0?'active':''}" data-nhom="${g}">Nhóm ${g}</button>`).join("");
+  const panels=groups.map((g,i)=>{
+    const d=DATA.nhom[g];
+    const rows=d.rows.map(r=>`<div class="card ${g==='III'?'amber':g==='IV'?'slate':''}">
+      <p class="card-title">${r.tt} ${badge(r.dk)}</p>
+      <div class="meta-grid">
+        <div class="meta-item"><dt>Cơ quan</dt><dd>${r.coQuan}</dd></div>
+        <div class="meta-item"><dt>Thời điểm</dt><dd>${r.thoiDiem}</dd></div>
+        <div class="meta-item"><dt>Thời hạn</dt><dd>${r.thoiHan}</dd></div>
+      </div>
+    </div>`).join("");
+    return `<div class="nhom-panel" data-panel="${g}" style="${i===0?'':'display:none'}">
+      <p style="font-family:var(--sans);font-size:13.5px;color:var(--ink-soft);margin:0 0 4px;"><strong>${d.full}</strong></p>
+      <p style="font-family:var(--sans);font-size:12.5px;color:var(--ink-soft);margin:0 0 16px;">Căn cứ: ${d.canCuChiTiet}</p>
+      ${rows}<div class="note">${d.note}</div>
+    </div>`;
+  }).join("");
+  return `<section class="section" id="sec-nhom">
+    <h2 class="section-title">Nhóm I – II – III – IV</h2>
+    <div class="tabbar" id="nhomTabs">${tabs}</div>
+    ${panels}
+  </section>`;
+}
+
+function renderMatrix(){
+  const head="<th>Nhóm</th>"+DATA.matrix.procs.map(p=>`<th>${p}</th>`).join("");
+  const rows=DATA.matrix.rows.map(r=>{
+    const cells=r.v.map(v=>`<td><span class="mcell ${MCELL_CLASS[v]}">${DK_LABEL[v]}</span></td>`).join("");
+    return `<tr><td>${r.g}</td>${cells}</tr>`;
+  }).join("");
+  return `<section class="section" id="sec-matrix">
+    <h2 class="section-title">Ma trận tổng hợp</h2>
+    <table class="matrix"><thead><tr>${head}</tr></thead><tbody>${rows}</tbody></table>
+  </section>`;
+}
+
+function renderThuTuc(tt){
+  const d=DATA.thuTuc[tt];
+  const steps=d.steps.map((s,i)=>`<li class="step ${d.color}"><div class="step-num">${i+1}</div><div class="step-body"><p class="step-title">${s.t}</p>${s.forms?`<span class="step-forms">${s.forms}</span>`:""}</div></li>`).join("");
+  return `<section class="section" id="sec-${tt}">
+    <p class="section-eyebrow">Theo thủ tục</p>
+    <h2 class="section-title">${d.title} (${d.tag})</h2>
+    <div class="card ${d.color}">
+      <span class="card-tab">ĐIỀU KIỆN</span>
+      <div class="meta-grid">
+        <div class="meta-item" style="grid-column:1/-1;"><dt>Đối tượng</dt><dd>${d.doiTuong}</dd></div>
+        <div class="meta-item"><dt>Cơ quan</dt><dd>${d.coQuan}</dd></div>
+        <div class="meta-item"><dt>Căn cứ</dt><dd>${d.canCu}</dd></div>
+        <div class="meta-item" style="grid-column:1/-1;"><dt>Thời hạn</dt><dd>${d.thoiHan}</dd></div>
+      </div>
+    </div>
+    <h3 style="font-family:var(--sans);font-size:15px;margin:22px 0 10px;">Quy trình — ${d.steps.length} bước</h3>
+    <ol class="steps">${steps}</ol>
+  </section>`;
+}
+
+function renderLich(){
+  const rows=DATA.lich.map(r=>`<div class="cal-row"><div class="cal-when">${r[0]}</div><div class="cal-what">${r[1]}<small>${r[2]}</small></div></div>`).join("");
+  return `<section class="section" id="sec-lich">
+    <h2 class="section-title">Lịch nghĩa vụ định kỳ</h2>
+    <div class="cal-strip">${rows}</div>
+  </section>`;
+}
+
+function renderBieumau(){
+  const keys=Object.keys(DATA.bieumau);
+  const chips=`<button class="form-chip active" data-fm="ALL">Tất cả</button>`+keys.map(k=>`<button class="form-chip" data-fm="${k}">${k}</button>`).join("");
+  const groups=keys.map(k=>{
+    const g=DATA.bieumau[k];
+    return g.items.map((it,i)=>`<tr data-fmgroup="${k}">
+      <td class="code">${it[0]}</td>
+      <td>${it[1]}</td>
+      <td><a class="link-btn" href="${g.src}" target="_blank" rel="noopener">📄 Nguồn</a></td>
+    </tr>`).join("");
+  }).join("");
+  return `<section class="section" id="sec-bieumau">
+    <h2 class="section-title">Danh mục biểu mẫu</h2>
+    <div class="form-filter" id="formFilter">${chips}</div>
+    <table class="tbl"><thead><tr><th>Mẫu số</th><th>Tên</th><th>Link</th></tr></thead><tbody id="formTbody">${groups}</tbody></table>
+  </section>`;
+}
+
+function renderVipham(){
+  const rows=DATA.vipham.map(r=>`<tr><td><strong>${r[0]}</strong></td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join("");
+  return `<section class="section" id="sec-vipham">
+    <h2 class="section-title">Vi phạm thường gặp</h2>
+    <table class="tbl"><thead><tr><th>Nhóm</th><th>Ví dụ</th><th>Hậu quả</th></tr></thead><tbody>${rows}</tbody></table>
+  </section>`;
+}
+
+function activateTab(sectionId){
+  document.querySelectorAll(".section").forEach(s=>s.classList.remove("active-tab"));
+  const sec=document.getElementById(sectionId);
+  if(sec)sec.classList.add("active-tab");
+  document.querySelectorAll(".rail-btn").forEach(b=>b.classList.toggle("active",b.dataset.goto===sectionId));
+  const topbar=document.querySelector(".topbar");
+  if(window.innerWidth<=880&&topbar)topbar.scrollIntoView({behavior:"instant",block:"start"});
+  else window.scrollTo(0,0);
+}
+
+function goToTarget(targetId){
+  let sectionId = targetId;
+  if(targetId.startsWith("plant-")){
+    sectionId = "sec-congty";
+  } else if(targetId.startsWith("sec-")){
+    sectionId = targetId;
+  } else {
+    const el = document.getElementById(targetId);
+    const parent = el ? el.closest(".section") : null;
+    sectionId = parent ? parent.id : targetId;
+  }
+  activateTab(sectionId);
+  if(targetId !== sectionId){
+    if(targetId.startsWith("plant-")){
+      const allChip = document.querySelector('#plantFilter .form-chip[data-pf="ALL"]');
+      if(allChip && !allChip.classList.contains("active")){
+        document.querySelectorAll("#plantFilter .form-chip").forEach(b=>b.classList.remove("active"));
+        allChip.classList.add("active");
+        document.querySelectorAll("#plantCards .plant-card").forEach(card=>{ card.style.display = ""; });
+      }
+    }
+    setTimeout(()=>{
+      const el = document.getElementById(targetId);
+      if(!el) return;
+      el.scrollIntoView({behavior:"smooth", block:"center"});
+      el.classList.add("hl-flash");
+      setTimeout(()=>el.classList.remove("hl-flash"), 2400);
+    }, 120);
+  }
+}
+
+function buildSearchIndex(){
+  const SEARCH_INDEX = [];
+  function idx(tag,title,snip,target){
+    SEARCH_INDEX.push({tag, title, snip, target, n: normalize(title+" "+snip+" "+tag+" "+target)});
+  }
+  DATA.canCu.forEach(r=>idx("Căn cứ", r[1], r[3], "sec-canccu"));
+  DATA.coQuan.forEach(r=>idx("Cơ quan", r[1], r[2], "sec-coquan"));
+  DATA.decisionTree.forEach((d,i)=>idx("Tra cứu nhanh", d.q, d.yes, "dt-"+i));
+  Object.keys(DATA.nhom).forEach(g=>{
+    const d=DATA.nhom[g];
+    idx("Nhóm "+g, d.full, d.canCuChiTiet, "sec-nhom");
+    d.rows.forEach(r=>idx("Nhóm "+g, r.tt, r.coQuan+" — "+r.thoiHan, "sec-nhom"));
+  });
+  Object.keys(DATA.thuTuc).forEach(k=>{
+    const d=DATA.thuTuc[k];
+    idx(d.tag, d.title, d.doiTuong, "sec-"+k);
+    d.steps.forEach((s,i)=>idx(d.tag+" bước "+(i+1), s.t, s.forms, "sec-"+k));
+  });
+  DATA.lich.forEach(r=>idx("Lịch", r[1], r[0]+" — "+r[2], "sec-lich"));
+  Object.keys(DATA.bieumau).forEach(k=>{
+    DATA.bieumau[k].items.forEach(it=>idx("Biểu mẫu "+k, it[0], it[1], "sec-bieumau"));
+  });
+  DATA.vipham.forEach(r=>idx("Vi phạm", r[0], r[1]+" "+r[2], "sec-vipham"));
+  DATA.congTyNhaMay.forEach(p=>{
+    idx("🏭 Nhà máy", p.ten, p.diaDiem+" · "+p.congSuat+" · Mã: "+p.id, "plant-"+p.id);
+    idx("🏭 Nhà máy (theo mã)", p.id.toUpperCase()+" — "+p.ten, p.diaDiem, "plant-"+p.id);
+  });
+  DATA.tinhThanh.forEach(t=>idx("Tỉnh/Thành", t.ten, t.ghiChu, "sec-tinhthanh"));
+  DATA.hoSoVanHanh.forEach(h=>{
+    idx("Hồ sơ vận hành", h.nhan, h.mau+" — "+h.coQuan, "sec-hoso");
+    h.noiDung.forEach(x=>idx("Hồ sơ vận hành", h.nhan, x, "sec-hoso"));
+  });
+  return SEARCH_INDEX;
+}
+
+function normalize(s){
+  return s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/đ/g,"d");
+}
+
+async function init(){
+  try{
+    const res = await fetch('data.json', {cache: 'no-store'});
+    if(!res.ok) throw new Error("HTTP "+res.status);
+    const json = await res.json();
+    if(!json.congTy || !Array.isArray(json.congTy)) throw new Error("data.json thiếu trường 'congTy'");
+    DATA.congTyNhaMay = json.congTy;
+    console.log("[v5.2] Đã tải data.json —", DATA.congTyNhaMay.length, "nhà máy");
+    renderToanBo();
+  }catch(err){
+    console.error("Lỗi tải data.json:", err);
+    document.getElementById("content").innerHTML = `
+      <div class="error-box">
+        <strong>⚠️ Không tải được dữ liệu từ <code>data.json</code></strong>
+        <p>Nguyên nhân có thể:</p>
+        <ul>
+          <li>Chưa tạo file <code>data.json</code> trong repo (cùng thư mục với <code>index.html</code>)</li>
+          <li>File có lỗi cú pháp JSON (thiếu dấu phẩy, ngoặc kép…)</li>
+          <li>Đang mở file trực tiếp bằng <code>file://</code> (trình duyệt chặn fetch)</li>
+          <li>GitHub Pages chưa rebuild xong (chờ 1–2 phút rồi Ctrl+Shift+R)</li>
+        </ul>
+        <p><strong>Chi tiết lỗi:</strong> ${err.message}</p>
+      </div>`;
+  }
+}
+
+function renderToanBo(){
+  document.getElementById("content").innerHTML =
+    renderCongTy() + renderFormWizard() + renderTracuunhanh() + renderCanCu() + renderTinhThanh() + renderCoQuan() +
+    renderNhom() + renderMatrix() + renderThuTuc("dtm") + renderThuTuc("gpmt") + renderThuTuc("dkmt") +
+    renderHoSoVanHanh() + renderLich() + renderBieumau() + renderVipham();
+  
+  PDF_MODAL.init();
+  initFormWizard();
+  activateTab("sec-congty");
+  
+  document.querySelectorAll(".rail-btn").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      goToTarget(btn.dataset.goto);
+      if(window.innerWidth<=880) closeRail();
+    });
+  });
+  
+  document.getElementById("railToggle").addEventListener("click", toggleRail);
+  railBackdrop.addEventListener("click", closeRail);
+  if(window.innerWidth > 880) openRail();
+  
+  document.getElementById("themeToggle").addEventListener("click", ()=>{
+    const cur = document.documentElement.getAttribute("data-theme");
+    const next = cur==="dark" ? "light" : "dark";
+    applyTheme(next);
+    localStorage.setItem(THEME_KEY, next);
+  });
+  
+  document.getElementById("plantFilter").addEventListener("click", e=>{
+    const btn=e.target.closest(".form-chip"); if(!btn) return;
+    document.querySelectorAll("#plantFilter .form-chip").forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
+    const key = btn.dataset.pf;
+    document.querySelectorAll("#plantCards .plant-card").forEach(card=>{
+      card.style.display = (key==="ALL" || card.dataset.pstatus===key) ? "" : "none";
+    });
+  });
+  
+  document.getElementById("nhomTabs").addEventListener("click", e=>{
+    const btn=e.target.closest(".tab"); if(!btn) return;
+    document.querySelectorAll("#nhomTabs .tab").forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
+    document.querySelectorAll(".nhom-panel").forEach(p=>{
+      p.style.display = (p.dataset.panel === btn.dataset.nhom) ? "" : "none";
+    });
+  });
+  
+  document.getElementById("formFilter").addEventListener("click", e=>{
+    const btn=e.target.closest(".form-chip"); if(!btn) return;
+    document.querySelectorAll("#formFilter .form-chip").forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
+    const key = btn.dataset.fm;
+    document.querySelectorAll("#formTbody tr").forEach(tr=>{
+      tr.style.display = (key==="ALL" || tr.dataset.fmgroup===key) ? "" : "none";
+    });
+  });
+  
+  document.addEventListener("click", e=>{
+    const openDd = e.target.closest(".file-group-btn");
+    document.querySelectorAll(".file-dropdown.show").forEach(dd=>{
+      if(!openDd || dd.id !== openDd.dataset.dropdown) dd.classList.remove("show");
+    });
+    if(openDd){
+      e.preventDefault();
+      const dd = document.getElementById(openDd.dataset.dropdown);
+      if(dd) dd.classList.toggle("show");
+    }
+  });
+  
+  const SEARCH_INDEX = buildSearchIndex();
+  const searchInput = document.getElementById("searchInput");
+  const searchResults = document.getElementById("searchResults");
+  
+  searchInput.addEventListener("input", ()=>{
+    const q = searchInput.value.trim();
+    if(!q){ searchResults.classList.remove("show"); return; }
+    const tokens = normalize(q).split(/\s+/).filter(Boolean);
+    const matches = SEARCH_INDEX.filter(item => tokens.every(t => item.n.includes(t)));
+    if(matches.length === 0){
+      searchResults.innerHTML = `<div class="sr-empty">Không tìm thấy "${q}". Thử gõ tên nhà máy (VD: "Đông Bình") hoặc mã (VD: "nm01").</div>`;
+    } else {
+      searchResults.innerHTML = matches.slice(0,20).map(r=>`
+        <button class="sr-item" data-target="${r.target}">
+          <span class="sr-tag">${r.tag}</span>
+          <div class="sr-title">${r.title}</div>
+          <div class="sr-snip">${r.snip}</div>
+        </button>`).join("");
+    }
+    searchResults.classList.add("show");
+  });
+  
+  searchInput.addEventListener("focus", ()=>{
+    if(searchInput.value.trim()) searchResults.classList.add("show");
+  });
+  
+  document.addEventListener("click", e=>{
+    if(!e.target.closest(".search-wrap")) searchResults.classList.remove("show");
+  });
+  
+  searchResults.addEventListener("click", e=>{
+    const btn = e.target.closest(".sr-item");
+    if(!btn) return;
+    goToTarget(btn.dataset.target);
+    searchResults.classList.remove("show");
+    searchInput.value = "";
+  });
+}
+
+const rail = document.getElementById("rail");
+const railBackdrop = document.getElementById("railBackdrop");
+const mainArea = document.getElementById("mainArea");
+function openRail(){ rail.classList.add("open"); if(window.innerWidth>880) mainArea.classList.add("rail-open-desktop"); else railBackdrop.classList.add("show"); }
+function closeRail(){ rail.classList.remove("open"); mainArea.classList.remove("rail-open-desktop"); railBackdrop.classList.remove("show"); }
+function toggleRail(){ rail.classList.contains("open") ? closeRail() : openRail(); }
+
+const THEME_KEY = "tracuu_mt_theme_v52";
+const iconMoon = document.getElementById("iconMoon");
+const iconSun = document.getElementById("iconSun");
+function applyTheme(t){
+  document.documentElement.setAttribute("data-theme", t);
+  iconMoon.style.display = t==="dark" ? "none" : "";
+  iconSun.style.display = t==="dark" ? "" : "none";
+}
+const savedTheme = localStorage.getItem(THEME_KEY) || (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+applyTheme(savedTheme);
+
+init();
+</script>
+</body>
+</html>
