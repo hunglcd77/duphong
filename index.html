@@ -9,8 +9,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,600;0,700;1,400&family=Noto+Sans:wght@400;600;700&display=swap" rel="stylesheet">
 <!-- Thư viện xử lý Excel + tải file -->
 <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
-<style>
+<script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script><script src="https://cdn.jsdelivr.net/npm/pizzip@3.1.7/dist/pizzip.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/docxtemplater@3.47.4/build/docxtemplater.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/docxtemplater@3.47.4/build/docxtemplater.js" integrity="" crossorigin="anonymous"></script><style>
 :root{
   --paper:#F6F7F4; --paper-deep:#EDEFE9; --ink:#1B2420; --ink-soft:#4B564F;
   --forest:#1F5D3A; --forest-deep:#153F27; --forest-bright:#2E7D46; --moss:#4F7A5C;
@@ -342,7 +343,12 @@ body.pdf-modal-open{overflow:hidden;}
 .nl-list-actions{display:flex;gap:6px;flex-shrink:0;}
 .nl-list-btn{width:34px;height:34px;border-radius:6px;border:1px solid var(--line);background:var(--paper);color:var(--ink-soft);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s ease;font-size:15px;}
 .nl-list-btn:hover{background:var(--forest);color:#fff;border-color:var(--forest);}
-.nl-list-btn.del:hover{background:var(--red);border-color:var(--red);}
+.nl-list-btn.del:hover{background:var(--red);border-color:var(--red);}.nl-list-btn[title*="05A"]{background:rgba(95,207,128,.15);color:var(--forest-deep);border-color:var(--forest);}
+.nl-list-btn[title*="05A"]:hover{background:var(--forest);color:#fff;}
+.nl-list-btn[title*="05B"]{background:rgba(123,168,217,.15);color:var(--slate);border-color:var(--slate);}
+.nl-list-btn[title*="05B"]:hover{background:var(--slate);color:#fff;}
+html[data-theme="dark"] .nl-list-btn[title*="05A"]{background:rgba(95,207,128,.2);}
+html[data-theme="dark"] .nl-list-btn[title*="05B"]{background:rgba(123,168,217,.2);}
 .nl-empty{text-align:center;padding:40px 20px;color:var(--ink-muted);font-family:var(--sans);font-size:13.5px;background:var(--paper-deep);border-radius:10px;border:1px dashed var(--line);}
 .nl-toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--ink);color:var(--paper);padding:12px 22px;border-radius:8px;font-family:var(--sans);font-size:13.5px;font-weight:600;box-shadow:0 8px 24px rgba(0,0,0,.3);z-index:10000;transition:transform .3s ease;pointer-events:none;}
 .nl-toast.show{transform:translateX(-50%) translateY(0);}
@@ -1639,6 +1645,8 @@ function nlShowList(){
       <div class="nl-list-actions">
         <button class="nl-list-btn" onclick="nlEditItem('${d.id}')" title="Sửa">✏️</button>
         <button class="nl-list-btn" onclick="nlViewItem('${d.id}')" title="Xem JSON">👁️</button>
+        <button class="nl-list-btn" onclick="wordXuat05A('${d.id}')" title="Xuất Word 05A (có GPMT)" style="background:rgba(95,207,128,.15);color:var(--forest-deep);border-color:var(--forest);">📄</button>
+        <button class="nl-list-btn" onclick="wordXuat05B('${d.id}')" title="Xuất Word 05B (chỉ ĐKMT)" style="background:rgba(123,168,217,.15);color:var(--slate);border-color:var(--slate);">📄</button>
         <button class="nl-list-btn" onclick="nlExportItemJSON('${d.id}')" title="Xuất JSON">📤</button>
         <button class="nl-list-btn del" onclick="nlDeleteItem('${d.id}')" title="Xóa">🗑️</button>
       </div>
@@ -1770,6 +1778,309 @@ function nlImportExcel(event){
   reader.readAsArrayBuffer(file);
   event.target.value = "";
 }
+/* ================================================================ */
+/* ===== XUẤT BÁO CÁO WORD (05A/05B) — Giai đoạn 2 ============= */
+/* ================================================================ */
+
+const WORD_MAU = {
+  "05A": {
+    ten: "Mẫu 05A — Cơ sở có GPMT",
+    file: "mau-05A.docx",
+    moTa: "Báo cáo công tác BVMT định kỳ (đã có GPMT)"
+  },
+  "05B": {
+    ten: "Mẫu 05B — Cơ sở có ĐKMT",
+    file: "mau-05B.docx",
+    moTa: "Báo cáo công tác BVMT định kỳ (chỉ có ĐKMT)"
+  }
+};
+
+/**
+ * Chuyển đổi dữ liệu nhập liệu → object placeholder cho template Word
+ */
+function wordChuanBiDuLieu(nhapLieu){
+  const d = nhapLieu;
+  const nm = DATA.congTyNhaMay.find(x=>x.id === d.maNhaMay) || {};
+  
+  // Format ngày nhập
+  const ngayNhap = d.ngayNhap ? new Date(d.ngayNhap) : new Date();
+  const ngay = ngayNhap.getDate();
+  const thang = ngayNhap.getMonth() + 1;
+  const nam = ngayNhap.getFullYear();
+  
+  // Xác định cơ quan nhận
+  let coQuanNhan = "Sở Nông nghiệp và Môi trường";
+  if(d.maNhaMay && nm.status && nm.status.gpmt === "green" && !nhapLieu._coGPMT){
+    // Mặc định là Sở
+  }
+  // Nếu cơ sở chỉ có ĐKMT → gửi UBND cấp xã
+  coQuanNhan = "Sở Nông nghiệp và Môi trường tỉnh Đồng Tháp";
+  
+  // Xử lý danh sách CTNH — ghép thành chuỗi
+  let danhSachCTNH = "(không có)";
+  if(d.chatThaiNguyHai && d.chatThaiNguyHai.danhSach && d.chatThaiNguyHai.danhSach.length > 0){
+    danhSachCTNH = d.chatThaiNguyHai.danhSach
+      .filter(c => c.loai || c.maCTNH || c.khoiLuong > 0)
+      .map((c, i) => {
+        const ten = c.loai === "__khac__" ? "Loại khác" : (c.loai || "Không rõ");
+        return `   ${i+1}. ${ten} (Mã: ${c.maCTNH || "—"}): ${c.khoiLuong || 0} ${c.donVi || "kg/năm"}`;
+      })
+      .join("\n");
+    if(!danhSachCTNH) danhSachCTNH = "(không có)";
+  }
+  
+  // Lấy các giá trị có thể null → chuyển thành chuỗi
+  function val(v, donVi){
+    if(v === null || v === undefined || v === "") return "—";
+    return donVi ? `${v} ${donVi}` : String(v);
+  }
+  function valSo(v){
+    if(v === null || v === undefined || v === "") return "—";
+    return String(v);
+  }
+  function valBool(v){
+    return v ? "Có" : "Không";
+  }
+  
+  const ctrSh = (d.chatThaiRan && d.chatThaiRan.sinhHoat) || {};
+  const ctrCn = (d.chatThaiRan && d.chatThaiRan.congNghiepThongThuong) || {};
+  const bun = d.bunThai || {};
+  const ctnh = d.chatThaiNguyHai || {};
+  const luuChua = (d.chatThaiNguyHai && d.chatThaiNguyHai.luuChua) || {};
+  const ntSh = (d.nuocThai && d.nuocThai.sinhHoat) || {};
+  const ntSx = (d.nuocThai && d.nuocThai.sanXuat) || {};
+  const qtNt = d.quanTracNuocThai || {};
+  const kt = d.khiThai || {};
+  const qtKt = d.quanTracKhiThai || {};
+  
+  // Tạo kỳ báo cáo dạng text đẹp
+  let kyBaoCaoText = d.kyBaoCao.giaTri;
+  if(d.kyBaoCao.loai === "thang"){
+    const [y, m] = d.kyBaoCao.giaTri.split("-");
+    kyBaoCaoText = `Tháng ${parseInt(m)}/${y}`;
+  } else if(d.kyBaoCao.loai === "quy"){
+    const [y, q] = d.kyBaoCao.giaTri.split("-Q");
+    kyBaoCaoText = `Quý ${q}/${y}`;
+  } else {
+    kyBaoCaoText = `Năm ${d.kyBaoCao.giaTri}`;
+  }
+  
+  // Địa danh lấy từ địa điểm nhà máy (thành phố cuối cùng)
+  let diaDanh = "Đồng Tháp";
+  if(nm.diaDiem){
+    const parts = nm.diaDiem.split(",");
+    const lastPart = parts[parts.length - 1].trim();
+    // Lấy từ sau "tỉnh" hoặc "TP"
+    if(lastPart.includes("tỉnh")) diaDanh = lastPart.replace("tỉnh","").trim();
+    else if(lastPart.includes("TP")) diaDanh = lastPart.replace("TP","").trim();
+    else diaDanh = lastPart;
+  }
+  
+  return {
+    // Thông tin cơ sở
+    ten_nha_may: d.tenNhaMay || nm.ten || "—",
+    dia_diem: nm.diaDiem || "—",
+    cong_suat: nm.congSuat || "—",
+    nguon_nuoc: nm.nguon || "—",
+    nguoi_phu_trach: nm.nguoiPhuTrach || "—",
+    so_cb_mt: valSo(d.soCanBoPhuTrachMT),
+    chi_phi_bvmt: d.chiPhiBVMT ? d.chiPhiBVMT.toLocaleString("vi-VN") : "0",
+    
+    // Kỳ báo cáo
+    ky_bao_cao: kyBaoCaoText,
+    co_quan_nhan: coQuanNhan,
+    
+    // Chất thải rắn sinh hoạt
+    ctr_sh_khoi_luong: valSo(ctrSh.khoiLuong),
+    ctr_sh_don_vi: ctrSh.donVi || "kg/tháng",
+    ctr_sh_don_vi_thu_gom: ctrSh.donViThuGom || "—",
+    ctr_sh_tan_suat: ctrSh.tanSuatThuGom || "—",
+    ctr_sh_phuong_thuc: ctrSh.phuongThucXuLy || "—",
+    
+    // Chất thải rắn công nghiệp
+    ctr_cn_khoi_luong: valSo(ctrCn.khoiLuong),
+    ctr_cn_don_vi: ctrCn.donVi || "kg/tháng",
+    ctr_cn_thanh_phan: ctrCn.thanhPhan || "—",
+    ctr_cn_don_vi_thu_gom: ctrCn.donViThuGom || "—",
+    ctr_cn_tan_suat: ctrCn.tanSuatThuGom || "—",
+    ctr_cn_phuong_thuc: ctrCn.phuongThucXuLy || "—",
+    
+    // Bùn thải
+    bun_khoi_luong: valSo(bun.khoiLuong),
+    bun_don_vi: bun.donVi || "kg/năm",
+    bun_do_am: valSo(bun.doAm),
+    bun_phuong_phap: bun.phuongPhapXuLy || "—",
+    bun_don_vi_xu_ly: bun.donViXuLy || "—",
+    bun_tan_suat: bun.tanSuat || "—",
+    
+    // CTNH
+    ctnh_tong_khoi_luong: valSo(ctnh.tongKhoiLuong),
+    ctnh_don_vi: "kg/năm",
+    ctnh_don_vi_thu_gom: ctnh.donViThuGom || "—",
+    ctnh_tan_suat: ctnh.tanSuatThuGom || "—",
+    ctnh_dt_kho: valSo(luuChua.dienTichKho),
+    ctnh_so_thung: valSo(luuChua.soThung),
+    ctnh_the_tich: valSo(luuChua.theTichThung),
+    ctnh_so_ngan: valSo(luuChua.soNgan),
+    danh_sach_ctnh: danhSachCTNH,
+    
+    // Nước thải sinh hoạt
+    nt_sh_khoi_luong: valSo(ntSh.khoiLuong),
+    nt_sh_don_vi: ntSh.donVi || "m³/ngày",
+    nt_sh_xu_ly: ntSh.xuLy || "—",
+    nt_sh_the_tich: valSo(ntSh.theTichBe),
+    
+    // Nước thải sản xuất
+    nt_sx_khoi_luong: valSo(ntSx.khoiLuong),
+    nt_sx_don_vi: ntSx.donVi || "m³/ngày",
+    nt_sx_xu_ly: ntSx.xuLy || "—",
+    nt_sx_tai_su_dung: valBool(ntSx.taiSuDung),
+    
+    // Quan trắc nước thải
+    qt_nt_ph: valSo(qtNt.pH),
+    qt_nt_cod: valSo(qtNt.COD),
+    qt_nt_bod5: valSo(qtNt.BOD5),
+    qt_nt_tss: valSo(qtNt.TSS),
+    qt_nt_amoni: valSo(qtNt.amoni),
+    qt_nt_coliform: valSo(qtNt.coliform),
+    
+    // Khí thải
+    kt_co_phat_sinh: valBool(kt.coPhatSinh),
+    kt_nguon: kt.nguon || "—",
+    kt_khoi_luong: valSo(kt.khoiLuong),
+    kt_don_vi: kt.donVi || "m³/giờ",
+    kt_xu_ly: kt.xuLy || "—",
+    
+    // Quan trắc khí thải
+    qt_kt_bui: valSo(qtKt.bui),
+    qt_kt_so2: valSo(qtKt.SO2),
+    qt_kt_nox: valSo(qtKt.NOx),
+    qt_kt_co: valSo(qtKt.CO),
+    
+    // Thông tin khác
+    ghi_chu: d.ghiChu || "(không có)",
+    nguoi_nhap: d.nguoiNhap || "—",
+    ngay: String(ngay),
+    thang: String(thang),
+    nam: String(nam),
+    dia_danh: diaDanh
+  };
+}
+
+/**
+ * Tải template từ repo
+ */
+async function wordTaiTemplate(tenFile){
+  const res = await fetch(tenFile, {cache: "no-store"});
+  if(!res.ok) throw new Error(`Không tải được ${tenFile} (HTTP ${res.status})`);
+  return await res.arrayBuffer();
+}
+
+/**
+ * Sinh file Word từ template + dữ liệu
+ */
+async function wordXuatBaoCao(idNhapLieu, loaiMau){
+  const nhapLieu = nlLoadData().find(x=>x.id === idNhapLieu);
+  if(!nhapLieu){ nlToast("Không tìm thấy dữ liệu", "error"); return; }
+  
+  const mau = WORD_MAU[loaiMau];
+  if(!mau){ nlToast("Loại mẫu không hợp lệ", "error"); return; }
+  
+  if(typeof PizZip === "undefined" || typeof docxtemplater === "undefined"){
+    nlToast("❌ Chưa tải thư viện Word — Refresh trang (Ctrl+F5)", "error");
+    return;
+  }
+  
+  nlToast("⏳ Đang tạo báo cáo " + loaiMau + "…");
+  
+  try{
+    // 1. Tải template
+    const templateBuf = await wordTaiTemplate(mau.file);
+    
+    // 2. Mở template với PizZip
+    const zip = new PizZip(templateBuf);
+    
+    // 3. Khởi tạo docxtemplater
+    const doc = new docxtemplater(zip, {
+      paragraphLoop: true,
+      linebreaks: true,
+      delimiters: {start: "{{", end: "}}"}
+    });
+    
+    // 4. Chuẩn bị dữ liệu
+    const duLieu = wordChuanBiDuLieu(nhapLieu);
+    
+    // 5. Render
+    doc.render(duLieu);
+    
+    // 6. Xuất file
+    const output = doc.getZip().generate({
+      type: "blob",
+      mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    });
+    
+    // 7. Tự động tải
+    const tenFile = `BaoCao-${loaiMau}-${nhapLieu.maNhaMay}-${nhapLieu.kyBaoCao.giaTri}.docx`;
+    saveAs(output, tenFile);
+    
+    nlToast(`✅ Đã xuất ${tenFile}`, "success");
+    
+  }catch(err){
+    console.error("Lỗi xuất Word:", err);
+    let msg = err.message || String(err);
+    if(err.properties && err.properties.errors){
+      msg = err.properties.errors.map(e=>e.message).join("; ");
+    }
+    nlToast("❌ Lỗi: " + msg, "error");
+  }
+}
+
+/**
+ * Xem trước dữ liệu sẽ điền vào template (dạng JSON)
+ */
+window.wordXemTruoc = function(idNhapLieu){
+  const nhapLieu = nlLoadData().find(x=>x.id === idNhapLieu);
+  if(!nhapLieu) return;
+  const duLieu = wordChuanBiDuLieu(nhapLieu);
+  const w = window.open("", "_blank");
+  const html = `
+    <html>
+    <head><title>Xem trước dữ liệu: ${idNhapLieu}</title>
+    <style>
+      body{font-family:Arial,sans-serif;padding:20px;background:#f5f5f5;}
+      h1{color:#1F5D3A;font-size:20px;}
+      table{border-collapse:collapse;width:100%;background:#fff;margin-top:16px;}
+      th,td{border:1px solid #ddd;padding:8px 12px;text-align:left;vertical-align:top;}
+      th{background:#EDEFE9;width:220px;font-weight:700;}
+      td{font-family:Consolas,monospace;font-size:13px;white-space:pre-wrap;}
+      .btn{background:#1F5D3A;color:#fff;padding:10px 20px;border:none;border-radius:6px;font-weight:700;cursor:pointer;margin-top:16px;}
+    </style>
+    </head>
+    <body>
+      <h1>🔍 Xem trước dữ liệu: ${idNhapLieu}</h1>
+      <p>Đây là dữ liệu sẽ được điền vào các placeholder <code>{{...}}</code> trong template Word.</p>
+      <table>
+        ${Object.entries(duLieu).map(([k,v])=>`
+          <tr>
+            <th>{{${k}}}</th>
+            <td>${String(v).replace(/</g,"&lt;").replace(/\n/g,"<br>")}</td>
+          </tr>
+        `).join("")}
+      </table>
+      <button class="btn" onclick="window.print()">🖨️ In trang này</button>
+    </body>
+    </html>
+  `;
+  w.document.write(html);
+  w.document.title = "Xem trước: " + idNhapLieu;
+};
+
+window.wordXuat05A = function(id){ wordXuatBaoCao(id, "05A"); };
+window.wordXuat05B = function(id){ wordXuatBaoCao(id, "05B"); };
+
+/* ================================================================ */
+/* ===== KẾT THÚC XUẤT BÁO CÁO WORD ============================= */
+/* ================================================================ */
 
 function nlTaiMauExcel(){
   if(typeof XLSX === "undefined"){ nlToast("Chưa tải thư viện Excel — Refresh (Ctrl+F5)", "error"); return; }
