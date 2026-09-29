@@ -1272,7 +1272,10 @@ window.nlThemCtnhRow = function(){
   wrapper.innerHTML = nlRenderCtnhRow(null);
   c.appendChild(wrapper.firstElementChild);
 };
-
+  
+function renderNhapLieu(){
+  return nlRenderForm();
+}
 function nlRenderForm(){
   const existing = NL_STATE.editingId ? nlLoadData().find(x=>x.id===NL_STATE.editingId) : null;
   const listNM = DATA.congTyNhaMay || [];
