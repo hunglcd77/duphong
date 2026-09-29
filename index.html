@@ -449,8 +449,7 @@ html[data-theme="dark"] .nl-list-btn{background:var(--paper-light);color:var(--i
   .nl-list-actions{width:100%;justify-content:flex-end;}
 }
 </style>
-</head>
-<body>
+</head><body>
 <div class="brand-strip"></div>
 <div class="shell">
   <div class="rail-backdrop" id="railBackdrop"></div>
@@ -1955,7 +1954,7 @@ function renderToanBo(){
   document.getElementById("content").innerHTML =
     renderCongTy() + renderFormWizard() + renderTracuunhanh() + renderCanCu() + renderTinhThanh() + renderCoQuan() +
     renderNhom() + renderMatrix() + renderThuTuc("dtm") + renderThuTuc("gpmt") + renderThuTuc("dkmt") +
-    renderHoSoVanHanh() + nlRenderForm() + renderLich() + renderBieumau() + renderVipham();
+    renderHoSoVanHanh() + renderNhapLieu() + renderLich() + renderBieumau() + renderVipham();
   
   PDF_MODAL.init();
   initFormWizard();
