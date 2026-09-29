@@ -10,8 +10,7 @@
 <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/pizzip@3.1.7/dist/pizzip.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/docxtemplater@3.47.4/build/docxtemplater.js"></script>
-<style>
+<script src="https://cdn.jsdelivr.net/npm/docxtemplater@3.47.4/build/docxtemplater.js"></script><script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script><style>
 :root{
   --paper:#F6F7F4; --paper-deep:#EDEFE9; --ink:#1B2420; --ink-soft:#4B564F;
   --forest:#1F5D3A; --forest-deep:#153F27; --forest-bright:#2E7D46; --moss:#4F7A5C;
@@ -431,7 +430,102 @@ html[data-theme="dark"] .nl-list-btn[title*="05B"]{background:rgba(123,168,217,.
   .nl-list-item{flex-direction:column;align-items:flex-start;}
   .nl-list-actions{width:100%;justify-content:flex-end;}
 }
-</style>
+  /* ================================================================ */
+/* ===== TAB TỔNG HỢP — Giai đoạn 3 ============================== */
+/* ================================================================ */
+.th-wrap{max-width:1240px;margin:0 auto;}
+.th-header{background:var(--paper-deep);border:1px solid var(--line-soft);border-left:4px solid var(--forest);border-radius:10px;padding:20px 24px;margin-bottom:20px;font-family:var(--sans);}
+.th-header h3{margin:0 0 6px;font-family:var(--serif);font-size:20px;color:var(--forest-deep);}
+.th-header p{margin:0;font-size:13px;color:var(--ink-soft);}
+
+/* Bộ lọc */
+.th-filter{background:var(--paper-deep);border:1px solid var(--line-soft);border-radius:10px;padding:16px 20px;margin-bottom:20px;font-family:var(--sans);}
+.th-filter-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;}
+.th-filter-field label{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#8A9389;margin-bottom:5px;}
+.th-filter-field select, .th-filter-field input{width:100%;padding:9px 11px;border:1px solid var(--line);border-radius:6px;font-family:var(--sans);font-size:13.5px;background:var(--paper);color:var(--ink);}
+.th-filter-field select:focus, .th-filter-field input:focus{outline:none;border-color:var(--forest);box-shadow:0 0 0 3px rgba(95,207,128,.15);}
+.th-filter-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;}
+
+/* Thẻ thống kê */
+.th-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:20px;}
+.th-stat{background:var(--paper-deep);border:1px solid var(--line-soft);border-radius:12px;padding:16px 18px;font-family:var(--sans);border-top:3px solid var(--line);position:relative;overflow:hidden;}
+.th-stat-label{font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#8A9389;margin-bottom:6px;}
+.th-stat-num{font-family:var(--serif);font-size:26px;font-weight:700;color:var(--ink);line-height:1;margin-bottom:4px;}
+.th-stat-unit{font-size:11.5px;color:var(--ink-muted);}
+.th-stat.st-green{border-top-color:#2E9E5B;}
+.th-stat.st-amber{border-top-color:#E0A215;}
+.th-stat.st-red{border-top-color:#C0392B;}
+.th-stat.st-purple{border-top-color:var(--purple);}
+.th-stat.st-teal{border-top-color:var(--teal);}
+.th-stat.st-slate{border-top-color:var(--slate);}
+
+/* Bảng tổng hợp */
+.th-table-wrap{background:var(--paper-deep);border:1px solid var(--line-soft);border-radius:10px;overflow:hidden;margin-bottom:20px;font-family:var(--sans);}
+.th-table-head{padding:14px 20px;background:var(--paper-mid);border-bottom:1px solid var(--line-soft);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;}
+.th-table-title{font-family:var(--serif);font-size:16px;font-weight:700;color:var(--forest-deep);margin:0;}
+.th-table-actions{display:flex;gap:8px;flex-wrap:wrap;}
+.th-tbl{width:100%;border-collapse:collapse;font-size:13px;}
+.th-tbl th, .th-tbl td{border-bottom:1px solid var(--line-soft);padding:10px 12px;text-align:right;vertical-align:top;}
+.th-tbl th{background:var(--paper-mid);font-weight:700;font-size:11.5px;text-transform:uppercase;letter-spacing:.03em;color:var(--ink-soft);text-align:right;position:sticky;top:0;z-index:2;}
+.th-tbl th:first-child, .th-tbl td:first-child{text-align:left;}
+.th-tbl th:nth-child(2), .th-tbl td:nth-child(2){text-align:left;}
+.th-tbl tbody tr:hover{background:rgba(95,207,128,.06);}
+.th-tbl tbody tr.th-row-total{background:rgba(95,207,128,.08);font-weight:700;}
+.th-tbl tbody tr.th-row-total td{color:var(--forest-deep);border-top:2px solid var(--forest);}
+.th-tbl .th-plant-name{font-weight:600;color:var(--ink);}
+.th-tbl .th-plant-id{font-size:11px;color:var(--ink-muted);font-weight:500;margin-left:4px;}
+.th-tbl .th-cell-warn{color:var(--amber);font-weight:700;}
+.th-tbl .th-cell-err{color:var(--red);font-weight:700;}
+.th-tbl .th-cell-empty{color:var(--ink-muted);font-style:italic;font-weight:400;}
+.th-tbl-wrap{max-height:600px;overflow-y:auto;}
+
+/* Biểu đồ */
+.th-charts{display:grid;grid-template-columns:repeat(auto-fit,minmax(400px,1fr));gap:16px;margin-bottom:20px;}
+.th-chart-card{background:var(--paper-deep);border:1px solid var(--line-soft);border-radius:10px;padding:16px 18px;font-family:var(--sans);}
+.th-chart-title{font-family:var(--serif);font-size:15px;font-weight:700;color:var(--forest-deep);margin:0 0 12px;}
+.th-chart-canvas{position:relative;height:280px;width:100%;}
+
+/* Nút xuất */
+.th-export{background:var(--paper-deep);border:1px solid var(--line-soft);border-radius:10px;padding:16px 20px;display:flex;gap:10px;flex-wrap:wrap;justify-content:center;align-items:center;font-family:var(--sans);}
+.th-export-title{font-size:12.5px;font-weight:700;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.05em;margin-right:8px;}
+.th-btn{padding:10px 18px;border-radius:8px;font-family:var(--sans);font-size:13px;font-weight:700;cursor:pointer;border:1.5px solid transparent;transition:all .15s ease;display:inline-flex;align-items:center;gap:6px;}
+.th-btn-export{background:var(--forest);color:#fff;border-color:var(--forest);}
+.th-btn-export:hover{background:var(--forest-bright);transform:translateY(-1px);}
+.th-btn-excel{background:#1E7A45;color:#fff;border-color:#1E7A45;}
+.th-btn-excel:hover{background:#2E9E5B;transform:translateY(-1px);}
+.th-btn-word{background:var(--slate);color:#fff;border-color:var(--slate);}
+.th-btn-word:hover{background:#3A5E7A;transform:translateY(-1px);}
+.th-btn-secondary{background:var(--paper);color:var(--ink);border-color:var(--line);}
+.th-btn-secondary:hover{background:var(--paper-light);}
+
+/* Cảnh báo */
+.th-alert{font-family:var(--sans);font-size:13px;padding:12px 16px;border-radius:8px;margin-bottom:16px;display:flex;align-items:flex-start;gap:10px;}
+.th-alert.warn{background:rgba(232,185,106,.15);border-left:3px solid var(--amber);color:var(--ink);}
+.th-alert.err{background:rgba(232,148,120,.15);border-left:3px solid var(--red);color:var(--ink);}
+.th-alert-ic{font-size:18px;flex-shrink:0;}
+.th-alert-body{flex:1;}
+
+/* Empty state */
+.th-empty{text-align:center;padding:60px 20px;font-family:var(--sans);color:var(--ink-muted);}
+.th-empty-ic{font-size:48px;margin-bottom:12px;opacity:.5;}
+.th-empty-title{font-size:16px;font-weight:700;color:var(--ink-soft);margin-bottom:6px;}
+
+/* Dark mode */
+html[data-theme="dark"] .th-header, html[data-theme="dark"] .th-filter, html[data-theme="dark"] .th-stat, html[data-theme="dark"] .th-table-wrap, html[data-theme="dark"] .th-chart-card, html[data-theme="dark"] .th-export{background:var(--paper-mid);border-color:var(--line-soft);}
+html[data-theme="dark"] .th-table-head, html[data-theme="dark"] .th-tbl th{background:var(--paper-light);}
+html[data-theme="dark"] .th-filter-field select, html[data-theme="dark"] .th-filter-field input{background:var(--paper-light);border-color:var(--line);color:var(--ink);}
+html[data-theme="dark"] .th-tbl td{border-bottom-color:var(--line-soft);}
+html[data-theme="dark"] .th-tbl tbody tr:hover{background:rgba(95,207,128,.1);}
+html[data-theme="dark"] .th-tbl tbody tr.th-row-total{background:rgba(95,207,128,.12);}
+html[data-theme="dark"] .th-btn-secondary{background:var(--paper-light);color:var(--ink);}
+html[data-theme="dark"] .th-stat-num{color:var(--ink);}
+
+@media (max-width:880px){
+  .th-charts{grid-template-columns:1fr;}
+  .th-tbl{font-size:12px;}
+  .th-tbl th, .th-tbl td{padding:8px 6px;}
+  .th-stats{grid-template-columns:repeat(2,1fr);}
+}</style>
 </head><body>
 <div class="brand-strip"></div>
 <div class="shell">
@@ -474,8 +568,7 @@ html[data-theme="dark"] .nl-list-btn[title*="05B"]{background:rgba(123,168,217,.
     <div class="rail-group">
       <p class="rail-label">Vận hành &amp; hồ sơ</p>
       <button class="rail-btn" data-goto="sec-hoso"><span class="rail-ic"><svg viewBox="0 0 24 24"><path d="M4 4h6l2 2h8v14H4z"/><path d="M9 13h6M9 17h6"/></svg></span><strong>Hồ sơ vận hành</strong></button>
-      <button class="rail-btn" data-goto="sec-nhaplieu"><span class="rail-ic"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></span><strong>📝 Nhập liệu</strong></button>
-      <button class="rail-btn" data-goto="sec-lich"><span class="rail-ic"><svg viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="16"/></svg></span>Lịch nghĩa vụ định kỳ</button>
+      <button class="rail-btn" data-goto="sec-nhaplieu"><span class="rail-ic"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></span><strong>📝 Nhập liệu</strong></button><button class="rail-btn" data-goto="sec-tonghop"><span class="rail-ic"><svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 17V9m4 8V5m4 12v-7m4 7V4"/></svg></span><strong>📊 Tổng hợp</strong></button>      <button class="rail-btn" data-goto="sec-lich"><span class="rail-ic"><svg viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="16"/></svg></span>Lịch nghĩa vụ định kỳ</button>
       <button class="rail-btn" data-goto="sec-bieumau"><span class="rail-ic"><svg viewBox="0 0 24 24"><path d="M14 3H6v18h12V8Z"/></svg></span>Danh mục biểu mẫu</button>
       <button class="rail-btn" data-goto="sec-vipham"><span class="rail-ic"><svg viewBox="0 0 24 24"><path d="M12 3 2 20h20L12 3Z"/></svg></span>Vi phạm thường gặp</button>
     </div>
@@ -1874,6 +1967,737 @@ window.wordXemTruoc = function(idNhapLieu){
   w.document.title = "Xem trước: " + idNhapLieu;
 };
 
+/* ================================================================ */
+/* ===== TAB TỔNG HỢP — Giai đoạn 3 ============================== */
+/* ================================================================ */
+
+const TH_STATE = {
+  kyBaoCao: "ALL",
+  nhaMay: "ALL",
+  chiTieu: "ctr_sh",
+  chartTime: null,
+  chartPlant: null,
+  sapXep: {cot: "maNhaMay", chieu: "asc"}
+};
+
+const TH_CHI_TIEU = {
+  ctr_sh:   {ten: "CTR sinh hoạt",         donVi: "kg",  key: "chatThaiRan.sinhHoat"},
+  ctr_cn:   {ten: "CTR công nghiệp",       donVi: "kg",  key: "chatThaiRan.congNghiepThongThuong"},
+  bun:      {ten: "Bùn thải",              donVi: "kg",  key: "bunThai"},
+  ctnh:     {ten: "CTNH",                  donVi: "kg",  key: "chatThaiNguyHai.tongKhoiLuong"},
+  nt_sh:    {ten: "Nước thải sinh hoạt",   donVi: "m³",  key: "nuocThai.sinhHoat"},
+  nt_sx:    {ten: "Nước thải sản xuất",    donVi: "m³",  key: "nuocThai.sanXuat"},
+  kt:       {ten: "Khí thải",              donVi: "m³",  key: "khiThai"}
+};
+
+/* Đọc giá trị từ object theo đường dẫn "a.b.c" */
+function thGetValue(obj, path){
+  if(!obj) return null;
+  const parts = path.split(".");
+  let cur = obj;
+  for(const p of parts){
+    if(cur === null || cur === undefined) return null;
+    cur = cur[p];
+  }
+  return cur;
+}
+
+/* Quy đổi về đơn vị chuẩn (kg hoặc m³) dựa vào tần suất kỳ báo cáo */
+function thQuyDoi(giaTri, donVi, kyBaoCao){
+  if(giaTri === null || giaTri === undefined || isNaN(giaTri)) return 0;
+  const v = parseFloat(giaTri);
+  if(!donVi) return v;
+  // Hệ số quy đổi
+  let factor = 1;
+  const dv = donVi.toLowerCase();
+  // Xác định số ngày của kỳ
+  let soNgay = 90; // mặc định quý
+  if(kyBaoCao){
+    if(kyBaoCao.loai === "thang") soNgay = 30;
+    else if(kyBaoCao.loai === "quy") soNgay = 90;
+    else if(kyBaoCao.loai === "nam") soNgay = 365;
+  }
+  // Quy đổi về tổng lượng trong kỳ
+  if(dv.includes("kg/ngày")) factor = soNgay;
+  else if(dv.includes("kg/tháng")) factor = 1; // đã theo tháng
+  else if(dv.includes("kg/năm")) factor = 1/12;
+  else if(dv.includes("tấn/ngày")) factor = soNgay * 1000;
+  else if(dv.includes("tấn/tháng")) factor = 1000;
+  else if(dv.includes("tấn/năm")) factor = 1000/12;
+  else if(dv.includes("m³/ngày")) factor = soNgay;
+  else if(dv.includes("m³/tháng")) factor = 1;
+  else if(dv.includes("m³/năm")) factor = 1/12;
+  else if(dv.includes("m³/giờ")) factor = 24 * soNgay;
+  else if(dv.includes("lít/ngày")) factor = soNgay / 1000;
+  return v * factor;
+}
+
+/* Lấy giá trị 1 chỉ tiêu của 1 bản ghi nhập liệu đã quy đổi */
+function thLayChiTieu(banghi, chiTieuKey){
+  const ct = TH_CHI_TIEU[chiTieuKey];
+  if(!ct) return 0;
+  const val = thGetValue(banghi, ct.key);
+  if(val === null) return 0;
+  if(typeof val === "object" && val !== null){
+    const kh = val.khoiLuong;
+    const dv = val.donVi;
+    return thQuyDoi(kh, dv, banghi.kyBaoCao);
+  }
+  return thQuyDoi(val, "kg/tháng", banghi.kyBaoCao);
+}
+
+/* Lấy danh sách kỳ báo cáo duy nhất từ dữ liệu */
+function thLayDanhSachKy(data){
+  const set = new Set();
+  data.forEach(d=>{
+    if(d.kyBaoCao && d.kyBaoCao.giaTri) set.add(d.kyBaoCao.giaTri);
+  });
+  return Array.from(set).sort().reverse();
+}
+
+/* Lấy danh sách nhà máy có dữ liệu */
+function thLayDanhSachNhaMay(data){
+  const set = new Set();
+  data.forEach(d=>{ if(d.maNhaMay) set.add(d.maNhaMay); });
+  return Array.from(set).sort();
+}
+
+/* Lọc dữ liệu theo bộ lọc */
+function thLocDuLieu(){
+  const all = nlLoadData();
+  return all.filter(d=>{
+    if(TH_STATE.kyBaoCao !== "ALL" && d.kyBaoCao.giaTri !== TH_STATE.kyBaoCao) return false;
+    if(TH_STATE.nhaMay !== "ALL" && d.maNhaMay !== TH_STATE.nhaMay) return false;
+    return true;
+  });
+}
+
+/* Tạo bảng tổng hợp: mỗi dòng = 1 nhà máy trong 1 kỳ */
+function thTaoBangTongHop(data){
+  const chiTieuKeys = Object.keys(TH_CHI_TIEU);
+  const rows = data.map(d=>{
+    const row = {
+      maNhaMay: d.maNhaMay,
+      tenNhaMay: d.tenNhaMay,
+      ky: d.kyBaoCao.giaTri,
+      kyLoai: d.kyBaoCao.loai,
+      trangThai: d.trangThai
+    };
+    chiTieuKeys.forEach(k=>{
+      row[k] = thLayChiTieu(d, k);
+    });
+    return row;
+  });
+  // Sắp xếp
+  const {cot, chieu} = TH_STATE.sapXep;
+  rows.sort((a,b)=>{
+    let va = a[cot], vb = b[cot];
+    if(typeof va === "string") va = va.toLowerCase();
+    if(typeof vb === "string") vb = vb.toLowerCase();
+    if(va < vb) return chieu==="asc" ? -1 : 1;
+    if(va > vb) return chieu==="asc" ? 1 : -1;
+    return 0;
+  });
+  return rows;
+}
+
+/* Tính tổng cộng */
+function thTinhTong(rows){
+  const chiTieuKeys = Object.keys(TH_CHI_TIEU);
+  const tong = {maNhaMay:"TOTAL", tenNhaMay:"TỔNG CỘNG", ky:"—"};
+  chiTieuKeys.forEach(k=>{ tong[k] = 0; });
+  rows.forEach(r=>{
+    chiTieuKeys.forEach(k=>{ tong[k] += (r[k] || 0); });
+  });
+  return tong;
+}
+
+/* Định dạng số */
+function thFormatSo(v, donVi){
+  if(v === null || v === undefined) return "—";
+  if(v === 0) return `<span style="color:var(--ink-muted)">0</span>`;
+  const formatted = v.toLocaleString("vi-VN", {maximumFractionDigits: 1});
+  return `${formatted} <span style="font-size:11px;color:var(--ink-muted)">${donVi||""}</span>`;
+}
+
+/* Đếm nhà máy có dữ liệu */
+function thDemNhaMay(data){
+  const set = new Set();
+  data.forEach(d=>{ if(d.maNhaMay) set.add(d.maNhaMay); });
+  return set.size;
+}
+
+/* Render filter options */
+function thRenderKyOptions(){
+  const all = nlLoadData();
+  const listKy = thLayDanhSachKy(all);
+  let opts = `<option value="ALL">Tất cả kỳ (${listKy.length})</option>`;
+  listKy.forEach(k=>{
+    opts += `<option value="${k}" ${TH_STATE.kyBaoCao===k?'selected':''}>${k}</option>`;
+  });
+  return opts;
+}
+
+function thRenderNhaMayOptions(){
+  const all = nlLoadData();
+  const listNM = thLayDanhSachNhaMay(all);
+  let opts = `<option value="ALL">Tất cả nhà máy (${listNM.length})</option>`;
+  listNM.forEach(id=>{
+    const nm = DATA.congTyNhaMay.find(x=>x.id === id);
+    opts += `<option value="${id}" ${TH_STATE.nhaMay===id?'selected':''}>${nm?nm.ten:id} (${id})</option>`;
+  });
+  return opts;
+}
+
+function thRenderChiTieuOptions(){
+  let opts = "";
+  Object.keys(TH_CHI_TIEU).forEach(k=>{
+    const ct = TH_CHI_TIEU[k];
+    opts += `<option value="${k}" ${TH_STATE.chiTieu===k?'selected':''}>${ct.ten}</option>`;
+  });
+  return opts;
+}
+
+/* Render thẻ thống kê */
+function thRenderStats(rows){
+  if(rows.length === 0){
+    return `<div class="th-empty" style="grid-column:1/-1;padding:20px;"><div class="th-empty-title">Chưa có dữ liệu</div></div>`;
+  }
+  let tongCtrSh = 0, tongCtrCn = 0, tongBun = 0, tongCtnh = 0, tongNt = 0;
+  rows.forEach(r=>{
+    tongCtrSh += r.ctr_sh || 0;
+    tongCtrCn += r.ctr_cn || 0;
+    tongBun += r.bun || 0;
+    tongCtnh += r.ctnh || 0;
+    tongNt += (r.nt_sh || 0) + (r.nt_sx || 0);
+  });
+  return `
+    <div class="th-stat st-green">
+      <div class="th-stat-label">CTR sinh hoạt</div>
+      <div class="th-stat-num">${tongCtrSh.toLocaleString("vi-VN", {maximumFractionDigits:1})}</div>
+      <div class="th-stat-unit">kg / kỳ</div>
+    </div>
+    <div class="th-stat st-amber">
+      <div class="th-stat-label">CTR công nghiệp</div>
+      <div class="th-stat-num">${tongCtrCn.toLocaleString("vi-VN", {maximumFractionDigits:1})}</div>
+      <div class="th-stat-unit">kg / kỳ</div>
+    </div>
+    <div class="th-stat st-teal">
+      <div class="th-stat-label">Bùn thải</div>
+      <div class="th-stat-num">${tongBun.toLocaleString("vi-VN", {maximumFractionDigits:1})}</div>
+      <div class="th-stat-unit">kg / kỳ</div>
+    </div>
+    <div class="th-stat st-red">
+      <div class="th-stat-label">CTNH</div>
+      <div class="th-stat-num">${tongCtnh.toLocaleString("vi-VN", {maximumFractionDigits:2})}</div>
+      <div class="th-stat-unit">kg / kỳ</div>
+    </div>
+    <div class="th-stat st-slate">
+      <div class="th-stat-label">Nước thải</div>
+      <div class="th-stat-num">${tongNt.toLocaleString("vi-VN", {maximumFractionDigits:1})}</div>
+      <div class="th-stat-unit">m³ / kỳ</div>
+    </div>
+    <div class="th-stat st-purple">
+      <div class="th-stat-label">Nhà máy có dữ liệu</div>
+      <div class="th-stat-num">${thDemNhaMay(rows)}</div>
+      <div class="th-stat-unit">/ ${DATA.congTyNhaMay.length} nhà máy</div>
+    </div>
+  `;
+}
+
+/* Render bảng tổng hợp */
+function thRenderBang(rows){
+  if(rows.length === 0){
+    return `<div class="th-empty"><div class="th-empty-ic">📭</div><div class="th-empty-title">Chưa có dữ liệu nhập liệu</div><div>Vào tab "📝 Nhập liệu" để thêm dữ liệu trước.</div></div>`;
+  }
+  const tong = thTinhTong(rows);
+  const chiTieuKeys = Object.keys(TH_CHI_TIEU);
+  
+  // Định nghĩa cột sắp xếp
+  function thHeader(label, cotKey){
+    const isActive = TH_STATE.sapXep.cot === cotKey;
+    const arrow = isActive ? (TH_STATE.sapXep.chieu === "asc" ? " ▲" : " ▼") : "";
+    return `<th style="cursor:pointer;" onclick="thSapXepTheo('${cotKey}')">${label}${arrow}</th>`;
+  }
+  
+  let html = `<div class="th-tbl-wrap"><table class="th-tbl"><thead><tr>
+    ${thHeader("Nhà máy", "maNhaMay")}
+    ${thHeader("Kỳ BC", "ky")}
+    ${chiTieuKeys.map(k=>thHeader(TH_CHI_TIEU[k].ten, k)).join("")}
+  </tr></thead><tbody>`;
+  
+  rows.forEach(r=>{
+    html += `<tr>
+      <td><span class="th-plant-name">${r.tenNhaMay}</span><span class="th-plant-id">${r.maNhaMay}</span></td>
+      <td>${r.ky}</td>
+      ${chiTieuKeys.map(k=>{
+        const v = r[k] || 0;
+        const cls = v > 0 ? "" : "th-cell-empty";
+        return `<td class="${cls}">${thFormatSo(v, TH_CHI_TIEU[k].donVi)}</td>`;
+      }).join("")}
+    </tr>`;
+  });
+  
+  // Dòng tổng
+  html += `<tr class="th-row-total">
+    <td>${tong.tenNhaMay}</td>
+    <td>—</td>
+    ${chiTieuKeys.map(k=>`<td>${thFormatSo(tong[k], TH_CHI_TIEU[k].donVi)}</td>`).join("")}
+  </tr>`;
+  
+  html += `</tbody></table></div>`;
+  return html;
+}
+
+/* Sắp xếp theo cột */
+window.thSapXepTheo = function(cot){
+  if(TH_STATE.sapXep.cot === cot){
+    TH_STATE.sapXep.chieu = TH_STATE.sapXep.chieu === "asc" ? "desc" : "asc";
+  } else {
+    TH_STATE.sapXep.cot = cot;
+    TH_STATE.sapXep.chieu = "asc";
+  }
+  thRefreshBang();
+};
+
+/* Refresh chỉ bảng (không refresh cả trang) */
+function thRefreshBang(){
+  const rows = thTaoBangTongHop(thLocDuLieu());
+  const el = document.getElementById("thTableContainer");
+  if(el) el.innerHTML = thRenderBang(rows);
+}
+
+/* Vẽ biểu đồ xu hướng theo thời gian */
+function thVeBieuDoThoiGian(){
+  const canvas = document.getElementById("thChartTime");
+  if(!canvas) return;
+  const all = nlLoadData();
+  // Nhóm theo kỳ
+  const byKy = {};
+  all.forEach(d=>{
+    if(TH_STATE.nhaMay !== "ALL" && d.maNhaMay !== TH_STATE.nhaMay) return;
+    const ky = d.kyBaoCao.giaTri;
+    if(!byKy[ky]) byKy[ky] = {ctr_sh:0, ctr_cn:0, bun:0, ctnh:0};
+    Object.keys(byKy[ky]).forEach(k=>{
+      byKy[ky][k] += thLayChiTieu(d, k);
+    });
+  });
+  const labels = Object.keys(byKy).sort();
+  const datasets = [
+    {label:"CTR sinh hoạt", data: labels.map(k=>byKy[k].ctr_sh), backgroundColor:"#2E9E5B"},
+    {label:"CTR công nghiệp", data: labels.map(k=>byKy[k].ctr_cn), backgroundColor:"#E0A215"},
+    {label:"Bùn thải", data: labels.map(k=>byKy[k].bun), backgroundColor:"#6FBFBF"},
+    {label:"CTNH", data: labels.map(k=>byKy[k].ctnh), backgroundColor:"#C0392B"}
+  ];
+  
+  if(TH_STATE.chartTime) TH_STATE.chartTime.destroy();
+  TH_STATE.chartTime = new Chart(canvas, {
+    type: "bar",
+    data: {labels, datasets},
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {position: "bottom", labels: {boxWidth: 12, font: {size: 11}}},
+        title: {display: false}
+      },
+      scales: {
+        y: {beginAtZero: true, ticks: {font: {size: 10}}},
+        x: {ticks: {font: {size: 10}}}
+      }
+    }
+  });
+}
+
+/* Vẽ biểu đồ so sánh nhà máy */
+function thVeBieuDoNhaMay(){
+  const canvas = document.getElementById("thChartPlant");
+  if(!canvas) return;
+  const rows = thTaoBangTongHop(thLocDuLieu());
+  // Nhóm theo nhà máy
+  const byNM = {};
+  rows.forEach(r=>{
+    if(!byNM[r.maNhaMay]){
+      byNM[r.maNhaMay] = {ten: r.tenNhaMay, ctr_sh:0, ctr_cn:0, bun:0, ctnh:0};
+    }
+    Object.keys(byNM[r.maNhaMay]).forEach(k=>{
+      if(k !== "ten") byNM[r.maNhaMay][k] += (r[k] || 0);
+    });
+  });
+  const labels = Object.keys(byNM).sort();
+  const datasets = [
+    {label:"CTR SH", data: labels.map(k=>byNM[k].ctr_sh), backgroundColor:"#2E9E5B"},
+    {label:"CTR CN", data: labels.map(k=>byNM[k].ctr_cn), backgroundColor:"#E0A215"},
+    {label:"Bùn", data: labels.map(k=>byNM[k].bun), backgroundColor:"#6FBFBF"},
+    {label:"CTNH", data: labels.map(k=>byNM[k].ctnh), backgroundColor:"#C0392B"}
+  ];
+  
+  if(TH_STATE.chartPlant) TH_STATE.chartPlant.destroy();
+  TH_STATE.chartPlant = new Chart(canvas, {
+    type: "bar",
+    data: {labels, datasets},
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      indexAxis: "y",
+      plugins: {
+        legend: {position: "bottom", labels: {boxWidth: 12, font: {size: 11}}}
+      },
+      scales: {
+        x: {beginAtZero: true, ticks: {font: {size: 10}}},
+        y: {ticks: {font: {size: 10}}}
+      }
+    }
+  });
+}
+
+/* Cảnh báo nhà máy thiếu dữ liệu */
+function thCanhBao(){
+  const all = nlLoadData();
+  const danhSachNMDaNhap = new Set(all.map(d=>d.maNhaMay));
+  const tatCaNM = DATA.congTyNhaMay.map(p=>p.id);
+  const thieu = tatCaNM.filter(id=>!danhSachNMDaNhap.has(id));
+  if(thieu.length === 0) return "";
+  const listHTML = thieu.slice(0,10).map(id=>{
+    const nm = DATA.congTyNhaMay.find(x=>x.id===id);
+    return `<strong>${id}</strong> (${nm?nm.ten:""})`;
+  }).join(", ");
+  const them = thieu.length > 10 ? ` và ${thieu.length-10} nhà máy khác` : "";
+  return `<div class="th-alert warn">
+    <span class="th-alert-ic">⚠️</span>
+    <div class="th-alert-body">
+      <strong>${thieu.length} nhà máy chưa nhập liệu:</strong> ${listHTML}${them}
+    </div>
+  </div>`;
+}
+
+/* XUẤT EXCEL TỔNG HỢP */
+window.thXuatExcel = function(){
+  if(typeof XLSX === "undefined"){ nlToast("Chưa tải thư viện Excel", "error"); return; }
+  const rows = thTaoBangTongHop(thLocDuLieu());
+  if(rows.length === 0){ nlToast("Không có dữ liệu để xuất", "error"); return; }
+  const tong = thTinhTong(rows);
+  const chiTieuKeys = Object.keys(TH_CHI_TIEU);
+  
+  // Sheet 1: Tổng hợp
+  const headers = ["Mã NM", "Tên nhà máy", "Kỳ BC", ...chiTieuKeys.map(k=>`${TH_CHI_TIEU[k].ten} (${TH_CHI_TIEU[k].donVi})`)];
+  const dataArr = rows.map(r=>[
+    r.maNhaMay, r.tenNhaMay, r.ky,
+    ...chiTieuKeys.map(k=>Math.round((r[k]||0) * 100) / 100)
+  ]);
+  dataArr.push([
+    "TOTAL", "TỔNG CỘNG", "—",
+    ...chiTieuKeys.map(k=>Math.round((tong[k]||0) * 100) / 100)
+  ]);
+  
+  const wb = XLSX.utils.book_new();
+  const ws1 = XLSX.utils.aoa_to_sheet([headers, ...dataArr]);
+  ws1["!cols"] = [{wch:10},{wch:35},{wch:12}, ...chiTieuKeys.map(()=>({wch:14}))];
+  XLSX.utils.book_append_sheet(wb, ws1, "TongHop");
+  
+  // Sheet 2: Chi tiết nhập liệu
+  const allData = thLocDuLieu();
+  if(allData.length > 0){
+    const ct1 = allData.map(d=>{
+      const ctrSh = (d.chatThaiRan && d.chatThaiRan.sinhHoat) || {};
+      const ctrCn = (d.chatThaiRan && d.chatThaiRan.congNghiepThongThuong) || {};
+      const bun = d.bunThai || {};
+      const ctnh = d.chatThaiNguyHai || {};
+      const ntSh = (d.nuocThai && d.nuocThai.sinhHoat) || {};
+      const ntSx = (d.nuocThai && d.nuocThai.sanXuat) || {};
+      return [
+        d.maNhaMay, d.tenNhaMay, d.kyBaoCao.giaTri, d.kyBaoCao.loai,
+        d.nguoiNhap, d.ngayNhap, d.trangThai,
+        ctrSh.khoiLuong||0, ctrSh.donVi||"", ctrSh.donViThuGom||"",
+        ctrCn.khoiLuong||0, ctrCn.donVi||"", ctrCn.thanhPhan||"",
+        bun.khoiLuong||0, bun.donVi||"", bun.doAm||0,
+        ctnh.tongKhoiLuong||0, ctnh.donViThuGom||"",
+        ntSh.khoiLuong||0, ntSh.donVi||"",
+        ntSx.khoiLuong||0, ntSx.donVi||""
+      ];
+    });
+    const ctHeaders = ["Mã NM","Tên NM","Kỳ BC","Loại kỳ","Người nhập","Ngày nhập","Trạng thái",
+      "CTR SH (KL)","CTR SH (ĐV)","CTR SH (ĐV thu gom)",
+      "CTR CN (KL)","CTR CN (ĐV)","CTR CN (thành phần)",
+      "Bùn (KL)","Bùn (ĐV)","Bùn (độ ẩm)",
+      "CTNH (tổng KL)","CTNH (ĐV thu gom)",
+      "NT SH (KL)","NT SH (ĐV)","NT SX (KL)","NT SX (ĐV)"];
+    const ws2 = XLSX.utils.aoa_to_sheet([ctHeaders, ...ct1]);
+    ws2["!cols"] = ctHeaders.map(()=>({wch:16}));
+    XLSX.utils.book_append_sheet(wb, ws2, "ChiTiet");
+  }
+  
+  // Sheet 3: CTNH chi tiết
+  const ctnhAll = [];
+  allData.forEach(d=>{
+    if(d.chatThaiNguyHai && d.chatThaiNguyHai.danhSach){
+      d.chatThaiNguyHai.danhSach.forEach(c=>{
+        if(c.loai || c.maCTNH || c.khoiLuong > 0){
+          ctnhAll.push([d.maNhaMay, d.tenNhaMay, d.kyBaoCao.giaTri, c.loai||"", c.maCTNH||"", c.khoiLuong||0, c.donVi||""]);
+        }
+      });
+    }
+  });
+  if(ctnhAll.length > 0){
+    const ws3 = XLSX.utils.aoa_to_sheet([["Mã NM","Tên NM","Kỳ BC","Loại CTNH","Mã CTNH","Khối lượng","Đơn vị"], ...ctnhAll]);
+    ws3["!cols"] = [{wch:10},{wch:30},{wch:12},{wch:40},{wch:12},{wch:12},{wch:12}];
+    XLSX.utils.book_append_sheet(wb, ws3, "CTNH");
+  }
+  
+  const today = new Date().toISOString().split("T")[0];
+  XLSX.writeFile(wb, `TongHop-ChiTiet-${today}.xlsx`);
+  nlToast("✅ Đã xuất Excel tổng hợp", "success");
+};
+
+/* XUẤT WORD TỔNG HỢP (nhiều nhà máy) */
+window.thXuatWord = async function(){
+  if(typeof PizZip === "undefined" || typeof docxtemplater === "undefined"){
+    nlToast("❌ Chưa tải thư viện Word — Refresh (Ctrl+F5)", "error");
+    return;
+  }
+  const rows = thTaoBangTongHop(thLocDuLieu());
+  if(rows.length === 0){ nlToast("Không có dữ liệu để xuất", "error"); return; }
+  nlToast("⏳ Đang tạo Word tổng hợp…");
+  try{
+    const tong = thTinhTong(rows);
+    const chiTieuKeys = Object.keys(TH_CHI_TIEU);
+    // Tạo bảng text đơn giản
+    let bangText = "";
+    // Header
+    bangText += "Mã NM | Tên nhà máy | Kỳ BC | " + chiTieuKeys.map(k=>TH_CHI_TIEU[k].ten).join(" | ") + "\n";
+    // Data
+    rows.forEach(r=>{
+      bangText += `${r.maNhaMay} | ${r.tenNhaMay} | ${r.ky} | ` + chiTieuKeys.map(k=>`${Math.round((r[k]||0)*100)/100}`).join(" | ") + "\n";
+    });
+    // Tổng
+    bangText += `TOTAL | TỔNG CỘNG | — | ` + chiTieuKeys.map(k=>`${Math.round((tong[k]||0)*100)/100}`).join(" | ") + "\n";
+    
+    const ngayXuat = new Date();
+    const duLieu = {
+      ngay_xuat: String(ngayXuat.getDate()),
+      thang_xuat: String(ngayXuat.getMonth()+1),
+      nam_xuat: String(ngayXuat.getFullYear()),
+      so_nha_may: String(thDemNhaMay(rows)),
+      ky_bao_cao: TH_STATE.kyBaoCao === "ALL" ? "Tất cả kỳ" : TH_STATE.kyBaoCao,
+      tong_ctr_sh: Math.round(tong.ctr_sh * 100)/100,
+      tong_ctr_cn: Math.round(tong.ctr_cn * 100)/100,
+      tong_bun: Math.round(tong.bun * 100)/100,
+      tong_ctnh: Math.round(tong.ctnh * 100)/100,
+      tong_nt: Math.round((tong.nt_sh + tong.nt_sx) * 100)/100,
+      bang_tong_hop: bangText
+    };
+    
+    // Template inline
+    const templateText = `
+CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM
+Độc lập – Tự do – Hạnh phúc
+─────────────────────────────
+
+BÁO CÁO TỔNG HỢP CÔNG TÁC BẢO VỆ MÔI TRƯỜNG
+Kỳ báo cáo: {{ky_bao_cao}}
+
+I. THÔNG TIN TỔNG HỢP
+- Tổng số nhà máy có dữ liệu: {{so_nha_may}}
+- Ngày xuất báo cáo: {{ngay_xuat}}/{{thang_xuat}}/{{nam_xuat}}
+
+II. SỐ LIỆU TỔNG HỢP CHẤT THẢI
+- Tổng CTR sinh hoạt: {{tong_ctr_sh}} kg
+- Tổng CTR công nghiệp: {{tong_ctr_cn}} kg
+- Tổng bùn thải: {{tong_bun}} kg
+- Tổng CTNH: {{tong_ctnh}} kg
+- Tổng nước thải: {{tong_nt}} m³
+
+III. BẢNG CHI TIẾT THEO NHÀ MÁY
+{{bang_tong_hop}}
+
+Ngày {{ngay_xuat}} tháng {{thang_xuat}} năm {{nam_xuat}}
+
+NGƯỜI LẬP BÁO CÁO
+(Ký, ghi rõ họ tên)
+
+.....................................
+`;
+    
+    // Tạo file docx từ text thuần
+    const zip = new PizZip();
+    zip.file("[Content_Types].xml", `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
+<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
+<Default Extension="xml" ContentType="application/xml"/>
+<Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>
+</Types>`);
+    zip.folder("_rels").file(".rels", `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>
+</Relationships>`);
+    zip.folder("word").file("_rels/document.xml.rels", `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"/>`);
+    
+    // Replace placeholders
+    let finalText = templateText;
+    Object.keys(duLieu).forEach(k=>{
+      const re = new RegExp(`\\{\\{${k}\\}\\}`, "g");
+      finalText = finalText.replace(re, duLieu[k]);
+    });
+    
+    // Escape XML
+    const escaped = finalText.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+    const lines = escaped.split("\n");
+    const paragraphs = lines.map(line=>{
+      return `<w:p><w:r><w:t xml:space="preserve">${line || " "}</w:t></w:r></w:p>`;
+    }).join("");
+    
+    zip.file("word/document.xml", `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+<w:body>${paragraphs}<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1440" w:right="1440" w:bottom="1440" w:left="1440"/></w:sectPr></w:body>
+</w:document>`);
+    
+    const blob = zip.generate({type:"blob", mimeType:"application/vnd.openxmlformats-officedocument.wordprocessingml.document"});
+    const today = new Date().toISOString().split("T")[0];
+    saveAs(blob, `BaoCao-TongHop-${today}.docx`);
+    nlToast("✅ Đã xuất Word tổng hợp", "success");
+  }catch(err){
+    console.error(err);
+    nlToast("❌ Lỗi: " + (err.message || err), "error");
+  }
+};
+
+/* XUẤT JSON tổng hợp */
+window.thXuatJSON = function(){
+  const rows = thTaoBangTongHop(thLocDuLieu());
+  const tong = thTinhTong(rows);
+  const obj = {
+    version: "1.0",
+    lastUpdate: new Date().toISOString(),
+    boLoc: {
+      kyBaoCao: TH_STATE.kyBaoCao,
+      nhaMay: TH_STATE.nhaMay
+    },
+    soNhaMay: thDemNhaMay(rows),
+    tong,
+    chiTiet: rows
+  };
+  const blob = new Blob([JSON.stringify(obj, null, 2)], {type: "application/json"});
+  const today = new Date().toISOString().split("T")[0];
+  saveAs(blob, `TongHop-${today}.json`);
+  nlToast("✅ Đã xuất JSON tổng hợp", "success");
+};
+
+/* Đổi bộ lọc */
+window.thDoiKy = function(v){
+  TH_STATE.kyBaoCao = v;
+  thRefreshToanBo();
+};
+window.thDoiNhaMay = function(v){
+  TH_STATE.nhaMay = v;
+  thRefreshToanBo();
+};
+window.thDoiChiTieu = function(v){
+  TH_STATE.chiTieu = v;
+  thRefreshToanBo();
+};
+
+function thRefreshToanBo(){
+  const container = document.getElementById("thContent");
+  if(!container) return;
+  const rows = thTaoBangTongHop(thLocDuLieu());
+  container.innerHTML = `
+    ${thCanhBao()}
+    <div class="th-stats">${thRenderStats(rows)}</div>
+    <div class="th-table-wrap">
+      <div class="th-table-head">
+        <p class="th-table-title">📋 Bảng tổng hợp số liệu (${rows.length} bản ghi)</p>
+        <div class="th-table-actions">
+          <button class="th-btn th-btn-secondary" onclick="thRefreshToanBo()">🔄 Làm mới</button>
+        </div>
+      </div>
+      <div id="thTableContainer">${thRenderBang(rows)}</div>
+    </div>
+    <div class="th-charts">
+      <div class="th-chart-card">
+        <p class="th-chart-title">📈 Xu hướng theo kỳ báo cáo</p>
+        <div class="th-chart-canvas"><canvas id="thChartTime"></canvas></div>
+      </div>
+      <div class="th-chart-card">
+        <p class="th-chart-title">📊 So sánh giữa các nhà máy</p>
+        <div class="th-chart-canvas"><canvas id="thChartPlant"></canvas></div>
+      </div>
+    </div>
+    <div class="th-export">
+      <span class="th-export-title">Xuất báo cáo:</span>
+      <button class="th-btn th-btn-excel" onclick="thXuatExcel()">📊 Excel tổng hợp</button>
+      <button class="th-btn th-btn-word" onclick="thXuatWord()">📄 Word tổng hợp</button>
+      <button class="th-btn th-btn-secondary" onclick="thXuatJSON()">📋 JSON</button>
+    </div>
+  `;
+  // Vẽ biểu đồ sau khi DOM render
+  setTimeout(()=>{
+    thVeBieuDoThoiGian();
+    thVeBieuDoNhaMay();
+  }, 100);
+}
+
+/* Render Tab Tổng hợp */
+function renderTongHop(){
+  const rows = thTaoBangTongHop(thLocDuLieu());
+  return `
+    <section class="section" id="sec-tonghop">
+      <div class="th-wrap">
+        <div class="th-header">
+          <h3>📊 Tổng hợp chất thải &amp; môi trường</h3>
+          <p>Xem bảng tổng hợp và biểu đồ của tất cả nhà máy theo kỳ báo cáo. Xuất Excel/Word/JSON để chia sẻ.</p>
+        </div>
+        
+        <div class="th-filter">
+          <div class="th-filter-grid">
+            <div class="th-filter-field">
+              <label>Kỳ báo cáo</label>
+              <select id="thFilterKy" onchange="thDoiKy(this.value)">${thRenderKyOptions()}</select>
+            </div>
+            <div class="th-filter-field">
+              <label>Nhà máy</label>
+              <select id="thFilterNM" onchange="thDoiNhaMay(this.value)">${thRenderNhaMayOptions()}</select>
+            </div>
+            <div class="th-filter-field">
+              <label>Chỉ tiêu ưu tiên</label>
+              <select id="thFilterCT" onchange="thDoiChiTieu(this.value)">${thRenderChiTieuOptions()}</select>
+            </div>
+          </div>
+        </div>
+        
+        <div id="thContent">
+          ${thCanhBao()}
+          <div class="th-stats">${thRenderStats(rows)}</div>
+          <div class="th-table-wrap">
+            <div class="th-table-head">
+              <p class="th-table-title">📋 Bảng tổng hợp số liệu (${rows.length} bản ghi)</p>
+              <div class="th-table-actions">
+                <button class="th-btn th-btn-secondary" onclick="thRefreshToanBo()">🔄 Làm mới</button>
+              </div>
+            </div>
+            <div id="thTableContainer">${thRenderBang(rows)}</div>
+          </div>
+          <div class="th-charts">
+            <div class="th-chart-card">
+              <p class="th-chart-title">📈 Xu hướng theo kỳ báo cáo</p>
+              <div class="th-chart-canvas"><canvas id="thChartTime"></canvas></div>
+            </div>
+            <div class="th-chart-card">
+              <p class="th-chart-title">📊 So sánh giữa các nhà máy</p>
+              <div class="th-chart-canvas"><canvas id="thChartPlant"></canvas></div>
+            </div>
+          </div>
+          <div class="th-export">
+            <span class="th-export-title">Xuất báo cáo:</span>
+            <button class="th-btn th-btn-excel" onclick="thXuatExcel()">📊 Excel tổng hợp</button>
+            <button class="th-btn th-btn-word" onclick="thXuatWord()">📄 Word tổng hợp</button>
+            <button class="th-btn th-btn-secondary" onclick="thXuatJSON()">📋 JSON</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  `;
+}
 /* ===== NAVIGATION ===== */
 function activateTab(sectionId){
   document.querySelectorAll(".section").forEach(s=>s.classList.remove("active-tab"));
