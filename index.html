@@ -7,6 +7,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,600;0,700;1,400&family=Noto+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+  <!-- Thư viện xử lý Excel -->
+<script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
+<!-- Thư viện tải file -->
+<script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
 <style>
 :root{
   --paper:#F6F7F4; --paper-deep:#EDEFE9; --ink:#1B2420; --ink-soft:#4B564F;
@@ -541,7 +545,88 @@ html[data-theme="dark"] ::-webkit-scrollbar{width:10px;height:10px;}
 html[data-theme="dark"] ::-webkit-scrollbar-track{background:var(--paper);}
 html[data-theme="dark"] ::-webkit-scrollbar-thumb{background:#3A3A42;border-radius:5px;border:2px solid var(--paper);}
 html[data-theme="dark"] ::-webkit-scrollbar-thumb:hover{background:#4A4A55;}
+  
+/* ================================================================ */
+/* ===== FORM NHẬP LIỆU — v6.0 ================================== */
+/* ================================================================ */
+.nl-wrap{max-width:980px;margin:0 auto;}
+.nl-header{background:var(--paper-deep);border:1px solid var(--line-soft);border-left:4px solid var(--forest);border-radius:10px;padding:20px 24px;margin-bottom:20px;font-family:var(--sans);}
+.nl-header h3{margin:0 0 6px;font-family:var(--serif);font-size:20px;color:var(--forest-deep);}
+.nl-header p{margin:0;font-size:13px;color:var(--ink-soft);}
+.nl-step{background:var(--paper-deep);border:1px solid var(--line-soft);border-radius:10px;padding:18px 22px;margin-bottom:16px;font-family:var(--sans);}
+.nl-step-head{display:flex;align-items:center;gap:12px;margin-bottom:14px;padding-bottom:12px;border-bottom:1px dashed var(--line);}
+.nl-step-num{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--forest-bright),var(--forest-deep));color:#fff;font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center;flex:0 0 auto;}
+.nl-step-title{font-family:var(--serif);font-size:16px;font-weight:700;color:var(--forest-deep);margin:0;flex:1;}
+.nl-step-desc{font-size:12px;color:var(--ink-soft);margin:0;}
+.nl-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px 18px;}
+.nl-grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:14px 18px;}
+.nl-field label{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#8A9389;margin-bottom:5px;}
+.nl-field label .req{color:var(--red);margin-left:3px;}
+.nl-field input, .nl-field select, .nl-field textarea{width:100%;padding:9px 11px;border:1px solid var(--line);border-radius:6px;font-family:var(--sans);font-size:13.5px;background:var(--paper);color:var(--ink);transition:border-color .15s ease, box-shadow .15s ease;}
+.nl-field input:focus, .nl-field select:focus, .nl-field textarea:focus{outline:none;border-color:var(--forest);box-shadow:0 0 0 3px rgba(95,207,128,.15);}
+.nl-field .hint{font-size:11px;color:var(--ink-muted);margin-top:3px;}
+.nl-field-unit{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:end;}
+.nl-field-unit input{flex:1;}
+.nl-field-unit select{width:auto;min-width:110px;}
+.nl-ctnh-row{display:grid;grid-template-columns:2fr 1.2fr 1fr 1fr auto;gap:10px;align-items:end;margin-bottom:10px;padding:12px;background:var(--paper);border:1px solid var(--line-soft);border-radius:8px;}
+.nl-ctnh-row .nl-field{margin:0;}
+.nl-btn-remove{background:none;border:1px solid var(--red);color:var(--red);width:34px;height:34px;border-radius:6px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all .15s ease;}
+.nl-btn-remove:hover{background:var(--red);color:#fff;}
+.nl-btn-add{background:var(--paper);border:1.5px dashed var(--forest);color:var(--forest);border-radius:8px;padding:10px 16px;font-family:var(--sans);font-size:13px;font-weight:700;cursor:pointer;transition:all .15s ease;width:100%;}
+.nl-btn-add:hover{background:rgba(95,207,128,.1);border-style:solid;}
+.nl-actions{display:flex;gap:10px;flex-wrap:wrap;margin:24px 0 32px;padding:20px;background:var(--paper-deep);border:1px solid var(--line-soft);border-radius:10px;}
+.nl-btn{padding:11px 22px;border-radius:8px;font-family:var(--sans);font-size:13.5px;font-weight:700;cursor:pointer;border:1.5px solid transparent;transition:all .15s ease;display:inline-flex;align-items:center;gap:6px;}
+.nl-btn-primary{background:var(--forest);color:#fff;border-color:var(--forest);}
+.nl-btn-primary:hover{background:var(--forest-bright);transform:translateY(-1px);}
+.nl-btn-secondary{background:var(--paper);color:var(--ink);border-color:var(--line);}
+.nl-btn-secondary:hover{background:var(--paper-light);}
+.nl-btn-danger{background:#fff;color:var(--red);border-color:var(--red);}
+.nl-btn-danger:hover{background:var(--red);color:#fff;}
+.nl-btn-export{background:var(--amber);color:#fff;border-color:var(--amber);}
+.nl-btn-export:hover{background:#C9924A;transform:translateY(-1px);}
+.nl-list{margin-top:24px;}
+.nl-list-item{background:var(--paper-deep);border:1px solid var(--line-soft);border-radius:8px;padding:14px 16px;margin-bottom:10px;font-family:var(--sans);display:flex;justify-content:space-between;align-items:center;gap:12px;transition:all .15s ease;}
+.nl-list-item:hover{border-color:var(--forest);box-shadow:0 2px 8px rgba(0,0,0,.1);}
+.nl-list-info{flex:1;min-width:0;}
+.nl-list-title{font-weight:700;font-size:14px;color:var(--ink);margin-bottom:3px;}
+.nl-list-meta{font-size:11.5px;color:var(--ink-muted);}
+.nl-list-meta span{margin-right:12px;}
+.nl-list-badge{display:inline-block;font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:10px;margin-left:8px;}
+.nl-list-badge.nhap{background:rgba(232,185,106,.2);color:var(--amber);}
+.nl-list-badge.chinh-thuc{background:rgba(95,207,128,.2);color:var(--forest-deep);}
+.nl-list-actions{display:flex;gap:6px;flex-shrink:0;}
+.nl-list-btn{width:34px;height:34px;border-radius:6px;border:1px solid var(--line);background:var(--paper);color:var(--ink-soft);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s ease;font-size:15px;}
+.nl-list-btn:hover{background:var(--forest);color:#fff;border-color:var(--forest);}
+.nl-list-btn.del:hover{background:var(--red);border-color:var(--red);}
+.nl-empty{text-align:center;padding:40px 20px;color:var(--ink-muted);font-family:var(--sans);font-size:13.5px;background:var(--paper-deep);border-radius:10px;border:1px dashed var(--line);}
+.nl-toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--ink);color:var(--paper);padding:12px 22px;border-radius:8px;font-family:var(--sans);font-size:13.5px;font-weight:600;box-shadow:0 8px 24px rgba(0,0,0,.3);z-index:10000;transition:transform .3s ease;pointer-events:none;}
+.nl-toast.show{transform:translateX(-50%) translateY(0);}
+.nl-toast.success{background:#2E9E5B;color:#fff;}
+.nl-toast.error{background:#C0392B;color:#fff;}
 
+/* Dark mode cho form nhập liệu */
+html[data-theme="dark"] .nl-header,
+html[data-theme="dark"] .nl-step,
+html[data-theme="dark"] .nl-actions,
+html[data-theme="dark"] .nl-list-item{background:var(--paper-mid);border-color:var(--line-soft);}
+html[data-theme="dark"] .nl-header{border-left-color:var(--forest);}
+html[data-theme="dark"] .nl-field input,
+html[data-theme="dark"] .nl-field select,
+html[data-theme="dark"] .nl-field textarea{background:var(--paper-light);border-color:var(--line);color:var(--ink);}
+html[data-theme="dark"] .nl-ctnh-row{background:var(--paper-light);border-color:var(--line-soft);}
+html[data-theme="dark"] .nl-btn-add{background:var(--paper-light);}
+html[data-theme="dark"] .nl-btn-secondary{background:var(--paper-light);color:var(--ink);}
+html[data-theme="dark"] .nl-list-btn{background:var(--paper-light);color:var(--ink-soft);}
+html[data-theme="dark"] .nl-list-badge.nhap{background:rgba(232,185,106,.2);}
+html[data-theme="dark"] .nl-list-badge.chinh-thuc{background:rgba(95,207,128,.2);}
+
+/* Responsive */
+@media (max-width:640px){
+  .nl-ctnh-row{grid-template-columns:1fr;}
+  .nl-btn-remove{width:100%;}
+  .nl-list-item{flex-direction:column;align-items:flex-start;}
+  .nl-list-actions{width:100%;justify-content:flex-end;}
+}
 /* === Mobile === */
 @media (max-width:880px){
   body{overflow-x:hidden;}
@@ -605,7 +690,7 @@ html[data-theme="dark"] ::-webkit-scrollbar-thumb:hover{background:#4A4A55;}
 
     <div class="rail-group">
       <p class="rail-label">Vận hành &amp; hồ sơ</p>
-      <button class="rail-btn" data-goto="sec-hoso"><span class="rail-ic"><svg viewBox="0 0 24 24"><path d="M4 4h6l2 2h8v14H4z"/><path d="M9 13h6M9 17h6"/></svg></span><strong>Hồ sơ vận hành</strong></button>
+      <button class="rail-btn" data-goto="sec-hoso"><span class="rail-ic"><svg viewBox="0 0 24 24"><path d="M4 4h6l2 2h8v14H4z"/><path d="M9 13h6M9 17h6"/></svg></span><strong>Hồ sơ vận hành</strong></button>      <button class="rail-btn" data-goto="sec-nhaplieu"><span class="rail-ic"><svg viewBox="0 0 24 24"><path d="M12 2v20M2 12h20M5 5l14 14M19 5L5 19" opacity="0"/><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></span><strong>📝 Nhập liệu</strong></button>
       <button class="rail-btn" data-goto="sec-lich"><span class="rail-ic"><svg viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="16"/></svg></span>Lịch nghĩa vụ định kỳ</button>
       <button class="rail-btn" data-goto="sec-bieumau"><span class="rail-ic"><svg viewBox="0 0 24 24"><path d="M14 3H6v18h12V8Z"/></svg></span>Danh mục biểu mẫu</button>
       <button class="rail-btn" data-goto="sec-vipham"><span class="rail-ic"><svg viewBox="0 0 24 24"><path d="M12 3 2 20h20L12 3Z"/></svg></span>Vi phạm thường gặp</button>
@@ -1412,6 +1497,1194 @@ function renderBieumau(){
     <div class="form-filter" id="formFilter">${chips}</div>
     <table class="tbl"><thead><tr><th>Mẫu số</th><th>Tên</th><th>Link</th></tr></thead><tbody id="formTbody">${groups}</tbody></table>
   </section>`;
+}
+/* ================================================================ */
+/* ===== FORM NHẬP LIỆU — v6.0 ================================== */
+/* ================================================================ */
+
+const NL_STORAGE_KEY = "tracuu_mt_nhaplieu_v1";
+const NL_DON_VI = {
+  chatThaiRan: ["kg/ngày","kg/tháng","kg/năm","tấn/tháng","tấn/năm"],
+  bunThai: ["kg/ngày","kg/tháng","kg/năm","tấn/năm","m³/năm"],
+  ctnh: ["kg/ngày","kg/tháng","kg/năm","tấn/năm"],
+  nuocThai: ["m³/ngày","m³/tháng","m³/năm","lít/ngày"],
+  khiThai: ["m³/giờ","m³/ngày","m³/năm"]
+};
+
+const NL_CTNH_MAU = [
+  {loai:"Bóng đèn huỳnh quang thải", maCTNH:"01 04 01", khoiLuong:0, donVi:"kg/năm"},
+  {loai:"Dầu động cơ, hộp số và bôi trơn tổng hợp thải", maCTNH:"17 02 03", khoiLuong:0, donVi:"kg/năm"},
+  {loai:"Pin, ắc quy chì thải", maCTNH:"19 01 01", khoiLuong:0, donVi:"kg/năm"},
+  {loai:"Bao bì cứng thải bằng nhựa có chứa chất nguy hại", maCTNH:"18 01 03", khoiLuong:0, donVi:"kg/năm"},
+  {loai:"Bao bì kim loại thải có chứa chất nguy hại", maCTNH:"15 01 10", khoiLuong:0, donVi:"kg/năm"},
+  {loai:"Vật liệu lọc, giẻ lau dính dầu nhớt thải", maCTNH:"16 01 08", khoiLuong:0, donVi:"kg/năm"}
+];
+
+const NL_STATE = {
+  currentForm: null,
+  editingId: null
+};
+
+function nlLoadData(){
+  try{
+    const raw = localStorage.getItem(NL_STORAGE_KEY);
+    if(!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  }catch(e){
+    console.error("Lỗi đọc dữ liệu nhập liệu:", e);
+    return [];
+  }
+}
+
+function nlSaveData(data){
+  try{
+    localStorage.setItem(NL_STORAGE_KEY, JSON.stringify(data));
+    return true;
+  }catch(e){
+    console.error("Lỗi lưu dữ liệu (có thể đầy bộ nhớ):", e);
+    return false;
+  }
+}
+
+function nlToast(msg, type){
+  type = type || "";
+  let t = document.getElementById("nlToast");
+  if(!t){
+    t = document.createElement("div");
+    t.id = "nlToast";
+    t.className = "nl-toast";
+    document.body.appendChild(t);
+  }
+  t.className = "nl-toast " + type;
+  t.textContent = msg;
+  setTimeout(()=>t.classList.add("show"), 10);
+  setTimeout(()=>t.classList.remove("show"), 2600);
+}
+
+function nlTinhNgayKetThuc(loai, ky){
+  // ky dạng: "2026-03" (tháng), "2026-Q1" (quý), "2026" (năm)
+  if(loai === "thang"){
+    const [nam, thang] = ky.split("-").map(Number);
+    const ngayCuoi = new Date(nam, thang, 0).getDate();
+    return {
+      batDau: `01/${String(thang).padStart(2,"0")}/${nam}`,
+      ketThuc: `${String(ngayCuoi).padStart(2,"0")}/${String(thang).padStart(2,"0")}/${nam}`
+    };
+  }
+  if(loai === "quy"){
+    const [nam, q] = ky.split("-Q").map(Number);
+    const thangBD = (q-1)*3 + 1;
+    const thangKT = q*3;
+    const ngayCuoi = new Date(nam, thangKT, 0).getDate();
+    return {
+      batDau: `01/${String(thangBD).padStart(2,"0")}/${nam}`,
+      ketThuc: `${String(ngayCuoi).padStart(2,"0")}/${String(thangKT).padStart(2,"0")}/${nam}`
+    };
+  }
+  if(loai === "nam"){
+    return {
+      batDau: `01/01/${ky}`,
+      ketThuc: `31/12/${ky}`
+    };
+  }
+  return {batDau:"", ketThuc:""};
+}
+
+function nlFormatDateVN(dateStr){
+  // "2026-04-05" → "05/04/2026"
+  if(!dateStr) return "";
+  const parts = dateStr.split("-");
+  if(parts.length !== 3) return dateStr;
+  return `${parts[2]}/${parts[1]}/${parts[0]}`;
+}
+
+function nlFormatDateISO(dateStr){
+  // "05/04/2026" → "2026-04-05"
+  if(!dateStr) return "";
+  const parts = dateStr.split("/");
+  if(parts.length !== 3) return dateStr;
+  return `${parts[2]}-${parts[1]}-${parts[0]}`;
+}
+
+function nlRenderTrongLuong(donVi){
+  return donVi.map(d => `<option value="${d}">${d}</option>`).join("");
+}
+
+function nlRenderCtnhRow(ctnh){
+  ctnh = ctnh || {loai:"", maCTNH:"", khoiLuong:0, donVi:"kg/năm"};
+  return `
+    <div class="nl-ctnh-row">
+      <div class="nl-field">
+        <label>Loại CTNH</label>
+        <select class="nl-ctnh-loai">
+          <option value="">-- Chọn loại --</option>
+          ${NL_CTNH_MAU.map(m=>`<option value="${m.loai}" data-ma="${m.maCTNH}" ${ctnh.loai===m.loai?'selected':''}>${m.loai}</option>`).join("")}
+          <option value="__khac__" ${ctnh.loai && !NL_CTNH_MAU.find(m=>m.loai===ctnh.loai)?'selected':''}>Khác...</option>
+        </select>
+      </div>
+      <div class="nl-field">
+        <label>Mã CTNH</label>
+        <input type="text" class="nl-ctnh-ma" value="${ctnh.maCTNH||''}" placeholder="VD: 01 04 01">
+      </div>
+      <div class="nl-field">
+        <label>Khối lượng</label>
+        <input type="number" class="nl-ctnh-kl" value="${ctnh.khoiLuong||0}" step="0.01" min="0">
+      </div>
+      <div class="nl-field">
+        <label>Đơn vị</label>
+        <select class="nl-ctnh-dv">
+          ${nlRenderTrongLuong(NL_DON_VI.ctnh).replace(`value="${ctnh.donVi}"`, `value="${ctnh.donVi}" selected`)}
+        </select>
+      </div>
+      <div class="nl-field">
+        <label>&nbsp;</label>
+        <button type="button" class="nl-btn-remove" onclick="nlXoaCtnhRow(this)">✕</button>
+      </div>
+    </div>
+  `;
+}
+
+window.nlXoaCtnhRow = function(btn){
+  const row = btn.closest(".nl-ctnh-row");
+  if(row) row.remove();
+};
+
+window.nlThemCtnhRow = function(){
+  const container = document.getElementById("nlCtnhContainer");
+  if(!container) return;
+  const wrapper = document.createElement("div");
+  wrapper.innerHTML = nlRenderCtnhRow(null);
+  container.appendChild(wrapper.firstElementChild);
+};
+
+function nlRenderForm(data){
+  data = data || {};
+  const nhapLieu = nlLoadData();
+  // Danh sách nhà máy
+  const listNM = (DATA.congTyNhaMay && DATA.congTyNhaMay.length) ? DATA.congTyNhaMay : [];
+  
+  // Nếu có editingId → load dữ liệu cũ
+  let existing = null;
+  if(NL_STATE.editingId){
+    existing = nhapLieu.find(x=>x.id === NL_STATE.editingId);
+  }
+  
+  // Format ngày hôm nay
+  const today = new Date();
+  const todayISO = today.toISOString().split("T")[0];
+  const todayVN = nlFormatDateVN(todayISO);
+  
+  return `
+  <section class="section" id="sec-nhaplieu">
+    <div class="nl-wrap">
+      
+      <div class="nl-header">
+        <h3>📝 Nhập liệu chất thải &amp; môi trường</h3>
+        <p>Chọn nhà máy + kỳ báo cáo, điền số liệu vào các trường bên dưới. Dữ liệu lưu trên máy bạn (localStorage) — có thể xuất JSON để backup hoặc chia sẻ.</p>
+      </div>
+      
+      <div class="nl-actions" style="margin-top:0;margin-bottom:20px;">
+        <button class="nl-btn nl-btn-secondary" onclick="nlShowList()">📋 Danh sách đã nhập</button>
+        <button class="nl-btn nl-btn-secondary" onclick="nlExportJSON()">📤 Xuất JSON (backup)</button>
+        <button class="nl-btn nl-btn-secondary" onclick="document.getElementById('nlImportFile').click()">📥 Import JSON</button>
+        <input type="file" id="nlImportFile" accept=".json" style="display:none" onchange="nlImportJSON(event)">
+        <button class="nl-btn nl-btn-secondary" onclick="document.getElementById('nlImportExcel').click()">📊 Import Excel</button>
+        <input type="file" id="nlImportExcel" accept=".xlsx,.xls" style="display:none" onchange="nlImportExcel(event)">
+        <button class="nl-btn nl-btn-secondary" onclick="nlTaiMauExcel()">📥 Tải file Excel mẫu</button>
+      </div>
+      
+      <!-- BƯỚC 1 -->
+      <div class="nl-step">
+        <div class="nl-step-head">
+          <div class="nl-step-num">1</div>
+          <p class="nl-step-title">Chọn nhà máy &amp; kỳ báo cáo</p>
+        </div>
+        <div class="nl-grid">
+          <div class="nl-field">
+            <label>Nhà máy <span class="req">*</span></label>
+            <select id="nlNhaMay" onchange="nlUpdateIdPreview()">
+              <option value="">-- Chọn nhà máy --</option>
+              ${listNM.map(p=>`<option value="${p.id}" ${existing&&existing.maNhaMay===p.id?'selected':''}>${p.ten} (${p.id})</option>`).join("")}
+            </select>
+          </div>
+          <div class="nl-field">
+            <label>Loại kỳ <span class="req">*</span></label>
+            <select id="nlLoaiKy" onchange="nlUpdateKyAndDates()">
+              <option value="thang" ${existing&&existing.kyBaoCao&&existing.kyBaoCao.loai==="thang"?'selected':''}>Theo tháng</option>
+              <option value="quy" ${existing&&existing.kyBaoCao&&existing.kyBaoCao.loai==="quy"?'selected':''}>Theo quý</option>
+              <option value="nam" ${existing&&existing.kyBaoCao&&existing.kyBaoCao.loai==="nam"?'selected':''}>Theo năm</option>
+            </select>
+          </div>
+          <div class="nl-field">
+            <label>Kỳ báo cáo <span class="req">*</span></label>
+            <select id="nlKyBaoCao"></select>
+          </div>
+          <div class="nl-field">
+            <label>Ngày bắt đầu</label>
+            <input type="text" id="nlNgayBD" readonly style="background:var(--paper-light);cursor:not-allowed;">
+          </div>
+          <div class="nl-field">
+            <label>Ngày kết thúc</label>
+            <input type="text" id="nlNgayKT" readonly style="background:var(--paper-light);cursor:not-allowed;">
+          </div>
+        </div>
+        <div class="nl-grid" style="margin-top:14px;">
+          <div class="nl-field">
+            <label>Người nhập <span class="req">*</span></label>
+            <input type="text" id="nlNguoiNhap" value="${existing&&existing.nguoiNhap || 'Đặng Thanh Hùng'}" placeholder="VD: Đặng Thanh Hùng">
+          </div>
+          <div class="nl-field">
+            <label>Ngày nhập</label>
+            <input type="date" id="nlNgayNhap" value="${existing&&existing.ngayNhap ? existing.ngayNhap : todayISO}">
+          </div>
+          <div class="nl-field">
+            <label>Tình trạng</label>
+            <select id="nlTrangThai">
+              <option value="nhap" ${existing&&existing.trangThai==="nhap"?'selected':''}>Nháp</option>
+              <option value="chinh_thuc" ${existing&&existing.trangThai==="chinh_thuc"?'selected':''}>Chính thức</option>
+            </select>
+          </div>
+        </div>
+        <p class="hint" id="nlIdPreview" style="margin-top:10px;font-family:var(--sans);font-size:12px;color:var(--ink-muted);"></p>
+      </div>
+      
+      <!-- BƯỚC 2: CHẤT THẢI RẮN SINH HOẠT -->
+      <div class="nl-step">
+        <div class="nl-step-head">
+          <div class="nl-step-num">2</div>
+          <div style="flex:1;">
+            <p class="nl-step-title">🗑️ Chất thải rắn sinh hoạt</p>
+            <p class="nl-step-desc">Rác thải sinh hoạt từ công nhân viên làm việc tại nhà máy</p>
+          </div>
+        </div>
+        <div class="nl-grid">
+          <div class="nl-field">
+            <label>Khối lượng</label>
+            <div class="nl-field-unit">
+              <input type="number" id="nlCtrShKl" step="0.01" min="0" value="${existing&&existing.chatThaiRan&&existing.chatThaiRan.sinhHoat?existing.chatThaiRan.sinhHoat.khoiLuong:0}">
+              <select id="nlCtrShDv">${nlRenderTrongLuong(NL_DON_VI.chatThaiRan)}</select>
+            </div>
+          </div>
+          <div class="nl-field">
+            <label>Đơn vị thu gom</label>
+            <input type="text" id="nlCtrShDvThuGom" value="${existing&&existing.chatThaiRan&&existing.chatThaiRan.sinhHoat?existing.chatThaiRan.sinhHoat.donViThuGom:''}" placeholder="VD: UBND phường Cao Lãnh">
+          </div>
+          <div class="nl-field">
+            <label>Tần suất thu gom</label>
+            <input type="text" id="nlCtrShTanSuat" value="${existing&&existing.chatThaiRan&&existing.chatThaiRan.sinhHoat?existing.chatThaiRan.sinhHoat.tanSuatThuGom:''}" placeholder="VD: 1 lần/ngày">
+          </div>
+          <div class="nl-field">
+            <label>Phương thức xử lý</label>
+            <input type="text" id="nlCtrShPhuongThuc" value="${existing&&existing.chatThaiRan&&existing.chatThaiRan.sinhHoat?existing.chatThaiRan.sinhHoat.phuongThucXuLy:''}" placeholder="VD: Chôn lấp hợp vệ sinh">
+          </div>
+        </div>
+      </div>
+      
+      <!-- BƯỚC 3: CHẤT THẢI RẮN CÔNG NGHIỆP -->
+      <div class="nl-step">
+        <div class="nl-step-head">
+          <div class="nl-step-num">3</div>
+          <div style="flex:1;">
+            <p class="nl-step-title">🏭 Chất thải rắn công nghiệp thông thường</p>
+            <p class="nl-step-desc">Bao bì, carton, thiết bị cũ, phế liệu từ sản xuất</p>
+          </div>
+        </div>
+        <div class="nl-grid">
+          <div class="nl-field">
+            <label>Khối lượng</label>
+            <div class="nl-field-unit">
+              <input type="number" id="nlCtrCnKl" step="0.01" min="0" value="${existing&&existing.chatThaiRan&&existing.chatThaiRan.congNghiepThongThuong?existing.chatThaiRan.congNghiepThongThuong.khoiLuong:0}">
+              <select id="nlCtrCnDv">${nlRenderTrongLuong(NL_DON_VI.chatThaiRan)}</select>
+            </div>
+          </div>
+          <div class="nl-field">
+            <label>Thành phần</label>
+            <input type="text" id="nlCtrCnThanhPhan" value="${existing&&existing.chatThaiRan&&existing.chatThaiRan.congNghiepThongThuong?existing.chatThaiRan.congNghiepThongThuong.thanhPhan:''}" placeholder="VD: Bao bì, carton, thiết bị cũ">
+          </div>
+          <div class="nl-field">
+            <label>Đơn vị thu gom</label>
+            <input type="text" id="nlCtrCnDvThuGom" value="${existing&&existing.chatThaiRan&&existing.chatThaiRan.congNghiepThongThuong?existing.chatThaiRan.congNghiepThongThuong.donViThuGom:''}" placeholder="VD: Công ty DVMT Đồng Tháp">
+          </div>
+          <div class="nl-field">
+            <label>Tần suất thu gom</label>
+            <input type="text" id="nlCtrCnTanSuat" value="${existing&&existing.chatThaiRan&&existing.chatThaiRan.congNghiepThongThuong?existing.chatThaiRan.congNghiepThongThuong.tanSuatThuGom:''}" placeholder="VD: 1 lần/tuần">
+          </div>
+          <div class="nl-field">
+            <label>Phương thức xử lý</label>
+            <input type="text" id="nlCtrCnPhuongThuc" value="${existing&&existing.chatThaiRan&&existing.chatThaiRan.congNghiepThongThuong?existing.chatThaiRan.congNghiepThongThuong.phuongThucXuLy:''}" placeholder="VD: Tái chế / bán phế liệu">
+          </div>
+        </div>
+      </div>
+      
+      <!-- BƯỚC 4: BÙN THẢI -->
+      <div class="nl-step">
+        <div class="nl-step-head">
+          <div class="nl-step-num">4</div>
+          <div style="flex:1;">
+            <p class="nl-step-title">💧 Bùn thải</p>
+            <p class="nl-step-desc">Bùn từ hệ thống xử lý nước cấp</p>
+          </div>
+        </div>
+        <div class="nl-grid">
+          <div class="nl-field">
+            <label>Khối lượng</label>
+            <div class="nl-field-unit">
+              <input type="number" id="nlBunKl" step="0.01" min="0" value="${existing&&existing.bunThai?existing.bunThai.khoiLuong:0}">
+              <select id="nlBunDv">${nlRenderTrongLuong(NL_DON_VI.bunThai)}</select>
+            </div>
+          </div>
+          <div class="nl-field">
+            <label>Độ ẩm (%)</label>
+            <input type="number" id="nlBunDoAm" step="0.1" min="0" max="100" value="${existing&&existing.bunThai?existing.bunThai.doAm:60}">
+          </div>
+          <div class="nl-field">
+            <label>Phương pháp xử lý</label>
+            <input type="text" id="nlBunPhuongPhap" value="${existing&&existing.bunThai?existing.bunThai.phuongPhapXuLy:''}" placeholder="VD: Nạo vét, phơi khô, san lấp">
+          </div>
+          <div class="nl-field">
+            <label>Đơn vị xử lý</label>
+            <input type="text" id="nlBunDvXuLy" value="${existing&&existing.bunThai?existing.bunThai.donViXuLy:''}" placeholder="VD: Nội bộ">
+          </div>
+          <div class="nl-field">
+            <label>Tần suất</label>
+            <input type="text" id="nlBunTanSuat" value="${existing&&existing.bunThai?existing.bunThai.tanSuat:''}" placeholder="VD: 1 lần/năm">
+          </div>
+        </div>
+      </div>
+      
+      <!-- BƯỚC 5: CTNH -->
+      <div class="nl-step">
+        <div class="nl-step-head">
+          <div class="nl-step-num">5</div>
+          <div style="flex:1;">
+            <p class="nl-step-title">⚠️ Chất thải nguy hại (CTNH)</p>
+            <p class="nl-step-desc">Danh sách từng loại CTNH phát sinh tại nhà máy</p>
+          </div>
+        </div>
+        
+        <div id="nlCtnhContainer">
+          ${existing&&existing.chatThaiNguyHai&&existing.chatThaiNguyHai.danhSach&&existing.chatThaiNguyHai.danhSach.length
+            ? existing.chatThaiNguyHai.danhSach.map(c=>nlRenderCtnhRow(c)).join("")
+            : NL_CTNH_MAU.slice(0,3).map(c=>nlRenderCtnhRow(Object.assign({}, c, {khoiLuong:0}))).join("")
+          }
+        </div>
+        
+        <button type="button" class="nl-btn-add" onclick="nlThemCtnhRow()" style="margin-top:6px;">+ Thêm loại CTNH</button>
+        
+        <div class="nl-grid" style="margin-top:16px;">
+          <div class="nl-field">
+            <label>Đơn vị thu gom CTNH</label>
+            <input type="text" id="nlCtnhDvThuGom" value="${existing&&existing.chatThaiNguyHai?existing.chatThaiNguyHai.donViThuGom:''}" placeholder="VD: Công ty CP Môi trường Đồng Tháp">
+          </div>
+          <div class="nl-field">
+            <label>Tần suất thu gom</label>
+            <input type="text" id="nlCtnhTanSuat" value="${existing&&existing.chatThaiNguyHai?existing.chatThaiNguyHai.tanSuatThuGom:''}" placeholder="VD: 1 lần/6 tháng">
+          </div>
+          <div class="nl-field">
+            <label>Diện tích kho (m²)</label>
+            <input type="number" id="nlCtnhDtKho" step="0.1" min="0" value="${existing&&existing.chatThaiNguyHai&&existing.chatThaiNguyHai.luuChua?existing.chatThaiNguyHai.luuChua.dienTichKho:6}">
+          </div>
+          <div class="nl-field">
+            <label>Số thùng chứa</label>
+            <input type="number" id="nlCtnhSoThung" min="0" value="${existing&&existing.chatThaiNguyHai&&existing.chatThaiNguyHai.luuChua?existing.chatThaiNguyHai.luuChua.soThung:1}">
+          </div>
+          <div class="nl-field">
+            <label>Thể tích mỗi thùng (lít)</label>
+            <input type="number" id="nlCtnhTheTich" min="0" value="${existing&&existing.chatThaiNguyHai&&existing.chatThaiNguyHai.luuChua?existing.chatThaiNguyHai.luuChua.theTichThung:660}">
+          </div>
+          <div class="nl-field">
+            <label>Số ngăn mỗi thùng</label>
+            <input type="number" id="nlCtnhSoNgan" min="1" value="${existing&&existing.chatThaiNguyHai&&existing.chatThaiNguyHai.luuChua?existing.chatThaiNguyHai.luuChua.soNgan:3}">
+          </div>
+        </div>
+      </div>
+      
+      <!-- BƯỚC 6: NƯỚC THẢI -->
+      <div class="nl-step">
+        <div class="nl-step-head">
+          <div class="nl-step-num">6</div>
+          <div style="flex:1;">
+            <p class="nl-step-title">💦 Nước thải</p>
+            <p class="nl-step-desc">Nước thải sinh hoạt + nước thải sản xuất</p>
+          </div>
+        </div>
+        
+        <p style="font-family:var(--sans);font-size:12.5px;font-weight:700;color:var(--forest-deep);margin:6px 0 10px;">A. Nước thải sinh hoạt</p>
+        <div class="nl-grid">
+          <div class="nl-field">
+            <label>Khối lượng</label>
+            <div class="nl-field-unit">
+              <input type="number" id="nlNtShKl" step="0.01" min="0" value="${existing&&existing.nuocThai&&existing.nuocThai.sinhHoat?existing.nuocThai.sinhHoat.khoiLuong:0}">
+              <select id="nlNtShDv">${nlRenderTrongLuong(NL_DON_VI.nuocThai)}</select>
+            </div>
+          </div>
+          <div class="nl-field">
+            <label>Xử lý</label>
+            <input type="text" id="nlNtShXuLy" value="${existing&&existing.nuocThai&&existing.nuocThai.sinhHoat?existing.nuocThai.sinhHoat.xuLy:''}" placeholder="VD: Bể tự hoại 03 ngăn">
+          </div>
+          <div class="nl-field">
+            <label>Thể tích bể (m³)</label>
+            <input type="number" id="nlNtShTheTich" step="0.1" min="0" value="${existing&&existing.nuocThai&&existing.nuocThai.sinhHoat?existing.nuocThai.sinhHoat.theTichBe:3}">
+          </div>
+        </div>
+        
+        <p style="font-family:var(--sans);font-size:12.5px;font-weight:700;color:var(--forest-deep);margin:20px 0 10px;">B. Nước thải sản xuất</p>
+        <div class="nl-grid">
+          <div class="nl-field">
+            <label>Khối lượng</label>
+            <div class="nl-field-unit">
+              <input type="number" id="nlNtSxKl" step="0.01" min="0" value="${existing&&existing.nuocThai&&existing.nuocThai.sanXuat?existing.nuocThai.sanXuat.khoiLuong:0}">
+              <select id="nlNtSxDv">${nlRenderTrongLuong(NL_DON_VI.nuocThai)}</select>
+            </div>
+          </div>
+          <div class="nl-field">
+            <label>Xử lý</label>
+            <input type="text" id="nlNtSxXuLy" value="${existing&&existing.nuocThai&&existing.nuocThai.sanXuat?existing.nuocThai.sanXuat.xuLy:''}" placeholder="VD: Hồ lắng bùn + tuần hoàn">
+          </div>
+          <div class="nl-field">
+            <label>Tái sử dụng?</label>
+            <select id="nlNtSxTaiSuDung">
+              <option value="true" ${existing&&existing.nuocThai&&existing.nuocThai.sanXuat&&existing.nuocThai.sanXuat.taiSuDung!==false?'selected':''}>Có</option>
+              <option value="false" ${existing&&existing.nuocThai&&existing.nuocThai.sanXuat&&existing.nuocThai.sanXuat.taiSuDung===false?'selected':''}>Không</option>
+            </select>
+          </div>
+        </div>
+        
+        <p style="font-family:var(--sans);font-size:12.5px;font-weight:700;color:var(--forest-deep);margin:20px 0 10px;">C. Kết quả quan trắc nước thải</p>
+        <div class="nl-grid">
+          <div class="nl-field"><label>pH</label><input type="number" id="nlQtNtPh" step="0.01" min="0" value="${existing&&existing.quanTracNuocThai?existing.quanTracNuocThai.pH:''}"></div>
+          <div class="nl-field"><label>COD (mg/L)</label><input type="number" id="nlQtNtCod" step="0.01" min="0" value="${existing&&existing.quanTracNuocThai?existing.quanTracNuocThai.COD:''}"></div>
+          <div class="nl-field"><label>BOD5 (mg/L)</label><input type="number" id="nlQtNtBod5" step="0.01" min="0" value="${existing&&existing.quanTracNuocThai?existing.quanTracNuocThai.BOD5:''}"></div>
+          <div class="nl-field"><label>TSS (mg/L)</label><input type="number" id="nlQtNtTss" step="0.01" min="0" value="${existing&&existing.quanTracNuocThai?existing.quanTracNuocThai.TSS:''}"></div>
+          <div class="nl-field"><label>Amoni (mg/L)</label><input type="number" id="nlQtNtAmoni" step="0.01" min="0" value="${existing&&existing.quanTracNuocThai?existing.quanTracNuocThai.amoni:''}"></div>
+          <div class="nl-field"><label>Coliform (MPN/100mL)</label><input type="number" id="nlQtNtColiform" step="1" min="0" value="${existing&&existing.quanTracNuocThai?existing.quanTracNuocThai.coliform:''}"></div>
+        </div>
+      </div>
+      
+      <!-- BƯỚC 7: KHÍ THẢI -->
+      <div class="nl-step">
+        <div class="nl-step-head">
+          <div class="nl-step-num">7</div>
+          <div style="flex:1;">
+            <p class="nl-step-title">💨 Khí thải</p>
+            <p class="nl-step-desc">Máy phát điện dự phòng (nếu có)</p>
+          </div>
+        </div>
+        <div class="nl-grid">
+          <div class="nl-field">
+            <label>Có phát sinh khí thải?</label>
+            <select id="nlKtCoPhatSinh">
+              <option value="true" ${existing&&existing.khiThai&&existing.khiThai.coPhatSinh!==false?'selected':''}>Có</option>
+              <option value="false" ${existing&&existing.khiThai&&existing.khiThai.coPhatSinh===false?'selected':''}>Không</option>
+            </select>
+          </div>
+          <div class="nl-field">
+            <label>Nguồn</label>
+            <input type="text" id="nlKtNguon" value="${existing&&existing.khiThai?existing.khiThai.nguon:''}" placeholder="VD: Máy phát điện dự phòng">
+          </div>
+          <div class="nl-field">
+            <label>Khối lượng</label>
+            <div class="nl-field-unit">
+              <input type="number" id="nlKtKl" step="0.01" min="0" value="${existing&&existing.khiThai?existing.khiThai.khoiLuong:0}">
+              <select id="nlKtDv">${nlRenderTrongLuong(NL_DON_VI.khiThai)}</select>
+            </div>
+          </div>
+          <div class="nl-field">
+            <label>Xử lý</label>
+            <input type="text" id="nlKtXuLy" value="${existing&&existing.khiThai?existing.khiThai.xuLy:''}" placeholder="VD: Bộ lọc khí + ống khói">
+          </div>
+        </div>
+        
+        <p style="font-family:var(--sans);font-size:12.5px;font-weight:700;color:var(--forest-deep);margin:20px 0 10px;">Kết quả quan trắc khí thải</p>
+        <div class="nl-grid">
+          <div class="nl-field"><label>Bụi (mg/Nm³)</label><input type="number" id="nlQtKtBui" step="0.001" min="0" value="${existing&&existing.quanTracKhiThai?existing.quanTracKhiThai.bui:''}"></div>
+          <div class="nl-field"><label>SO2 (mg/Nm³)</label><input type="number" id="nlQtKtSo2" step="0.001" min="0" value="${existing&&existing.quanTracKhiThai?existing.quanTracKhiThai.SO2:''}"></div>
+          <div class="nl-field"><label>NOx (mg/Nm³)</label><input type="number" id="nlQtKtNox" step="0.001" min="0" value="${existing&&existing.quanTracKhiThai?existing.quanTracKhiThai.NOx:''}"></div>
+          <div class="nl-field"><label>CO (mg/Nm³)</label><input type="number" id="nlQtKtCo" step="0.001" min="0" value="${existing&&existing.quanTracKhiThai?existing.quanTracKhiThai.CO:''}"></div>
+        </div>
+      </div>
+      
+      <!-- BƯỚC 8: THÔNG TIN BỔ SUNG -->
+      <div class="nl-step">
+        <div class="nl-step-head">
+          <div class="nl-step-num">8</div>
+          <p class="nl-step-title">📌 Thông tin bổ sung</p>
+        </div>
+        <div class="nl-grid">
+          <div class="nl-field">
+            <label>Chi phí BVMT (VNĐ/năm)</label>
+            <input type="number" id="nlChiPhi" min="0" value="${existing&&existing.chiPhiBVMT?existing.chiPhiBVMT:0}">
+          </div>
+          <div class="nl-field">
+            <label>Số cán bộ phụ trách MT</label>
+            <input type="number" id="nlSoCb" min="0" value="${existing&&existing.soCanBoPhuTrachMT?existing.soCanBoPhuTrachMT:0}">
+          </div>
+          <div class="nl-field" style="grid-column:1/-1;">
+            <label>Ghi chú</label>
+            <textarea id="nlGhiChu" rows="3" placeholder="Ghi chú thêm...">${existing&&existing.ghiChu?existing.ghiChu:''}</textarea>
+          </div>
+        </div>
+      </div>
+      
+      <!-- NÚT HÀNH ĐỘNG -->
+      <div class="nl-actions">
+        <button class="nl-btn nl-btn-primary" onclick="nlLuuDuLieu()">💾 Lưu dữ liệu</button>
+        <button class="nl-btn nl-btn-secondary" onclick="nlResetForm()">🔄 Làm mới form</button>
+        ${NL_STATE.editingId ? `<button class="nl-btn nl-btn-danger" onclick="nlHuyChinhSua()">✕ Hủy chỉnh sửa</button>` : ""}
+      </div>
+      
+      <div id="nlListContainer" class="nl-list"></div>
+      
+    </div>
+  </section>
+  `;
+}
+
+function nlUpdateKyAndDates(){
+  const loai = document.getElementById("nlLoaiKy").value;
+  const selectKy = document.getElementById("nlKyBaoCao");
+  const namHienTai = new Date().getFullYear();
+  const namTruoc = namHienTai - 1;
+  const namSau = namHienTai + 1;
+  let options = "";
+  
+  if(loai === "thang"){
+    // 24 tháng gần nhất
+    for(let y = namTruoc; y <= namHienTai; y++){
+      for(let m = 1; m <= 12; m++){
+        const val = `${y}-${String(m).padStart(2,"0")}`;
+        options += `<option value="${val}">Tháng ${m}/${y}</option>`;
+      }
+    }
+  } else if(loai === "quy"){
+    // 8 quý gần nhất
+    for(let y = namTruoc; y <= namHienTai; y++){
+      for(let q = 1; q <= 4; q++){
+        const val = `${y}-Q${q}`;
+        options += `<option value="${val}">Quý ${q}/${y}</option>`;
+      }
+    }
+  } else {
+    for(let y = namTruoc; y <= namSau; y++){
+      options += `<option value="${y}">Năm ${y}</option>`;
+    }
+  }
+  
+  selectKy.innerHTML = options;
+  // Chọn giá trị mặc định = hiện tại
+  if(loai === "thang"){
+    selectKy.value = `${namHienTai}-${String(new Date().getMonth()+1).padStart(2,"0")}`;
+  } else if(loai === "quy"){
+    const q = Math.floor(new Date().getMonth()/3) + 1;
+    selectKy.value = `${namHienTai}-Q${q}`;
+  } else {
+    selectKy.value = `${namHienTai}`;
+  }
+  
+  nlUpdateDates();
+}
+
+function nlUpdateDates(){
+  const loai = document.getElementById("nlLoaiKy").value;
+  const ky = document.getElementById("nlKyBaoCao").value;
+  const {batDau, ketThuc} = nlTinhNgayKetThuc(loai, ky);
+  document.getElementById("nlNgayBD").value = batDau;
+  document.getElementById("nlNgayKT").value = ketThuc;
+  nlUpdateIdPreview();
+}
+
+function nlUpdateIdPreview(){
+  const maNM = document.getElementById("nlNhaMay").value;
+  const ky = document.getElementById("nlKyBaoCao").value;
+  const preview = document.getElementById("nlIdPreview");
+  if(maNM && ky){
+    preview.textContent = `📌 Mã định danh: ${maNM}-${ky}`;
+  } else {
+    preview.textContent = "";
+  }
+}
+
+function nlResetForm(){
+  NL_STATE.editingId = null;
+  const container = document.getElementById("content");
+  if(container){
+    const oldSection = document.getElementById("sec-nhaplieu");
+    if(oldSection){
+      oldSection.outerHTML = nlRenderForm(null);
+      nlUpdateKyAndDates();
+      nlShowList();
+    }
+  }
+}
+
+function nlHuyChinhSua(){
+  NL_STATE.editingId = null;
+  nlResetForm();
+}
+
+function nlLuuDuLieu(){
+  // Validate
+  const maNM = document.getElementById("nlNhaMay").value;
+  const loaiKy = document.getElementById("nlLoaiKy").value;
+  const ky = document.getElementById("nlKyBaoCao").value;
+  const nguoiNhap = document.getElementById("nlNguoiNhap").value.trim();
+  const ngayNhap = document.getElementById("nlNgayNhap").value;
+  const trangThai = document.getElementById("nlTrangThai").value;
+  
+  if(!maNM){ nlToast("Vui lòng chọn nhà máy", "error"); return; }
+  if(!ky){ nlToast("Vui lòng chọn kỳ báo cáo", "error"); return; }
+  if(!nguoiNhap){ nlToast("Vui lòng nhập tên người nhập", "error"); return; }
+  
+  // Lấy thông tin nhà máy
+  const nm = DATA.congTyNhaMay.find(x=>x.id===maNM);
+  if(!nm){ nlToast("Nhà máy không hợp lệ", "error"); return; }
+  
+  // Lấy ngày BĐ/KT
+  const ngayBD = nlFormatDateISO(document.getElementById("nlNgayBD").value);
+  const ngayKT = nlFormatDateISO(document.getElementById("nlNgayKT").value);
+  
+  // Đọc CTNH
+  const ctnhRows = document.querySelectorAll("#nlCtnhContainer .nl-ctnh-row");
+  const danhSachCTNH = [];
+  let tongCTNH = 0;
+  ctnhRows.forEach(row=>{
+    const loai = row.querySelector(".nl-ctnh-loai").value;
+    const maCTNH = row.querySelector(".nl-ctnh-ma").value.trim();
+    const kl = parseFloat(row.querySelector(".nl-ctnh-kl").value) || 0;
+    const dv = row.querySelector(".nl-ctnh-dv").value;
+    if(loai || maCTNH || kl > 0){
+      danhSachCTNH.push({loai, maCTNH, khoiLuong:kl, donVi:dv});
+      tongCTNH += kl;
+    }
+  });
+  
+  // Tạo object dữ liệu
+  const data = {
+    id: `${maNM}-${ky}`,
+    maNhaMay: maNM,
+    tenNhaMay: nm.ten,
+    kyBaoCao: {
+      loai: loaiKy,
+      giaTri: ky,
+      ngayBatDau: ngayBD,
+      ngayKetThuc: ngayKT
+    },
+    nguoiNhap,
+    ngayNhap,
+    trangThai,
+    
+    chatThaiRan: {
+      sinhHoat: {
+        khoiLuong: parseFloat(document.getElementById("nlCtrShKl").value) || 0,
+        donVi: document.getElementById("nlCtrShDv").value,
+        donViThuGom: document.getElementById("nlCtrShDvThuGom").value.trim(),
+        tanSuatThuGom: document.getElementById("nlCtrShTanSuat").value.trim(),
+        phuongThucXuLy: document.getElementById("nlCtrShPhuongThuc").value.trim()
+      },
+      congNghiepThongThuong: {
+        khoiLuong: parseFloat(document.getElementById("nlCtrCnKl").value) || 0,
+        donVi: document.getElementById("nlCtrCnDv").value,
+        thanhPhan: document.getElementById("nlCtrCnThanhPhan").value.trim(),
+        donViThuGom: document.getElementById("nlCtrCnDvThuGom").value.trim(),
+        tanSuatThuGom: document.getElementById("nlCtrCnTanSuat").value.trim(),
+        phuongThucXuLy: document.getElementById("nlCtrCnPhuongThuc").value.trim()
+      }
+    },
+    
+    bunThai: {
+      khoiLuong: parseFloat(document.getElementById("nlBunKl").value) || 0,
+      donVi: document.getElementById("nlBunDv").value,
+      doAm: parseFloat(document.getElementById("nlBunDoAm").value) || 0,
+      phuongPhapXuLy: document.getElementById("nlBunPhuongPhap").value.trim(),
+      donViXuLy: document.getElementById("nlBunDvXuLy").value.trim(),
+      tanSuat: document.getElementById("nlBunTanSuat").value.trim()
+    },
+    
+    chatThaiNguyHai: {
+      tongKhoiLuong: tongCTNH,
+      danhSach: danhSachCTNH,
+      donViThuGom: document.getElementById("nlCtnhDvThuGom").value.trim(),
+      tanSuatThuGom: document.getElementById("nlCtnhTanSuat").value.trim(),
+      luuChua: {
+        dienTichKho: parseFloat(document.getElementById("nlCtnhDtKho").value) || 0,
+        soThung: parseInt(document.getElementById("nlCtnhSoThung").value) || 0,
+        theTichThung: parseFloat(document.getElementById("nlCtnhTheTich").value) || 0,
+        soNgan: parseInt(document.getElementById("nlCtnhSoNgan").value) || 0
+      }
+    },
+    
+    nuocThai: {
+      sinhHoat: {
+        khoiLuong: parseFloat(document.getElementById("nlNtShKl").value) || 0,
+        donVi: document.getElementById("nlNtShDv").value,
+        xuLy: document.getElementById("nlNtShXuLy").value.trim(),
+        theTichBe: parseFloat(document.getElementById("nlNtShTheTich").value) || 0
+      },
+      sanXuat: {
+        khoiLuong: parseFloat(document.getElementById("nlNtSxKl").value) || 0,
+        donVi: document.getElementById("nlNtSxDv").value,
+        xuLy: document.getElementById("nlNtSxXuLy").value.trim(),
+        taiSuDung: document.getElementById("nlNtSxTaiSuDung").value === "true"
+      }
+    },
+    
+    quanTracNuocThai: {
+      pH: parseFloat(document.getElementById("nlQtNtPh").value) || null,
+      COD: parseFloat(document.getElementById("nlQtNtCod").value) || null,
+      BOD5: parseFloat(document.getElementById("nlQtNtBod5").value) || null,
+      TSS: parseFloat(document.getElementById("nlQtNtTss").value) || null,
+      amoni: parseFloat(document.getElementById("nlQtNtAmoni").value) || null,
+      coliform: parseFloat(document.getElementById("nlQtNtColiform").value) || null
+    },
+    
+    khiThai: {
+      coPhatSinh: document.getElementById("nlKtCoPhatSinh").value === "true",
+      nguon: document.getElementById("nlKtNguon").value.trim(),
+      khoiLuong: parseFloat(document.getElementById("nlKtKl").value) || 0,
+      donVi: document.getElementById("nlKtDv").value,
+      xuLy: document.getElementById("nlKtXuLy").value.trim()
+    },
+    
+    quanTracKhiThai: {
+      bui: parseFloat(document.getElementById("nlQtKtBui").value) || null,
+      SO2: parseFloat(document.getElementById("nlQtKtSo2").value) || null,
+      NOx: parseFloat(document.getElementById("nlQtKtNox").value) || null,
+      CO: parseFloat(document.getElementById("nlQtKtCo").value) || null
+    },
+    
+    chiPhiBVMT: parseFloat(document.getElementById("nlChiPhi").value) || 0,
+    soCanBoPhuTrachMT: parseInt(document.getElementById("nlSoCb").value) || 0,
+    ghiChu: document.getElementById("nlGhiChu").value.trim(),
+    lastUpdate: new Date().toISOString()
+  };
+  
+  // Lưu vào localStorage
+  const allData = nlLoadData();
+  const idx = allData.findIndex(x=>x.id === data.id);
+  if(idx >= 0){
+    allData[idx] = data;
+  } else {
+    allData.push(data);
+  }
+  
+  if(nlSaveData(allData)){
+    nlToast("✅ Đã lưu dữ liệu: " + data.id, "success");
+    NL_STATE.editingId = null;
+    nlShowList();
+  } else {
+    nlToast("❌ Lỗi lưu dữ liệu (có thể đầy bộ nhớ)", "error");
+  }
+}
+
+function nlShowList(){
+  const container = document.getElementById("nlListContainer");
+  if(!container) return;
+  const data = nlLoadData();
+  
+  if(data.length === 0){
+    container.innerHTML = `<div class="nl-empty">📭 Chưa có dữ liệu nhập liệu nào. Điền form bên trên và bấm "Lưu dữ liệu".</div>`;
+    return;
+  }
+  
+  // Sắp xếp mới nhất lên đầu
+  const sorted = data.slice().sort((a,b)=>{
+    if(a.kyBaoCao.giaTri !== b.kyBaoCao.giaTri){
+      return b.kyBaoCao.giaTri.localeCompare(a.kyBaoCao.giaTri);
+    }
+    return a.maNhaMay.localeCompare(b.maNhaMay);
+  });
+  
+  const html = sorted.map(d=>{
+    const badgeClass = d.trangThai === "chinh_thuc" ? "chinh-thuc" : "nhap";
+    const badgeText = d.trangThai === "chinh_thuc" ? "Chính thức" : "Nháp";
+    return `
+      <div class="nl-list-item">
+        <div class="nl-list-info">
+          <div class="nl-list-title">
+            ${d.tenNhaMay} (${d.maNhaMay})
+            <span class="nl-list-badge ${badgeClass}">${badgeText}</span>
+          </div>
+          <div class="nl-list-meta">
+            <span>📅 ${d.kyBaoCao.giaTri}</span>
+            <span>👤 ${d.nguoiNhap}</span>
+            <span>🗓️ Nhập ngày ${nlFormatDateVN(d.ngayNhap)}</span>
+          </div>
+        </div>
+        <div class="nl-list-actions">
+          <button class="nl-list-btn" onclick="nlEditItem('${d.id}')" title="Sửa">✏️</button>
+          <button class="nl-list-btn" onclick="nlViewItem('${d.id}')" title="Xem JSON">👁️</button>
+          <button class="nl-list-btn" onclick="nlExportItemJSON('${d.id}')" title="Xuất JSON">📤</button>
+          <button class="nl-list-btn del" onclick="nlDeleteItem('${d.id}')" title="Xóa">🗑️</button>
+        </div>
+      </div>
+    `;
+  }).join("");
+  
+  container.innerHTML = `
+    <h3 style="font-family:var(--serif);font-size:18px;color:var(--forest-deep);margin:24px 0 14px;">
+      📚 Danh sách đã nhập (${data.length} kỳ)
+    </h3>
+    ${html}
+  `;
+}
+
+window.nlEditItem = function(id){
+  NL_STATE.editingId = id;
+  const section = document.getElementById("sec-nhaplieu");
+  if(section){
+    section.outerHTML = nlRenderForm();
+    nlUpdateKyAndDates();
+    nlShowList();
+    // Scroll lên đầu
+    window.scrollTo({top:0, behavior:"smooth"});
+    nlToast("✏️ Đang chỉnh sửa: " + id);
+  }
+};
+
+window.nlViewItem = function(id){
+  const data = nlLoadData().find(x=>x.id===id);
+  if(!data) return;
+  const json = JSON.stringify(data, null, 2);
+  const w = window.open("", "_blank");
+  w.document.write(`<pre style="font-family:monospace;font-size:12px;padding:20px;background:#f5f5f5;white-space:pre-wrap;">${json.replace(/</g,"&lt;")}</pre>`);
+  w.document.title = "Chi tiết: " + id;
+};
+
+window.nlExportItemJSON = function(id){
+  const data = nlLoadData().find(x=>x.id===id);
+  if(!data) return;
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type:"application/json"});
+  saveAs(blob, `nhaplieu-${id}.json`);
+  nlToast("📤 Đã xuất file nhaplieu-" + id + ".json", "success");
+};
+
+window.nlDeleteItem = function(id){
+  if(!confirm(`Xóa dữ liệu "${id}"? Hành động này không thể hoàn tác.`)) return;
+  const all = nlLoadData().filter(x=>x.id !== id);
+  nlSaveData(all);
+  nlShowList();
+  nlToast("🗑️ Đã xóa: " + id, "success");
+};
+
+function nlExportJSON(){
+  const data = nlLoadData();
+  if(data.length === 0){
+    nlToast("Chưa có dữ liệu để xuất", "error");
+    return;
+  }
+  const exportObj = {
+    version: "1.0",
+    lastUpdate: new Date().toISOString(),
+    danhSachNhapLieu: data
+  };
+  const blob = new Blob([JSON.stringify(exportObj, null, 2)], {type:"application/json"});
+  const today = new Date().toISOString().split("T")[0];
+  saveAs(blob, `backup-nhap-lieu-${today}.json`);
+  nlToast("📤 Đã xuất file backup", "success");
+}
+
+function nlImportJSON(event){
+  const file = event.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = (e)=>{
+    try{
+      const json = JSON.parse(e.target.result);
+      let imported = [];
+      if(json.danhSachNhapLieu && Array.isArray(json.danhSachNhapLieu)){
+        imported = json.danhSachNhapLieu;
+      } else if(Array.isArray(json)){
+        imported = json;
+      } else {
+        throw new Error("Cấu trúc file không hợp lệ");
+      }
+      
+      if(imported.length === 0){
+        nlToast("File không có dữ liệu", "error");
+        return;
+      }
+      
+      // Merge với dữ liệu hiện có (ưu tiên dữ liệu mới import)
+      const current = nlLoadData();
+      const merged = {};
+      current.forEach(x=>{ merged[x.id] = x; });
+      imported.forEach(x=>{ merged[x.id] = x; });
+      const final = Object.values(merged);
+      
+      if(nlSaveData(final)){
+        nlToast(`📥 Đã import ${imported.length} kỳ báo cáo`, "success");
+        nlShowList();
+      } else {
+        nlToast("❌ Lỗi lưu dữ liệu", "error");
+      }
+    }catch(err){
+      console.error(err);
+      nlToast("❌ File JSON không hợp lệ: " + err.message, "error");
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = "";
+}
+
+function nlImportExcel(event){
+  const file = event.target.files[0];
+  if(!file) return;
+  
+  if(typeof XLSX === "undefined"){
+    nlToast("❌ Chưa tải thư viện Excel. Vui lòng refresh trang (Ctrl+F5).", "error");
+    return;
+  }
+  
+  const reader = new FileReader();
+  reader.onload = (e)=>{
+    try{
+      const data = new Uint8Array(e.target.result);
+      const workbook = XLSX.read(data, {type:"array"});
+      
+      // Sheet NhapLieu
+      const sheetNhapLieu = workbook.Sheets["NhapLieu"];
+      if(!sheetNhapLieu){
+        nlToast("❌ File Excel phải có sheet tên 'NhapLieu'", "error");
+        return;
+      }
+      const rows = XLSX.utils.sheet_to_json(sheetNhapLieu, {header:1, defval:""});
+      if(rows.length < 2){
+        nlToast("❌ Sheet NhapLieu không có dữ liệu", "error");
+        return;
+      }
+      
+      // Sheet CTNH_ChiTiet
+      let ctnhRows = [];
+      const sheetCTNH = workbook.Sheets["CTNH_ChiTiet"];
+      if(sheetCTNH){
+        ctnhRows = XLSX.utils.sheet_to_json(sheetCTNH, {header:1, defval:""}).slice(1);
+      }
+      
+      // Parse dữ liệu từ dòng 2 trở đi
+      const imported = [];
+      for(let i = 1; i < rows.length; i++){
+        const r = rows[i];
+        if(!r[0]) continue; // Bỏ dòng trống
+        
+        const maNM = String(r[0]).trim();
+        const kyBC = String(r[1]).trim();
+        if(!maNM || !kyBC) continue;
+        
+        const nm = DATA.congTyNhaMay.find(x=>x.id === maNM);
+        if(!nm){
+          console.warn("Không tìm thấy nhà máy:", maNM);
+          continue;
+        }
+        
+        // Lấy CTNH cho nhà máy + kỳ này
+        const ctnhForThis = ctnhRows
+          .filter(cr => String(cr[0]).trim() === maNM && String(cr[1]).trim() === kyBC)
+          .map(cr => ({
+            loai: String(cr[2] || ""),
+            maCTNH: String(cr[3] || ""),
+            khoiLuong: parseFloat(cr[4]) || 0,
+            donVi: String(cr[5] || "kg/năm")
+          }));
+        
+        const data = {
+          id: `${maNM}-${kyBC}`,
+          maNhaMay: maNM,
+          tenNhaMay: nm.ten,
+          kyBaoCao: {
+            loai: String(r[2] || "quy"),
+            giaTri: kyBC,
+            ngayBatDau: r[3] ? nlFormatDateISO(String(r[3])) : "",
+            ngayKetThuc: r[4] ? nlFormatDateISO(String(r[4])) : ""
+          },
+          nguoiNhap: String(r[5] || ""),
+          ngayNhap: r[6] ? nlFormatDateISO(String(r[6])) : new Date().toISOString().split("T")[0],
+          trangThai: String(r[60] || "nhap"),
+          
+          chatThaiRan: {
+            sinhHoat: {
+              khoiLuong: parseFloat(r[7]) || 0, donVi: String(r[8] || "kg/tháng"),
+              donViThuGom: String(r[9] || ""), tanSuatThuGom: String(r[10] || ""),
+              phuongThucXuLy: String(r[11] || "")
+            },
+            congNghiepThongThuong: {
+              khoiLuong: parseFloat(r[12]) || 0, donVi: String(r[13] || "kg/tháng"),
+              thanhPhan: String(r[14] || ""), donViThuGom: String(r[15] || ""),
+              tanSuatThuGom: String(r[16] || ""), phuongThucXuLy: String(r[17] || "")
+            }
+          },
+          
+          bunThai: {
+            khoiLuong: parseFloat(r[18]) || 0, donVi: String(r[19] || "kg/năm"),
+            doAm: parseFloat(r[20]) || 60, phuongPhapXuLy: String(r[21] || ""),
+            donViXuLy: String(r[22] || ""), tanSuat: String(r[23] || "")
+          },
+          
+          chatThaiNguyHai: {
+            tongKhoiLuong: ctnhForThis.reduce((s,c)=>s+c.khoiLuong, 0),
+            danhSach: ctnhForThis,
+            donViThuGom: String(r[26] || ""), tanSuatThuGom: String(r[27] || ""),
+            luuChua: {
+              dienTichKho: parseFloat(r[28]) || 0,
+              soThung: parseInt(r[29]) || 0,
+              theTichThung: parseFloat(r[30]) || 0,
+              soNgan: parseInt(r[31]) || 0
+            }
+          },
+          
+          nuocThai: {
+            sinhHoat: {
+              khoiLuong: parseFloat(r[32]) || 0, donVi: String(r[33] || "m³/ngày"),
+              xuLy: String(r[34] || ""), theTichBe: parseFloat(r[35]) || 0
+            },
+            sanXuat: {
+              khoiLuong: parseFloat(r[36]) || 0, donVi: String(r[37] || "m³/ngày"),
+              xuLy: String(r[38] || ""), taiSuDung: String(r[39]).toLowerCase() === "có"
+            }
+          },
+          
+          quanTracNuocThai: {
+            pH: parseFloat(r[44]) || null, COD: parseFloat(r[45]) || null,
+            BOD5: parseFloat(r[46]) || null, TSS: parseFloat(r[47]) || null,
+            amoni: parseFloat(r[48]) || null, coliform: parseFloat(r[49]) || null
+          },
+          
+          khiThai: {
+            coPhatSinh: String(r[40]).toLowerCase() === "có",
+            nguon: String(r[41] || ""),
+            khoiLuong: parseFloat(r[42]) || 0, donVi: String(r[43] || "m³/giờ"),
+            xuLy: String(r[43] || "")
+          },
+          
+          quanTracKhiThai: {
+            bui: parseFloat(r[50]) || null, SO2: parseFloat(r[51]) || null,
+            NOx: parseFloat(r[52]) || null, CO: parseFloat(r[53]) || null
+          },
+          
+          chiPhiBVMT: parseFloat(r[54]) || 0,
+          soCanBoPhuTrachMT: parseInt(r[55]) || 0,
+          ghiChu: String(r[56] || ""),
+          lastUpdate: new Date().toISOString()
+        };
+        
+        imported.push(data);
+      }
+      
+      if(imported.length === 0){
+        nlToast("❌ Không có dòng dữ liệu hợp lệ", "error");
+        return;
+      }
+      
+      // Merge
+      const current = nlLoadData();
+      const merged = {};
+      current.forEach(x=>{ merged[x.id] = x; });
+      imported.forEach(x=>{ merged[x.id] = x; });
+      const final = Object.values(merged);
+      
+      if(nlSaveData(final)){
+        nlToast(`📊 Đã import ${imported.length} kỳ báo cáo từ Excel`, "success");
+        nlShowList();
+      } else {
+        nlToast("❌ Lỗi lưu dữ liệu", "error");
+      }
+    }catch(err){
+      console.error(err);
+      nlToast("❌ Lỗi đọc Excel: " + err.message, "error");
+    }
+  };
+  reader.readAsArrayBuffer(file);
+  event.target.value = "";
+}
+
+function nlTaiMauExcel(){
+  if(typeof XLSX === "undefined"){
+    nlToast("❌ Chưa tải thư viện Excel. Refresh trang (Ctrl+F5).", "error");
+    return;
+  }
+  
+  // Tạo workbook với 3 sheet
+  const wb = XLSX.utils.book_new();
+  
+  // Sheet 1: HuongDan
+  const huongDanData = [
+    ["HƯỚNG DẪN SỬ DỤNG FILE NHẬP LIỆU"],
+    [""],
+    ["1. QUY TRÌNH"],
+    ["- Điền dữ liệu vào sheet NhapLieu (mỗi dòng = 1 nhà máy trong 1 kỳ)"],
+    ["- Điền chi tiết CTNH vào sheet CTNH_ChiTiet (mỗi dòng = 1 loại CTNH)"],
+    ["- Lưu file, upload lên web tab 'Nhập liệu' để import"],
+    [""],
+    ["2. MÃ NHÀ MÁY HỢP LỆ"],
+    ...(DATA.congTyNhaMay || []).map(p=>[p.id, p.ten]),
+    [""],
+    ["3. GIÁ TRỊ HỢP LỆ CHO CỘT 'Loại kỳ'"],
+    ["thang", "Báo cáo theo tháng (VD: 2026-03)"],
+    ["quy", "Báo cáo theo quý (VD: 2026-Q1)"],
+    ["nam", "Báo cáo theo năm (VD: 2026)"],
+    [""],
+    ["4. ĐƠN VỊ TÍNH HỢP LỆ"],
+    ["Chất thải rắn", "kg/ngày, kg/tháng, kg/năm, tấn/tháng, tấn/năm"],
+    ["Bùn thải", "kg/ngày, kg/tháng, kg/năm, tấn/năm, m³/năm"],
+    ["CTNH", "kg/ngày, kg/tháng, kg/năm, tấn/năm"],
+    ["Nước thải", "m³/ngày, m³/tháng, m³/năm, lít/ngày"],
+    ["Khí thải", "m³/giờ, m³/ngày, m³/năm"],
+    [""],
+    ["5. MÃ CTNH THƯỜNG DÙNG"],
+    ...NL_CTNH_MAU.map(m=>[m.maCTNH, m.loai])
+  ];
+  const wsHD = XLSX.utils.aoa_to_sheet(huongDanData);
+  wsHD["!cols"] = [{wch:20}, {wch:70}];
+  XLSX.utils.book_append_sheet(wb, wsHD, "HuongDan");
+  
+  // Sheet 2: NhapLieu
+  const headers = [
+    "Mã NM","Kỳ BC","Loại kỳ","Ngày BĐ","Ngày KT","Người nhập","Ngày nhập",
+    "CTR SH (KL)","CTR SH (ĐV)","CTR SH (ĐV thu gom)","CTR SH (tần suất)","CTR SH (PP xử lý)",
+    "CTR CN (KL)","CTR CN (ĐV)","CTR CN (thành phần)","CTR CN (ĐV thu gom)","CTR CN (tần suất)","CTR CN (PP xử lý)",
+    "Bùn (KL)","Bùn (ĐV)","Bùn (độ ẩm %)","Bùn (PP xử lý)","Bùn (ĐV xử lý)","Bùn (tần suất)",
+    "CTNH (tổng KL)","CTNH (ĐV)","CTNH (ĐV thu gom)","CTNH (tần suất)",
+    "CTNH (DT kho m²)","CTNH (số thùng)","CTNH (V thùng lít)","CTNH (số ngăn)",
+    "NT SH (KL)","NT SH (ĐV)","NT SH (xử lý)","NT SH (V bể m³)",
+    "NT SX (KL)","NT SX (ĐV)","NT SX (xử lý)","NT SX (tái sử dụng)",
+    "Khí thải (có PS)","Khí thải (nguồn)","Khí thải (KL)","Khí thải (ĐV)","Khí thải (xử lý)",
+    "QT NT: pH","QT NT: COD","QT NT: BOD5","QT NT: TSS","QT NT: Amoni","QT NT: Coliform",
+    "QT KT: Bụi","QT KT: SO2","QT KT: NOx","QT KT: CO",
+    "Chi phí BVMT","Số CB phụ trách MT","Ghi chú","Tình trạng"
+  ];
+  const viDu = [
+    "nm01","2026-Q1","quy","01/01/2026","31/03/2026","Đặng Thanh Hùng","05/04/2026",
+    12,"kg/tháng","UBND phường Cao Lãnh","1 lần/ngày","Chôn lấp hợp vệ sinh",
+    156,"kg/tháng","Bao bì, carton","Công ty DVMT Đồng Tháp","1 lần/tuần","Tái chế",
+    480,"kg/năm",60,"Phơi khô, san lấp","Nội bộ","1 lần/năm",
+    2.5,"kg/năm","Công ty CP Môi trường Đồng Tháp","1 lần/6 tháng",
+    6,1,660,3,
+    0.18,"m³/ngày","Bể tự hoại 03 ngăn",3,
+    45,"m³/ngày","Hồ lắng bùn + tuần hoàn","Có",
+    "Có","Máy phát điện dự phòng",230.4,"m³/giờ","Bộ lọc khí",
+    7.2,75,30,50,5,3000,
+    52.64,0.752,691.837,157.919,
+    0,4,"Số liệu tổng hợp từ báo cáo tháng 3/2026","nhap"
+  ];
+  const wsNL = XLSX.utils.aoa_to_sheet([headers, viDu]);
+  wsNL["!cols"] = headers.map(()=>({wch:16}));
+  XLSX.utils.book_append_sheet(wb, wsNL, "NhapLieu");
+  
+  // Sheet 3: CTNH_ChiTiet
+  const ctnhHeaders = ["Mã NM","Kỳ BC","Loại CTNH","Mã CTNH","Khối lượng","Đơn vị"];
+  const ctnhViDu = [
+    ["nm01","2026-Q1","Bóng đèn huỳnh quang thải","01 04 01",0.5,"kg/năm"],
+    ["nm01","2026-Q1","Dầu động cơ, hộp số và bôi trơn tổng hợp thải","17 02 03",1.2,"kg/năm"],
+    ["nm01","2026-Q1","Pin, ắc quy chì thải","19 01 01",0.3,"kg/năm"],
+    ["nm01","2026-Q1","Bao bì cứng thải bằng nhựa có chứa chất nguy hại","18 01 03",0.5,"kg/năm"]
+  ];
+  const wsCTNH = XLSX.utils.aoa_to_sheet([ctnhHeaders, ...ctnhViDu]);
+  wsCTNH["!cols"] = [{wch:10},{wch:12},{wch:45},{wch:12},{wch:12},{wch:12}];
+  XLSX.utils.book_append_sheet(wb, wsCTNH, "CTNH_ChiTiet");
+  
+  // Xuất file
+  XLSX.writeFile(wb, "mau-nhap-lieu.xlsx");
+  nlToast("📥 Đã tải file Excel mẫu", "success");
 }
 
 function renderVipham(){
